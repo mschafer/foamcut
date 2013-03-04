@@ -12,11 +12,12 @@
 #ifndef foamcut_spline_hpp
 #define foamcut_spline_hpp
 
+#include "foamcut_kernel_dll.h"
 #include <vector>
 
 namespace foamcut {
 
-class Spline {
+class foamcut_kernel_API Spline {
 public:
 	Spline(const std::vector<double> &x, const std::vector<double> &y);
 	~Spline();
