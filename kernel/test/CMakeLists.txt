@@ -25,6 +25,7 @@ include_directories (
 
 add_executable(test_foamcut_kernel
   hello_test.cpp
+  spline_test.cpp
 )
 
 target_link_libraries(test_foamcut_kernel 

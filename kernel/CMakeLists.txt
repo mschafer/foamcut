@@ -15,6 +15,11 @@ add_subdirectory(test)
 
 # source files
 set (KERNEL_SRC
+  airfoil.cpp
+  dat_file.cpp
+  machine.cpp
+  ruled_surface.cpp
+  shape.cpp
   spline.cpp
 )
 
