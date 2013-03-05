@@ -12,6 +12,7 @@
 #ifndef foamcut_shape_hpp
 #define foamcut_shape_hpp
 
+#include "foamcut_kernel_dll.h"
 #include "spline.hpp"
 #include "dat_file.hpp"
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -25,7 +26,7 @@ namespace foamcut {
  * continuous value and slope.  The breaks between splines have continuous value only.
  * The endpoint condtions of the splines are "not a knot."
  */
-class Shape {
+class foamcut_kernel_API Shape {
 public:
 	typedef boost::shared_ptr<Shape> handle;
 

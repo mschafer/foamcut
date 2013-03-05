@@ -12,6 +12,7 @@
 #ifndef foamcut_dat_file_hpp
 #define foamcut_dat_file_hpp
 
+#include "foamcut_kernel_dll.h"
 #include <istream>
 #include <vector>
 #include <boost/shared_ptr.hpp>
@@ -27,7 +28,7 @@ namespace foamcut {
  * point or slope discontinuity.
  * The first line of the file may contain a string name or the first pair of numbers.
  */
-class DatFile {
+class foamcut_kernel_API DatFile {
 public:
 	typedef boost::shared_ptr<DatFile> handle;
 

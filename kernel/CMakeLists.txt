@@ -23,6 +23,10 @@ set (KERNEL_SRC
   spline.cpp
 )
 
+# headers
+file(GLOB KERNEL_HDR *.hpp)
+source_group("Headers" FILES ${KERNEL_HDR})
+
 link_directories(${Boost_LIBRARY_DIRS})
 include_directories ( 
     ${Boost_INCLUDE_DIRS} 
@@ -30,6 +34,7 @@ include_directories (
 
 add_library (foamcut_kernel SHARED
 	${KERNEL_SRC}
+	${KERNEL_HDR}
 )
 
 install (TARGETS foamcut_kernel DESTINATION bin

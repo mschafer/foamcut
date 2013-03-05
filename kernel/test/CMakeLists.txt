@@ -14,7 +14,7 @@
 add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(-DBOOST_ALL_DYN_LINK)
 add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
-find_package( Boost REQUIRED COMPONENTS unit_test_framework)
+find_package( Boost REQUIRED COMPONENTS system unit_test_framework)
 
 link_directories(${Boost_LIBRARY_DIRS})
 
@@ -23,8 +23,13 @@ include_directories (
   ..
 )
 
+add_definitions(-DFOAMCUT_TEST_DATA_DIR="${PROJECT_SOURCE_DIR}/kernel/test/data")
+
 add_executable(test_foamcut_kernel
+  airfoil_test.cpp
   hello_test.cpp
+  ruled_surface_test.cpp
+  shape_test.cpp
   spline_test.cpp
 )
 

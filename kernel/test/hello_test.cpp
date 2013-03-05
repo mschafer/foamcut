@@ -10,12 +10,15 @@
  *     Marc Schafer
  */
 #define BOOST_TEST_MAIN
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE Test Kernel
 
 // use dynamic boost test library on non-Windows arches
-#ifndef _WIN32
-#define BOOST_TEST_DYN_LINK
+#ifdef _WIN32
+#include "debug_stream.hpp"
 #endif
-#define BOOST_TEST_MODULE Test Engine
+
+
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <vector>
@@ -24,6 +27,25 @@
 #include <boost/function.hpp>
 
 int add( int i, int j ) { return i+j; }
+
+struct test_output_redirect {
+	test_output_redirect() { 
+
+#ifdef _WIN32
+		boost::unit_test::unit_test_log.set_stream(test_log_);
+#endif
+
+		boost::unit_test::unit_test_log.set_threshold_level( boost::unit_test::log_messages );
+	}
+
+	~test_output_redirect() { boost::unit_test::unit_test_log.set_stream( std::cout ); }
+
+#ifdef _WIN32
+	dostream test_log_;
+#endif
+};
+
+BOOST_GLOBAL_FIXTURE ( test_output_redirect );
 
 BOOST_AUTO_TEST_CASE( hello_test )
 {
