@@ -9,10 +9,20 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     mainwindow.cpp  \
-    qcustomplot.cpp
+    qcustomplot.cpp \
+    importwizard.cpp \
+    datimportpage.cpp
 
 HEADERS  += qcustomplot.h \
-    mainwindow.h
+    mainwindow.h \
+    importwizard.h \
+    datimportpage.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    datimportpage.ui
+
+macx: LIBS += -L$$PWD/../../../build/foamcut/kernel/ -lfoamcut_kernel
+
+INCLUDEPATH += $$PWD/../kernel
+DEPENDPATH += $$PWD/../kernel

@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "importwizard.h"
+#include <memory>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -34,4 +36,10 @@ void MainWindow::on_pushButton_clicked()
         ui->customPlot->yAxis->setRange(-1., 1.);
         ui->customPlot->replot();
     }
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    std::auto_ptr<ImportWizard> iw(new ImportWizard());
+    iw->exec();
 }
