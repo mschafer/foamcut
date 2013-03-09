@@ -61,7 +61,9 @@ void DatImportPage::on_fileName_textChanged(QString &text)
 
             bool isXFoil = field("type.xfoil").toBool();
             if (isXFoil) {
-                foamcut::Airfoil::handle airfoil(new foamcut::Airfoil(df));
+            	double chord = 1.;
+            	double alpha = 0.;
+                foamcut::Airfoil::handle airfoil(new foamcut::Airfoil(df, chord, alpha));
             }
         } catch (std::exception &ex) {
             qCritical() << "Failed to open file" << text << "\n" << ex.what();

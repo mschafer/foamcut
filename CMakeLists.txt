@@ -17,6 +17,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
 find_package(Boost REQUIRED)
 
 add_subdirectory(kernel)
+add_subdirectory(gui)
 
 #set (CPACK_PACKAGE_EXECUTABLES "motor-stepper")
 set (CPACK_GENERATOR "ZIP")
