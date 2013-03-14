@@ -10,7 +10,6 @@
  *     Marc Schafer
  */
 #define BOOST_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE Test Kernel
 
 // use dynamic boost test library on non-Windows arches

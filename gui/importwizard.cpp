@@ -65,8 +65,8 @@ void TypePage::typeChanged(bool checked)
     else
         typeLabel_->setText(tr("Import a .dat file as is.  The following options are "
                                "available: \n"
-                               "  1. Reverse the order of the points."
-                               "  2. Scale the shape."
-                               "  3. Rotate the shape."
+                               "  1. Reverse the order of the points.\n"
+                               "  2. Scale the shape.\n"
+                               "  3. Rotate the shape.\n"
                                ));
 }

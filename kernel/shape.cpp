@@ -206,6 +206,11 @@ Shape::fitLineSegment(double s0, double eps) const
 {
 	// maximum length is up to next break
 	size_t spl_idx = findSplineIdx(s0);
+
+	// if s0 == a break, then we need to increment spl_idx unless we are at the end.
+	if (spl_idx < xSpline_.size()-1 && s0 == xSpline_[spl_idx].x().back())
+		++spl_idx;
+	
 	double s_max = xSpline_[spl_idx].x().back();
 	double ds_max = s_max - s0;
 	if (ds_max <= 0.) {

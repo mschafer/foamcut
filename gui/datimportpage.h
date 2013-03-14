@@ -3,13 +3,15 @@
 
 #include <QWizardPage>
 #include <memory>
+#include <boost/shared_ptr.hpp>
 
 namespace Ui {
     class DatImportPage;
 }
 
 namespace foamcut {
-    class Airfoil;
+	class Shape;
+	class DatFile;
 }
 
 class DatImportPage : public QWizardPage
@@ -25,11 +27,13 @@ public:
     
 private slots:
     void on_fileBrowseButton_clicked();
-    void on_fileName_textChanged(QString &text);
+    void on_fileName_editingFinished(void);
+	void do_replot(void);
 
 private:
     Ui::DatImportPage *ui;
-    std::auto_ptr<foamcut::Airfoil> airfoil_;
+	boost::shared_ptr<foamcut::Shape> shape_;
+	boost::shared_ptr<foamcut::DatFile> datFile_;
 };
 
 #endif // DATIMPORTPAGE_H

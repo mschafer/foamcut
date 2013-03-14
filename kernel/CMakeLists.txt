@@ -10,6 +10,14 @@
 
 # foamcut/kernel
 
+# boost: static libs, no auto link on windows
+set(Boost_USE_STATIC_LIBS  ON)
+add_definitions(-DBOOST_ALL_NO_LIB)
+add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
+find_package( Boost REQUIRED COMPONENTS 
+  system thread date_time chrono
+)
+
 # directory for unit tests
 add_subdirectory(test)
 
@@ -40,12 +48,3 @@ add_library (foamcut_kernel SHARED
 install (TARGETS foamcut_kernel DESTINATION bin
   LIBRARY DESTINATION bin
 )
-  
-install (FILES 
-    spline.hpp
-    DESTINATION include
-)
-
-if (NOT WIN32)
-    target_link_libraries(foamcut_kernel boost_system boost_thread)
-endif (NOT WIN32)

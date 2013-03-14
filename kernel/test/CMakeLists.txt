@@ -10,11 +10,13 @@
 
 # foamcut/kernel/test
 
-# turn off auto-linking on Windows
+# boost: static libs, no auto link on windows
+set(Boost_USE_STATIC_LIBS  ON)
 add_definitions(-DBOOST_ALL_NO_LIB)
-add_definitions(-DBOOST_ALL_DYN_LINK)
 add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
-find_package( Boost REQUIRED COMPONENTS system unit_test_framework)
+find_package( Boost REQUIRED COMPONENTS 
+  system thread date_time chrono unit_test_framework
+)
 
 link_directories(${Boost_LIBRARY_DIRS})
 

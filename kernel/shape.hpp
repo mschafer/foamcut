@@ -78,6 +78,9 @@ public:
 	 */
 	size_t segmentCount() const { return xSpline_.size(); }
 
+	/**
+	 * \return The starting and ending s value for the segment specified by idx.
+	 */
 	std::pair<double, double> segmentS(size_t idx) const {
 		return std::make_pair(xSpline_[idx].x().front(), xSpline_[idx].x().back());
 	}
@@ -123,6 +126,30 @@ public:
 	 * new points nearby on either side to preserve slope.
 	 */
 	handle insertBreak(double s) const;
+
+	/**
+	 * Approximate shape with line segments for plotting.
+	 * \tparam vector for holding x,y values should conform to std::vector interface
+	 */
+	template<typename T> void plottable(T &x, T &y) const 
+	{
+		x.clear();
+		y.clear();
+		double s = 0.;
+		Point p0 = evaluate(s);
+		x.push_back(p0.x);
+		y.push_back(p0.y);
+		while (s < .999 * s_.back()) {
+			double s1 = fitLineSegment(s, .001*s_.back());
+			Point p1 = evaluate(s1);
+			x.push_back(p1.x);
+			y.push_back(p1.y);
+			s = s1;
+		}
+		p0 = evaluate(s_.back());
+		x.push_back(p0.x);
+		y.push_back(p0.y);
+	}
 
 private:
 	Shape();

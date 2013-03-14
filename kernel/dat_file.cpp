@@ -91,6 +91,7 @@ DatFile::handle
 DatFile::rotate(double theta) const
 {
 	handle ret(new DatFile());
+	theta *= atan(1.) / 45.;
 	double sint = sin(theta);
 	double cost = cos(theta);
 

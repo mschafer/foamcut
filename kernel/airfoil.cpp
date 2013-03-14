@@ -41,7 +41,7 @@ namespace foamcut {
         datfile_ = datfile_->scale(chord / (*(minmax.second) - *(minmax.first)));
 
         // rotate to desired alfa (degrees)
-        datfile_ = datfile_->rotate(alfa * 45. / atan(1.));
+        datfile_ = datfile_->rotate(alfa);
 
         shape_.reset(new Shape(*datfile_));
         sle_ = findLeadingEdge();
