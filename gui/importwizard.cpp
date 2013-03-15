@@ -56,7 +56,7 @@ void TypePage::typeChanged(bool checked)
     if (xfoilRB_->isChecked())
         typeLabel_->setText(tr("Importing an airfoil takes the following extra steps\n"
                                "  1. Reorder points so top (+y) surface is first.\n"
-                               "  2. Reflect and translate TE to x=0 and LE to x=chord."
+                               "  2. Reflect and translate TE to x=0 and LE to x=chord.\n"
                                "  3. Add a synchronization point at the LE.\n"
                                "  4. Scale to desired chord.\n"
                                "  5. Rotate to desired angle of attack.\n"
