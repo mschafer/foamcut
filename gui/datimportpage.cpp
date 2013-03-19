@@ -12,8 +12,6 @@ DatImportPage::DatImportPage(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->fileEdit, SIGNAL(editingFinished()), this,
-            SLOT(on_fileName_editingFinished()));
 	connect(ui->rotateEdit, SIGNAL(editingFinished()), this, SLOT(do_replot()));
 	connect(ui->scaleEdit, SIGNAL(editingFinished()), this, SLOT(do_replot()));
 
@@ -21,7 +19,7 @@ DatImportPage::DatImportPage(QWidget *parent) :
 	ui->scaleEdit->setValidator(new QDoubleValidator());
 
 
-    registerField("dat.file*", ui->fileEdit);
+    registerField("dat.file*", ui->fileName_edit);
 }
 
 DatImportPage::~DatImportPage()
@@ -46,6 +44,11 @@ void DatImportPage::initializePage()
 	if (ui->importPlot->plottableCount() == 0) {
         QCPCurve *curve = new QCPCurve(ui->importPlot->xAxis, ui->importPlot->yAxis);
         ui->importPlot->addPlottable(curve);
+
+        curve = new QCPCurve(ui->importPlot->xAxis, ui->importPlot->yAxis);
+        curve->setLineStyle(QCPCurve::lsNone);
+        curve->setScatterStyle(QCP::ssDiamond);
+        ui->importPlot->addPlottable(curve);
         ui->importPlot->xAxis->setLabel("X");
         ui->importPlot->yAxis->setLabel("Y");
         ui->importPlot->xAxis->setRange(-1., 1.);
@@ -64,15 +67,15 @@ void DatImportPage::on_fileBrowseButton_clicked()
          tr("Open .dat file"), "", tr(".dat files (*.dat);;All files (*.*)"));
 
     if (fileName.length() != 0) {
-        ui->fileEdit->setText(fileName);
+        ui->fileName_edit->setText(fileName);
     }
 
-	on_fileName_editingFinished();
+	on_fileName_edit_editingFinished();
 }
 
-void DatImportPage::on_fileName_editingFinished()
+void DatImportPage::on_fileName_edit_editingFinished()
 {
-	QString fileName = ui->fileEdit->text();
+	QString fileName = ui->fileName_edit->text();
     if (fileName.length() != 0) {
         try {
             std::ifstream in(fileName.toLatin1(), std::ifstream::in);
@@ -80,7 +83,7 @@ void DatImportPage::on_fileName_editingFinished()
 			do_replot();
         } catch (std::exception &ex) {
             qCritical() << "Failed to open file" << fileName << "\n" << ex.what();
-            ui->fileEdit->setText("");
+            ui->fileName_edit->setText("");
         }
     }
 }
@@ -115,8 +118,15 @@ void DatImportPage::do_replot()
 	ui->importPlot->xAxis->setRange(*(xlim.first)*1.01, *(xlim.second)*1.01);
 	ui->importPlot->yAxis->setRange(*(ylim.first)*1.01, *(ylim.second)*1.01);
 
-	QCPCurve *curve = dynamic_cast<QCPCurve *>(ui->importPlot->plottable());
+	QCPCurve *curve = dynamic_cast<QCPCurve *>(ui->importPlot->plottable(0));
 	curve->setData(x, y);
+
+	x.clear(); y.clear();
+	shape_->breaks(x, y);
+	curve = dynamic_cast<QCPCurve *>(ui->importPlot->plottable(1));
+	curve->setData(x, y);
+
 	ui->importPlot->replot();
+
 }
 

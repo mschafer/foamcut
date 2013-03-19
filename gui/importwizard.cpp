@@ -12,9 +12,8 @@ ImportWizard::ImportWizard(QWidget *parent) :
 
     setStartId(TYPE_PAGE);
 
-#ifndef Q_WS_MAC
-    setWizardStyle(ModernStyle);
-#endif
+    // need cancel button on Mac because red x is disabled for some reason
+    setOption(NoCancelButton, false);
 
     setWindowTitle(tr("Import Shape Wizard"));
 }

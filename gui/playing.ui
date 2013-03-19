@@ -18,8 +18,8 @@
     <rect>
      <x>200</x>
      <y>260</y>
-     <width>571</width>
-     <height>211</height>
+     <width>554</width>
+     <height>227</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -36,23 +36,30 @@
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QTabWidget" name="tabWidget">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
+     <widget class="QTabWidget" name="shapes_tab">
+      <property name="contextMenuPolicy">
+       <enum>Qt::PreventContextMenu</enum>
       </property>
       <property name="currentIndex">
        <number>1</number>
       </property>
-      <widget class="QWidget" name="tab">
+      <widget class="QWidget" name="root_tab">
        <attribute name="title">
-        <string>Root</string>
+        <string>root</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
          <layout class="QFormLayout" name="formLayout_3">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+          </property>
+          <item row="0" column="0" colspan="2">
+           <widget class="QPushButton" name="rootImport_button">
+            <property name="text">
+             <string>Import</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_3">
             <property name="text">
@@ -77,21 +84,31 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0" colspan="2">
-           <widget class="QPushButton" name="rootImport_button">
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_9">
             <property name="text">
-             <string>Import</string>
+             <string>Name</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="2">
-           <widget class="QLabel" name="rootInfo_label">
+          <item row="3" column="1">
+           <widget class="QLabel" name="rootName_label">
             <property name="text">
-             <string>info label
-two lines</string>
+             <string>TextLabel</string>
             </property>
-            <property name="wordWrap">
-             <bool>true</bool>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Speeds</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLabel" name="rootSpeeds_label">
+            <property name="text">
+             <string>TextLabel</string>
             </property>
            </widget>
           </item>
@@ -99,15 +116,25 @@ two lines</string>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_2">
+      <widget class="QWidget" name="tip_tab">
        <attribute name="title">
-        <string>Tip</string>
+        <string>tip</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <layout class="QFormLayout" name="formLayout">
+         <layout class="QFormLayout" name="formLayout_4">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+          </property>
+          <item row="0" column="0" colspan="2">
+           <widget class="QPushButton" name="tipImport_button">
+            <property name="text">
+             <string>Import</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="label_5">
             <property name="text">
              <string>Z Coord</string>
             </property>
@@ -117,7 +144,7 @@ two lines</string>
            <widget class="QLineEdit" name="tipZ_edit"/>
           </item>
           <item row="2" column="0">
-           <widget class="QLabel" name="label_2">
+           <widget class="QLabel" name="label_10">
             <property name="text">
              <string>Kerf</string>
             </property>
@@ -130,21 +157,31 @@ two lines</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="0" colspan="2">
-           <widget class="QPushButton" name="tipImport_button">
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_12">
             <property name="text">
-             <string>Import</string>
+             <string>Name</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="2">
-           <widget class="QLabel" name="tipInfo_label">
+          <item row="3" column="1">
+           <widget class="QLabel" name="tipName_label">
             <property name="text">
-             <string>info label
-two lines</string>
+             <string>TextLabel</string>
             </property>
-            <property name="wordWrap">
-             <bool>true</bool>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_13">
+            <property name="text">
+             <string>Speeds</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLabel" name="tipSpeeds_label">
+            <property name="text">
+             <string>TextLabel</string>
             </property>
            </widget>
           </item>
@@ -219,6 +256,8 @@ two lines</string>
     </item>
    </layout>
   </widget>
+  <zorder>frame</zorder>
+  <zorder>tabWidget</zorder>
  </widget>
  <resources/>
  <connections/>

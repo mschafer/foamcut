@@ -151,6 +151,18 @@ public:
 		y.push_back(p0.y);
 	}
 
+	template<typename T> void breaks(T &x, T &y) const
+	{
+		size_t n = xSpline_.size();
+
+		x.push_back(xSpline_[0].y().front());
+		y.push_back(ySpline_[0].y().front());
+		for (size_t i=0; i<n; ++i) {
+			x.push_back(xSpline_[i].y().back());
+			y.push_back(ySpline_[i].y().back());
+		}
+	}
+
 private:
 	Shape();
 	void invariant() const;

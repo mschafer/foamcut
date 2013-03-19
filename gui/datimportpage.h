@@ -27,7 +27,7 @@ public:
     
 private slots:
     void on_fileBrowseButton_clicked();
-    void on_fileName_editingFinished(void);
+    void on_fileName_edit_editingFinished(void);
 	void do_replot(void);
 
 private:
