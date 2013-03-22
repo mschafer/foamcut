@@ -2,6 +2,11 @@
 #define IMPORTWIZARD_H
 
 #include <QWizard>
+#include <boost/shared_ptr.hpp>
+
+namespace foamcut {
+	class Shape;
+}
 
 class QLabel;
 class QRadioButton;
@@ -17,7 +22,8 @@ public:
     };
 
     explicit ImportWizard(QWidget *parent = 0);
-    
+
+	boost::shared_ptr<foamcut::Shape> shape();
 signals:
     
 public slots:

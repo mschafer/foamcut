@@ -2,6 +2,12 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <boost/shared_ptr.hpp>
+
+namespace foamcut {
+	class Shape;
+	class RuledSurface;
+}
 
 namespace Ui {
 class MainWindow;
@@ -28,8 +34,17 @@ private slots:
     void on_tipZ_edit_editingFinished();
     void on_tipKerf_edit_editingFinished();
 
+	void geometryChanged();
+
 private:
     Ui::MainWindow *ui;
+	boost::shared_ptr<foamcut::Shape> rootShape_;
+	boost::shared_ptr<foamcut::Shape> tipShape_;
+	boost::shared_ptr<foamcut::Shape> rootKerfShape_;
+	boost::shared_ptr<foamcut::Shape> tipKerfShape_;
+	boost::shared_ptr<foamcut::RuledSurface> partPath_;
+	boost::shared_ptr<foamcut::RuledSurface> cutterPath_;
+
 };
 
 #endif // MAINWINDOW_H

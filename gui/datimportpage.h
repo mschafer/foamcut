@@ -24,6 +24,8 @@ public:
 
     void initializePage();
     int nextId() const;
+
+	boost::shared_ptr<foamcut::Shape> shape() { return shape_; }
     
 private slots:
     void on_fileBrowseButton_clicked();

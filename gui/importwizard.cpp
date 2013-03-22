@@ -18,6 +18,11 @@ ImportWizard::ImportWizard(QWidget *parent) :
     setWindowTitle(tr("Import Shape Wizard"));
 }
 
+boost::shared_ptr<foamcut::Shape> ImportWizard::shape()
+{
+	return ((DatImportPage *)page(IMPORT_PAGE))->shape();
+}
+    
 TypePage::TypePage(QWidget *parent)
     :QWizardPage(parent)
 {
