@@ -128,6 +128,11 @@ public:
 	handle insertBreak(double s) const;
 
 	/**
+	 * Splices in a shape with coordinates (x,y) at the first breakpoint >= s.
+	 */
+	handle insertShape(double s, const std::vector<double> &x, const std::vector<double> &y) const;
+
+	/**
 	 * Approximate shape with line segments for plotting.
 	 * \tparam vector for holding x,y values should conform to std::vector interface
 	 */

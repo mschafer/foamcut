@@ -11,6 +11,10 @@
 project(foamcut)
 cmake_minimum_required(VERSION 2.8.8)
 
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++")
+ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
+
 # to find some custome cmake modules
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
 

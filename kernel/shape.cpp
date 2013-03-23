@@ -295,6 +295,17 @@ Shape::insertBreak(double sbrk) const
 	return ret;
 }
 
+Shape::handle
+Shape::insertShape(double s, const std::vector<double> &x, const std::vector<double> &y) const
+{
+	size_t nseg = xSpline_.size();
+	size_t iseg = 0;
+	while (xSpline_[iseg].x().front() < s && iseg < nseg) ++iseg;
+
+	handle ret;
+	return ret;
+}
+
 void
 Shape::invariant() const
 {

@@ -18,8 +18,8 @@
 
 namespace foamcut {
     
-    Airfoil::Airfoil(DatFile::handle datfile, double chord, double alfa) :
-    		datfile_(datfile)
+    Airfoil::Airfoil(DatFile::handle datfile, double chord, double alfa, bool leLoop) :
+    		datfile_(datfile), hasLELoop_(leLoop)
     {
         size_t n = datfile_->x().size();
 
@@ -68,6 +68,11 @@ namespace foamcut {
         return area / 2.;
     }
     
+    void
+    Airfoil::leadingEdgeLoop()
+    {
+    }
+
     
     double
     Airfoil::findLeadingEdge()

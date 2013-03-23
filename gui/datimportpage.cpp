@@ -12,11 +12,14 @@ DatImportPage::DatImportPage(QWidget *parent) :
 {
     ui->setupUi(this);
 
-	connect(ui->rotateEdit, SIGNAL(editingFinished()), this, SLOT(do_replot()));
-	connect(ui->scaleEdit, SIGNAL(editingFinished()), this, SLOT(do_replot()));
+	connect(ui->rotate_edit, SIGNAL(editingFinished()), this, SLOT(do_replot()));
+	connect(ui->scale_edit, SIGNAL(editingFinished()), this, SLOT(do_replot()));
+	connect(ui->reverse_check, SIGNAL(stateChanged()), this, SLOT(do_replot()));
+	connect(ui->flipHorizontal_check, SIGNAL(stateChanged()), this, SLOT(do_replot()));
+	connect(ui->flipVertical_check, SIGNAL(stateChanged()), this, SLOT(do_replot()));
 
-	ui->rotateEdit->setValidator(new QDoubleValidator());
-	ui->scaleEdit->setValidator(new QDoubleValidator());
+	ui->rotate_edit->setValidator(new QDoubleValidator());
+	ui->scale_edit->setValidator(new QDoubleValidator());
 
 
     registerField("dat.file*", ui->fileName_edit);
@@ -34,11 +37,11 @@ void DatImportPage::initializePage()
     if (isXFoil) {
         ui->rotateLabel->setText(tr("Alpha"));
         ui->scaleLabel->setText(tr("Chord"));
-        ui->reverseCheck->setText(tr("Add LE cooling loop"));
+        ui->reverse_check->setText(tr("Add LE loop"));
     } else {
         ui->rotateLabel->setText(tr("Rotate"));
         ui->scaleLabel->setText(tr("Scale"));
-        ui->reverseCheck->setText(tr("Reverse"));
+        ui->reverse_check->setText(tr("Reverse points"));
     }
 
 	if (ui->importPlot->plottableCount() == 0) {
@@ -92,15 +95,15 @@ void DatImportPage::do_replot()
 {
 	if (datFile_.get() == NULL) return;
 
-	double scale = ui->scaleEdit->text().toDouble();
-	double rotate = ui->rotateEdit->text().toDouble();
+	double scale = ui->scale_edit->text().toDouble();
+	double rotate = ui->rotate_edit->text().toDouble();
 	bool isXFoil = field("type.xfoil").toBool();
 	if (isXFoil) {
 		foamcut::Airfoil::handle airfoil(new foamcut::Airfoil(datFile_, scale, rotate));
 		shape_ = airfoil->shape();
 
 		// for xfoil import, the reverse check means add LE loop
-		if (ui->reverseCheck->isChecked()) {
+		if (ui->reverse_check->isChecked()) {
 			///\todo implement me
 		}
 	} else {

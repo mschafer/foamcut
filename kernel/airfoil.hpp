@@ -32,7 +32,7 @@ class foamcut_kernel_API Airfoil {
 public:
 	typedef boost::shared_ptr<Airfoil> handle;
 
-	Airfoil(DatFile::handle datfile, double chord, double alfa);
+	Airfoil(DatFile::handle datfile, double chord, double alfa, bool leLoop=false);
 	virtual ~Airfoil();
 
 	const std::string &name() const { return datfile_->name(); }
@@ -58,12 +58,16 @@ private:
 	 */
 	double findLeadingEdge();
 
+	/** Adds leading edge loop. */
+	void leadingEdgeLoop();
+
 	std::vector<double> x_;
 	std::vector<double> y_;
 	double chord_;
 	double sle_;
 	Shape::handle shape_;
 	DatFile::handle datfile_;
+	bool hasLELoop_;
 };
 }
 
