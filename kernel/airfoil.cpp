@@ -71,6 +71,20 @@ namespace foamcut {
     void
     Airfoil::leadingEdgeLoop()
     {
+    	typedef std::vector<double>::iterator iterator;
+    	std::pair<iterator, iterator> ylim = boost::minmax_element(y_.begin(), y_.end());
+
+    	Shape::Point ple = shape_->evaluate(sle_);
+    	double ymin = ple.y - *ylim.first;  ///\todo wrong sign!
+    	double ymax = *ylim.second - ple.y;
+
+    	std::vector<double> x;
+    	std::vector<double> y;
+
+    	x.push_back(0.); y.push_back(0.);
+    	x.push_back(0.); y.push_back(ymin);
+    	x.push_back(0.); y.push_back(ymin);
+
     }
 
     

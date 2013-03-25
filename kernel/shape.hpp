@@ -130,7 +130,7 @@ public:
 	/**
 	 * Splices in a shape with coordinates (x,y) at the first breakpoint >= s.
 	 */
-	handle insertShape(double s, const std::vector<double> &x, const std::vector<double> &y) const;
+	handle insertShape(double s, const Shape &shape) const;
 
 	/**
 	 * Approximate shape with line segments for plotting.

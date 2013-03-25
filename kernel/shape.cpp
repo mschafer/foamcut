@@ -296,13 +296,53 @@ Shape::insertBreak(double sbrk) const
 }
 
 Shape::handle
-Shape::insertShape(double s, const std::vector<double> &x, const std::vector<double> &y) const
+Shape::insertShape(double s, const Shape &shape) const
 {
 	size_t nseg = xSpline_.size();
-	size_t iseg = 0;
-	while (xSpline_[iseg].x().front() < s && iseg < nseg) ++iseg;
+	size_t insseg = 0;
+	// find the index of the break where the new shape will be inserted
+	while (xSpline_[insseg].x().front() < s && insseg < nseg) ++insseg;
 
-	handle ret;
+	std::vector<double> xn; xn.reserve(x_.size() + shape.x_.size());
+	std::vector<double> yn; yn.reserve(y_.size() + shape.y_.size());
+
+	// copy over everything up to where new shape goes
+	for (size_t iseg=0; iseg < insseg; ++iseg) {
+		const std::vector<double> &xold = xSpline_[iseg].y();
+		const std::vector<double> &yold = ySpline_[iseg].y();
+		for (size_t ip=0; ip<xold.size(); ++ip) {
+			xn.push_back(xold[ip]);
+			yn.push_back(yold[ip]);
+		}
+	}
+
+	// origin of the new shape is the last point added
+	double xorg = xn.back();
+	double yorg = yn.back();
+
+	// add in the translated new shape.
+	xn.push_back(xorg);
+	yn.push_back(yorg);
+	for (size_t ip=1; ip<shape.x().size(); ++ip) {
+		xn.push_back(shape.x()[ip] + xorg - shape.x().front());
+		yn.push_back(shape.y()[ip] + xorg - shape.y().front());
+	}
+
+	// add the rest of the original shape translated to end of new shape
+	xorg = xn.back();
+	yorg = yn.back();
+	xn.push_back(xorg);
+	yn.push_back(yorg);
+	for (size_t iseg=insseg; iseg<nseg; ++iseg) {
+		const std::vector<double> &xold = xSpline_[iseg].y();
+		const std::vector<double> &yold = ySpline_[iseg].y();
+		for (size_t ip=0; ip<xold.size(); ++ip) {
+			xn.push_back(xold[ip]);
+			yn.push_back(yold[ip]);
+		}
+	}
+
+	handle ret(new Shape(xn, yn));
 	return ret;
 }
 
