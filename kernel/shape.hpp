@@ -85,6 +85,9 @@ public:
 		return std::make_pair(xSpline_[idx].x().front(), xSpline_[idx].x().back());
 	}
 
+    /** \return area of the shape.  A positive value indicates CCW winding. */
+    double area() const;
+
 	/**
 	 * Evaluate the shape at the given arc length
 	 * \param s Arc length coordinate
@@ -121,6 +124,12 @@ public:
 	 */
 	double nearestPoint(double x, double y, double guess) const;
 
+    /**
+    * Find the nearest break point to x,y on the shape.
+    * \return Index of the segment that starts with the nearest break.
+    */
+    size_t nearestBreak(double x, double y) const;
+
 	/**
 	 * Creates a break at the specified s value.  Adds a doubled point at s and
 	 * new points nearby on either side to preserve slope.
@@ -128,9 +137,10 @@ public:
 	handle insertBreak(double s) const;
 
 	/**
-	 * Splices in a shape with coordinates (x,y) at the first breakpoint >= s.
+	 * Splices in a shape with coordinates (x,y) at the beginning of segment with
+     * index = insseg.  If insseg == nseg, the shape is appended.
 	 */
-	handle insertShape(double s, const Shape &shape) const;
+	handle insertShape(size_t insseg, const Shape &shape) const;
 
 	/**
 	 * Approximate shape with line segments for plotting.

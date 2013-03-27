@@ -28,10 +28,18 @@ BOOST_AUTO_TEST_CASE( airfoil_xfoil_import )
     BOOST_CHECK(xfs.is_open());
 
     DatFile::handle dat = DatFile::read(xfs);
-    Airfoil air(dat, 10, 0);
+    Airfoil air(dat, 10, 0, true);
     Shape::handle shp = air.shape();
 
-    BOOST_CHECK(air.area() < 0);
+    BOOST_CHECK(shp->area() < 0);
+
+    std::ofstream out("airfoil_test.txt");
+    const std::vector<double> &x = shp->x();
+    const std::vector<double> &y = shp->y();
+    out << "x" << "\t" << "y" << std::endl;
+    for (size_t i=0; i<x.size(); ++i) {
+        out << x[i] << "\t" << y[i] << std::endl;
+    }
 
     ///\todo add test for le insertion, winding, etc.
 

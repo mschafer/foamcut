@@ -30,44 +30,41 @@ namespace foamcut {
  */
 class foamcut_kernel_API Airfoil {
 public:
-	typedef boost::shared_ptr<Airfoil> handle;
+    typedef boost::shared_ptr<Airfoil> handle;
 
-	Airfoil(DatFile::handle datfile, double chord, double alfa, bool leLoop=false);
-	virtual ~Airfoil();
+    Airfoil(DatFile::handle datfile, double chord, double alpha, bool leLoop=false);
+    virtual ~Airfoil();
 
-	const std::string &name() const { return datfile_->name(); }
-	const std::vector<double> &x() const { return x_; }
-	const std::vector<double> &y() const { return y_; }
+    const std::string &name() const { return datfile_->name(); }
 
-	/**
-	 * Calculate the area enclosed by the airfoil.
-	 * A positive value indicates CCW winding.
-	 */
-	double area() const;
-
-	Shape::handle shape() const {
-		Shape::handle h(new Shape(*shape_));
-		return h;
-	}
+    Shape::handle shape() const {
+        Shape::handle h(new Shape(*shape_));
+        return h;
+    }
 
 private:
 
-	/**
-	 * Finds the s coordiate of the leading edge and sets the chord.
-	 * \return s coordinate of leading edge.
-	 */
-	double findLeadingEdge();
+    /**
+    * Finds the s coordiate of the leading edge and sets the chord.
+    * \return s coordinate of leading edge.
+    */
+    double findLeadingEdge();
 
-	/** Adds leading edge loop. */
-	void leadingEdgeLoop();
+    /** 
+     * Builds coordinates for leading edge loop in {x|y}LELoop.
+     * \param ple Leading edge point used for tangent.
+     */
+    void leadingEdgeLoop(const Shape::Point &ple);
 
-	std::vector<double> x_;
-	std::vector<double> y_;
-	double chord_;
-	double sle_;
-	Shape::handle shape_;
-	DatFile::handle datfile_;
-	bool hasLELoop_;
+    std::vector<double> xLELoop_;
+    std::vector<double> yLELoop_;
+    double chord_;
+    double alpha_;
+    double sle_;
+    Shape::Point ple_;
+    Shape::handle shape_;
+    DatFile::handle datfile_;
+    bool hasLELoop_;
 };
 }
 

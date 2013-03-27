@@ -70,6 +70,17 @@ Shape::Shape(const Shape &cpy) : x_(cpy.x_), y_(cpy.y_)
 	buildSplines();
 }
 
+double
+Shape::area() const
+{
+    double area = 0.;
+    size_t npt = x_.size();
+    for (size_t i=0; i<npt-1; i++) {
+        area += x_[i] * y_[i+1] - x_[i+1] * y_[i];
+    }
+    return area / 2.;
+}
+
 Shape::Point
 Shape::evaluate(double s) const {
 	size_t idx = findSplineIdx(s);
@@ -116,7 +127,6 @@ Shape::offset(double d) const {
 		dshape.push_back(new Shape(dx, dy));
 	}
 
-	///\todo adjust end points of the displaced Shapes to be contiguous again
 	for (size_t ishp=0; ishp<dshape.size()-1; ++ishp) {
 		Shape &s0 = dshape[ishp];
 		Shape &s1 = dshape[ishp+1];
@@ -296,12 +306,9 @@ Shape::insertBreak(double sbrk) const
 }
 
 Shape::handle
-Shape::insertShape(double s, const Shape &shape) const
+Shape::insertShape(size_t insseg, const Shape &shape) const
 {
 	size_t nseg = xSpline_.size();
-	size_t insseg = 0;
-	// find the index of the break where the new shape will be inserted
-	while (xSpline_[insseg].x().front() < s && insseg < nseg) ++insseg;
 
 	std::vector<double> xn; xn.reserve(x_.size() + shape.x_.size());
 	std::vector<double> yn; yn.reserve(y_.size() + shape.y_.size());
@@ -325,15 +332,14 @@ Shape::insertShape(double s, const Shape &shape) const
 	yn.push_back(yorg);
 	for (size_t ip=1; ip<shape.x().size(); ++ip) {
 		xn.push_back(shape.x()[ip] + xorg - shape.x().front());
-		yn.push_back(shape.y()[ip] + xorg - shape.y().front());
+		yn.push_back(shape.y()[ip] + yorg - shape.y().front());
 	}
 
 	// add the rest of the original shape translated to end of new shape
 	xorg = xn.back();
 	yorg = yn.back();
-	xn.push_back(xorg);
-	yn.push_back(yorg);
-	for (size_t iseg=insseg; iseg<nseg; ++iseg) {
+
+    for (size_t iseg=insseg; iseg<nseg; ++iseg) {
 		const std::vector<double> &xold = xSpline_[iseg].y();
 		const std::vector<double> &yold = ySpline_[iseg].y();
 		for (size_t ip=0; ip<xold.size(); ++ip) {
@@ -431,6 +437,24 @@ double Shape::nearestPoint(double x, double y, double guess) const {
 	return s;
 }
 
+size_t Shape::nearestBreak(double x0, double y0) const
+{
+    double x = xSpline_[0].y()[0];
+    double y = ySpline_[0].y()[0];
+    double d = hypot(x-x0, y-y0);
+    size_t ret = 0;
+    size_t nseg = xSpline_.size();
+    for (size_t i=0; i<nseg; ++i) {
+        x = xSpline_[i].y().back();
+        y = ySpline_[i].y().back();
+        double di = hypot(x-x0, y-y0);
+        if (di < d) {
+            ret = i+1;
+            d = di;
+        }
+    }
+    return ret;
+}
 
 size_t Shape::findSplineIdx(double s) const {
 	size_t ret = 0;
