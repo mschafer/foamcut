@@ -1,5 +1,6 @@
 #include "datimportpage.h"
 #include "ui_datimportpage.h"
+#include "shapeplots.h"
 #include <QFileDialog>
 #include <fstream>
 #include <QtDebug>
@@ -14,9 +15,9 @@ DatImportPage::DatImportPage(QWidget *parent) :
 
 	connect(ui->rotate_edit, SIGNAL(editingFinished()), this, SLOT(do_replot()));
 	connect(ui->scale_edit, SIGNAL(editingFinished()), this, SLOT(do_replot()));
-	connect(ui->reverse_check, SIGNAL(stateChanged()), this, SLOT(do_replot()));
-	connect(ui->flipHorizontal_check, SIGNAL(stateChanged()), this, SLOT(do_replot()));
-	connect(ui->flipVertical_check, SIGNAL(stateChanged()), this, SLOT(do_replot()));
+	connect(ui->reverse_check, SIGNAL(stateChanged(int)), this, SLOT(do_check_changed(int)));
+	connect(ui->flipHorizontal_check, SIGNAL(stateChanged(int)), this, SLOT(do_check_changed(int)));
+	connect(ui->flipVertical_check, SIGNAL(stateChanged(int)), this, SLOT(do_check_changed(int)));
 
 	ui->rotate_edit->setValidator(new QDoubleValidator());
 	ui->scale_edit->setValidator(new QDoubleValidator());
@@ -91,6 +92,11 @@ void DatImportPage::on_fileName_edit_editingFinished()
     }
 }
 
+void DatImportPage::do_check_changed(int state)
+{
+	do_replot();
+}
+
 void DatImportPage::do_replot()
 {
 	if (datFile_.get() == NULL) return;
@@ -98,36 +104,35 @@ void DatImportPage::do_replot()
 	double scale = ui->scale_edit->text().toDouble();
 	double rotate = ui->rotate_edit->text().toDouble();
 	bool isXFoil = field("type.xfoil").toBool();
+	bool isReversed = ui->reverse_check->isChecked();
 	if (isXFoil) {
-		foamcut::Airfoil::handle airfoil(new foamcut::Airfoil(datFile_, scale, rotate));
+		bool leLoop = isReversed;  // meaning and label changes for xfoil
+		foamcut::Airfoil::handle airfoil(new foamcut::Airfoil(datFile_, scale, rotate, ui->reverse_check->isChecked()));
 		shape_ = airfoil->shape();
-
-		// for xfoil import, the reverse check means add LE loop
-		if (ui->reverse_check->isChecked()) {
-			///\todo implement me
-		}
 	} else {
-		foamcut::DatFile::handle df = datFile_->scale(scale);
-		df = df->rotate(rotate);
-		shape_.reset(new foamcut::Shape(*df));
+		shape_.reset(new foamcut::Shape(*datFile_));
+		shape_ = shape_->scale(scale);
+		shape_ = shape_->rotate(rotate);
+		if (isReversed) {
+			shape_ = shape_->reverse();
+		}
 	}
 
-	QVector<double> x;
-	QVector<double> y;
-	shape_->plottable(x, y);
-	typedef QVector<double>::iterator iterator;
-	std::pair<iterator, iterator> xlim = boost::minmax_element(x.begin(), x.end());
-	std::pair<iterator, iterator> ylim = boost::minmax_element(y.begin(), y.end());
-	ui->importPlot->xAxis->setRange(*(xlim.first)*1.01, *(xlim.second)*1.01);
-	ui->importPlot->yAxis->setRange(*(ylim.first)*1.01, *(ylim.second)*1.01);
+	double xFlip = ui->flipVertical_check->isChecked() ? -1. : 1.;
+	double yFlip = ui->flipHorizontal_check->isChecked() ? -1. : 1.;
+	shape_ = shape_->scale(xFlip, yFlip);
 
+	// convert to QCPCurveData and plot
 	QCPCurve *curve = dynamic_cast<QCPCurve *>(ui->importPlot->plottable(0));
-	curve->setData(x, y);
+	QCPCurveDataMap *dataMap = lineFit(*shape_);
+	BoundingBox bbox = bounds(dataMap);
+	ui->importPlot->xAxis->setRange(bbox.xMin_*1.01, bbox.xMax_*1.01);
+	ui->importPlot->yAxis->setRange(bbox.yMin_*1.01, bbox.yMax_*1.01);
+	curve->setData(dataMap, false);
 
-	x.clear(); y.clear();
-	shape_->breaks(x, y);
 	curve = dynamic_cast<QCPCurve *>(ui->importPlot->plottable(1));
-	curve->setData(x, y);
+	dataMap = breakPoints(*shape_);
+	curve->setData(dataMap, false);
 
 	ui->importPlot->replot();
 

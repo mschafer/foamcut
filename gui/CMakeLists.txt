@@ -47,6 +47,7 @@ add_executable(foamcut_gui
   main.cpp
   mainwindow.cpp
   qcustomplot.cpp
+  shapeplots.cpp
 )
 
 qt5_use_modules(foamcut_gui Widgets PrintSupport)

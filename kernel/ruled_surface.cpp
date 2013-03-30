@@ -26,9 +26,13 @@ RuledSurface::RuledSurface(const Shape &lShape, const Shape &rShape,
 	// convert the pair of shapes to a pair of poly lines with aligned sample points
 	size_t nseg = lShape.segmentCount();
 	for (size_t iseg=0; iseg<nseg; ++iseg) {
-		std::pair<double, double> lsLimits = lShape.segmentS(iseg);
+		std::pair<double, double> lsLimits;
+		lsLimits.first = lShape.breakS(iseg);
+		lsLimits.second = lShape.breakS(iseg+1);
 		double dls = lsLimits.second - lsLimits.first;
-		std::pair<double, double> rsLimits = rShape.segmentS(iseg);
+		std::pair<double, double> rsLimits;
+		rsLimits.first = rShape.breakS(iseg);
+		rsLimits.second = rShape.breakS(iseg+1);
 		double drs = rsLimits.second - rsLimits.first;
 
 		bool segEnd = false;

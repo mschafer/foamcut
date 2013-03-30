@@ -46,9 +46,6 @@ datfile_(datfile), chord_(chord), alpha_(alpha), hasLELoop_(leLoop)
         leadingEdgeLoop(shape_->evaluate(sle_));
     }
 
-    // rotate to desired alfa (degrees)
-    datfile_ = datfile_->rotate(alpha_);
-
     // sync at leading edge
     shape_ = shape_->insertBreak(sle_);
 
@@ -56,8 +53,12 @@ datfile_(datfile), chord_(chord), alpha_(alpha), hasLELoop_(leLoop)
     if (leLoop) {
         Shape::Point ple = shape_->evaluate(sle_);
         size_t iseg = shape_->nearestBreak(ple.x, ple.y);
-        shape_ = shape_->insertShape(iseg, Shape(xLELoop_, yLELoop_));
+        Shape loop(xLELoop_, yLELoop_);
+        shape_ = shape_->insertShape(iseg, loop);
     }
+
+    // rotate to desired alfa (degrees)
+    shape_ = shape_->rotate(alpha_);
 }
 
 Airfoil::~Airfoil()
@@ -67,7 +68,7 @@ Airfoil::~Airfoil()
 void
 Airfoil::leadingEdgeLoop(const Shape::Point &ple)
 {
-    double r = abs(shape_->area()) / chord_;
+    double r = fabs(shape_->area()) / chord_;
     double xtan = ple.x_s;
     double ytan = ple.y_s;
     double l = r / hypot(xtan, ytan);

@@ -56,6 +56,7 @@ Shape::Shape(const std::vector<double> &x, const std::vector<double> &y, bool po
 		invariant();
 		buildSplines();
 	}
+	origin();
 }
 
 Shape::Shape(const DatFile &datfile) :
@@ -209,6 +210,55 @@ Shape::offset(double d) const {
 	}
 
 	return handle(new Shape(dx, dy));
+}
+
+Shape::handle
+Shape::rotate(double theta) const
+{
+	theta *= atan(1.) / 45.;
+	double sint = sin(theta);
+	double cost = cos(theta);
+
+	size_t n = x_.size();
+	std::vector<double> x(n);
+	std::vector<double> y(n);
+	for (size_t i=0; i<n; i++) {
+		x[i] = x_[i] * cost - y_[i] * sint;
+		y[i] = x_[i] * sint + y_[i] * cost;
+	}
+
+	handle ret(new Shape(x, y));
+	return ret;
+}
+
+Shape::handle
+Shape::scale(double sx, double sy) const
+{
+	size_t n = x_.size();
+	std::vector<double> x(n);
+	std::vector<double> y(n);
+	for (size_t i=0; i<n; i++) {
+		x[i] = x_[i] * sx;
+		y[i] = y_[i] * sy;
+	}
+
+	handle ret(new Shape(x,y));
+	return ret;
+}
+
+Shape::handle
+Shape::reverse() const
+{
+	size_t n = x_.size();
+	std::vector<double> x(n);
+	std::vector<double> y(n);
+	for (size_t i=0; i<n; i++) {
+		x[i] = x_[n-i];
+		y[i] = y_[n-i];
+	}
+
+	handle ret(new Shape(x,y));
+	return ret;
 }
 
 double
@@ -454,6 +504,17 @@ size_t Shape::nearestBreak(double x0, double y0) const
         }
     }
     return ret;
+}
+
+void
+Shape::origin()
+{
+	double x0 = x_[0];
+	double y0 = y_[0];
+	for (size_t i=0; i<x_.size(); i++) {
+		x_[i] = x_[i] - x0;
+		y_[i] = y_[i] - y0;
+	}
 }
 
 size_t Shape::findSplineIdx(double s) const {

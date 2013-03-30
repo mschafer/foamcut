@@ -1,4 +1,5 @@
 /*
+
  * (C) Copyright 2013 Marc Schafer
  *
  * All rights reserved. This program and the accompanying materials
@@ -79,10 +80,32 @@ public:
 	size_t segmentCount() const { return xSpline_.size(); }
 
 	/**
-	 * \return The starting and ending s value for the segment specified by idx.
+	 * \return The s coordinate for the break point specified by idx.
 	 */
-	std::pair<double, double> segmentS(size_t idx) const {
-		return std::make_pair(xSpline_[idx].x().front(), xSpline_[idx].x().back());
+	double breakS(size_t idx) const {
+		size_t nseg = xSpline_.size();
+		if (idx < nseg) {
+			return xSpline_[idx].x().front();
+		} else if (idx == nseg) {
+			return s_.back();
+		} else {
+			throw std::out_of_range("Shape::breakS idx exceeds segment count");
+		}
+	}
+
+	std::pair<double, double> breakPoint(size_t idx) const {
+		std::pair<double, double> ret;
+		size_t nseg = xSpline_.size();
+		if (idx < nseg) {
+			ret.first = xSpline_[idx].y().front();
+			ret.second = ySpline_[idx].y().front();
+		} else if (idx == nseg) {
+			ret.first = x_.back();
+			ret.second = y_.back();
+		} else {
+			throw std::out_of_range("Shape::breakPoint idx exceeds segment count");
+		}
+		return ret;
 	}
 
     /** \return area of the shape.  A positive value indicates CCW winding. */
@@ -108,6 +131,24 @@ public:
 	 * \return handle to the new, displaced shape
 	 */
 	handle offset(double d) const;
+
+	/**
+	 * Rotate the shape CCW by angle theta in degrees.
+	 * \return handle to the new, rotated shape
+	 */
+	handle rotate(double theta) const;
+
+	/**
+	 * Scale x coordinates by sx, y coordinates by sy.
+	 * \return handle to the new, scaled shape.
+	 */
+	handle scale(double sx, double sy) const ;
+
+	/** scale(sc, sc) */
+	handle scale(double sc) const { return scale(sc, sc); }
+
+	/** \return A shape with the points in reverse order. */
+	handle reverse() const;
 
 	/**
 	 * Fit a single line segment to the spline starting at s0.
@@ -182,6 +223,7 @@ private:
 	Shape();
 	void invariant() const;
 	void buildSplines();
+	void origin();
 
 	/**
 	 *  Returns the index of the first spline with s_end >= s.
