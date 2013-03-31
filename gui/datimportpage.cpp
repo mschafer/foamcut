@@ -1,9 +1,20 @@
+/*
+ * (C) Copyright 2013 Marc Schafer
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Marc Schafer
+ */
 #include "datimportpage.h"
 #include "ui_datimportpage.h"
-#include "shapeplots.h"
+#include "shapeplotmgr.h"
 #include <QFileDialog>
 #include <fstream>
-#include <QtDebug>
+#include <QDebug>
 #include <boost/algorithm/minmax_element.hpp>
 #include "airfoil.hpp"
 
@@ -22,6 +33,7 @@ DatImportPage::DatImportPage(QWidget *parent) :
 	ui->rotate_edit->setValidator(new QDoubleValidator());
 	ui->scale_edit->setValidator(new QDoubleValidator());
 
+	plotMgr_.reset(new ShapePlotMgr(ui->importPlot));
 
     registerField("dat.file*", ui->fileName_edit);
 }
@@ -43,20 +55,6 @@ void DatImportPage::initializePage()
         ui->rotateLabel->setText(tr("Rotate"));
         ui->scaleLabel->setText(tr("Scale"));
         ui->reverse_check->setText(tr("Reverse points"));
-    }
-
-	if (ui->importPlot->plottableCount() == 0) {
-        QCPCurve *curve = new QCPCurve(ui->importPlot->xAxis, ui->importPlot->yAxis);
-        ui->importPlot->addPlottable(curve);
-
-        curve = new QCPCurve(ui->importPlot->xAxis, ui->importPlot->yAxis);
-        curve->setLineStyle(QCPCurve::lsNone);
-        curve->setScatterStyle(QCP::ssDiamond);
-        ui->importPlot->addPlottable(curve);
-        ui->importPlot->xAxis->setLabel("X");
-        ui->importPlot->yAxis->setLabel("Y");
-        ui->importPlot->xAxis->setRange(-1., 1.);
-        ui->importPlot->yAxis->setRange(-1., 1.);
     }
 }
 
@@ -122,19 +120,6 @@ void DatImportPage::do_replot()
 	double yFlip = ui->flipHorizontal_check->isChecked() ? -1. : 1.;
 	shape_ = shape_->scale(xFlip, yFlip);
 
-	// convert to QCPCurveData and plot
-	QCPCurve *curve = dynamic_cast<QCPCurve *>(ui->importPlot->plottable(0));
-	QCPCurveDataMap *dataMap = lineFit(*shape_);
-	BoundingBox bbox = bounds(dataMap);
-	ui->importPlot->xAxis->setRange(bbox.xMin_*1.01, bbox.xMax_*1.01);
-	ui->importPlot->yAxis->setRange(bbox.yMin_*1.01, bbox.yMax_*1.01);
-	curve->setData(dataMap, false);
-
-	curve = dynamic_cast<QCPCurve *>(ui->importPlot->plottable(1));
-	dataMap = breakPoints(*shape_);
-	curve->setData(dataMap, false);
-
-	ui->importPlot->replot();
-
+	plotMgr_->update(shape_);
 }
 

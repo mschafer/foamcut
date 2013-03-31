@@ -21,24 +21,24 @@ namespace foamcut {
 Airfoil::Airfoil(DatFile::handle datfile, double chord, double alpha, bool leLoop) :
 datfile_(datfile), chord_(chord), alpha_(alpha), hasLELoop_(leLoop)
 {
-    size_t n = datfile_->x().size();
+    shape_.reset(new Shape(*datfile_));
+    size_t n = shape_->x().size();
 
     // reflect through y axis if TE is to the right
-    if (datfile_->x()[0] > datfile_->x()[n/2]) {
-        datfile_ = datfile_->scale(-1., 1.);
+    if (shape_->x()[0] > shape_->x()[n/2]) {
+        shape_ = shape_->scale(-1., 1.);
     }
 
     // reverse coordinate order if bottom is first
-    if (datfile_->y()[n/4] < datfile_->y()[3*n/4]) {
-        datfile_ = datfile_->reverse();
+    if (shape_->y()[n/4] < shape_->y()[3*n/4]) {
+        shape_ = shape_->reverse();
     }
 
     // scale to correct chord
     typedef std::vector<double>::const_iterator iterator;
     std::pair<iterator, iterator> minmax = boost::minmax_element(datfile_->x().begin(), datfile_->x().end());
-    datfile_ = datfile_->scale(chord_ / (*(minmax.second) - *(minmax.first)));
+    shape_ = shape_->scale(chord_ / (*(minmax.second) - *(minmax.first)));
 
-    shape_.reset(new Shape(*datfile_));
     sle_ = findLeadingEdge();
     
     // calculate le loop before inserting break to get tangent right 

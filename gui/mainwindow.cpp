@@ -1,3 +1,14 @@
+/*
+ * (C) Copyright 2013 Marc Schafer
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Marc Schafer
+ */
 #include <memory>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -31,43 +42,27 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_pushButton_clicked()
-{
-    QVector<double> x(100);
-    QVector<double> y(100);
-
-    for (int i=0; i<100; ++i) {
-        double theta = i * 6.28 / 99.;
-        x[i] = sin(theta);
-        y[i] = cos(theta);
-    }
-
-    if (ui->customPlot->plottableCount() == 0) {
-        QCPCurve *curve = new QCPCurve(ui->customPlot->xAxis, ui->customPlot->yAxis);
-        ui->customPlot->addPlottable(curve);
-        curve->setData(x,y);
-        ui->customPlot->xAxis->setLabel("X");
-        ui->customPlot->yAxis->setLabel("Y");
-        ui->customPlot->xAxis->setRange(-1., 1.);
-        ui->customPlot->yAxis->setRange(-1., 1.);
-        ui->customPlot->replot();
-    }
-}
-
-void MainWindow::on_pushButton_2_clicked()
-{
-    std::auto_ptr<ImportWizard> iw(new ImportWizard());
-    iw->exec();
-}
-
 void MainWindow::on_rootImport_button_clicked()
 {
     std::auto_ptr<ImportWizard> iw(new ImportWizard());
     iw->exec();
 	if (iw->result() == QDialog::Accepted) {
 		rootShape_ = iw->shape();
+		ui->rootName_label->setText(QString::fromStdString(rootShape_->name()));
 	}
 }
+
+void MainWindow::on_tipImport_button_clicked()
+{
+    std::auto_ptr<ImportWizard> iw(new ImportWizard());
+    iw->exec();
+	if (iw->result() == QDialog::Accepted) {
+		tipShape_ = iw->shape();
+		ui->tipName_label->setText(QString::fromStdString(tipShape_->name()));
+	}
+}
+
+
 
 void MainWindow::on_rootZ_edit_editingFinished()
 {
@@ -79,14 +74,6 @@ void MainWindow::on_rootKerf_edit_editingFinished()
 
 }
 
-void MainWindow::on_tipImport_button_clicked()
-{
-    std::auto_ptr<ImportWizard> iw(new ImportWizard());
-    iw->exec();
-	if (iw->result() == QDialog::Accepted) {
-		tipShape_ = iw->shape();
-	}
-}
 
 void MainWindow::on_tipZ_edit_editingFinished()
 {

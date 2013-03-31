@@ -44,6 +44,7 @@ DatFile::read(std::istream &in)
 	double x,y;
 
 	// first line can be x y coords or a name
+	auto start = in.tellg();
 	in >> x;
 	if (in.good()) in >> y;
 	if (in.good()) {
@@ -51,6 +52,7 @@ DatFile::read(std::istream &in)
 		yin.push_back(y);
 	} else {
 		in.clear();
+		in.seekg(start);
 		std::getline(in, ret->name_);
 	}
 
@@ -72,61 +74,6 @@ DatFile::read(std::istream &in)
 	return ret;
 }
 
-DatFile::handle
-DatFile::reverse() const
-{
-	handle ret(new DatFile());
-	size_t n = x_.size();
-	ret->x_.resize(n);
-	ret->y_.resize(n);
-	for (size_t i=0; i<n; i++) {
-		ret->x_[i] = x_[n-i];
-		ret->y_[i] = y_[n-i];
-	}
-	ret->origin();
-	return ret;
-}
-
-DatFile::handle
-DatFile::rotate(double theta) const
-{
-	handle ret(new DatFile());
-	theta *= atan(1.) / 45.;
-	double sint = sin(theta);
-	double cost = cos(theta);
-
-	size_t n = x_.size();
-	ret->x_.resize(n);
-	ret->y_.resize(n);
-	for (size_t i=0; i<n; i++) {
-		ret->x_[i] = x_[i] * cost - y_[i] * sint;
-		ret->y_[i] = x_[i] * sint + y_[i] * cost;
-	}
-	ret->origin();
-	return ret;
-}
-
-DatFile::handle
-DatFile::scale(double s) const
-{
-	return scale(s, s);
-}
-
-DatFile::handle
-DatFile::scale(double sx, double sy) const
-{
-	handle ret(new DatFile());
-
-	size_t n = x_.size();
-	ret->x_.resize(n);
-	ret->y_.resize(n);
-	for (size_t i=0; i<n; i++) {
-		ret->x_[i] = x_[i] * sx;
-		ret->y_[i] = y_[i] * sy;
-	}
-	ret->origin();
-	return ret;
-}
 
 void
 DatFile::origin()

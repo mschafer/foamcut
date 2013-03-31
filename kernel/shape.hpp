@@ -64,7 +64,8 @@ public:
 	 * line segments connecting all the x,y points.  There should be no
 	 * doubled points in x,y.
 	 */
-	Shape(const std::vector<double> &x, const std::vector<double> &y, bool polyline=false);
+	Shape(const std::vector<double> &x, const std::vector<double> &y,
+			const std::string &name=std::string(""), bool polyline=false);
 
 	Shape(const DatFile &datfile);
 	Shape(const Shape &cpy);
@@ -72,6 +73,8 @@ public:
 	const std::vector<double> &x() const { return x_; }
 	const std::vector<double> &y() const { return y_; }
 	const std::vector<double> &s() const { return s_; }
+
+	const std::string &name() const { return name_; }
 
 	/**
 	 * \return The number of spline segments in this shape.  Each segment boundary
@@ -82,31 +85,10 @@ public:
 	/**
 	 * \return The s coordinate for the break point specified by idx.
 	 */
-	double breakS(size_t idx) const {
-		size_t nseg = xSpline_.size();
-		if (idx < nseg) {
-			return xSpline_[idx].x().front();
-		} else if (idx == nseg) {
-			return s_.back();
-		} else {
-			throw std::out_of_range("Shape::breakS idx exceeds segment count");
-		}
-	}
+	double breakS(size_t idx) const;
 
-	std::pair<double, double> breakPoint(size_t idx) const {
-		std::pair<double, double> ret;
-		size_t nseg = xSpline_.size();
-		if (idx < nseg) {
-			ret.first = xSpline_[idx].y().front();
-			ret.second = ySpline_[idx].y().front();
-		} else if (idx == nseg) {
-			ret.first = x_.back();
-			ret.second = y_.back();
-		} else {
-			throw std::out_of_range("Shape::breakPoint idx exceeds segment count");
-		}
-		return ret;
-	}
+	/** \return x,y coordinates of break point at idx. */
+	std::pair<double, double> breakPoint(size_t idx) const;
 
     /** \return area of the shape.  A positive value indicates CCW winding. */
     double area() const;
@@ -234,6 +216,7 @@ private:
 	std::vector<double> x_;
 	std::vector<double> y_;
 	std::vector<double> s_;
+	std::string name_;
 
 	boost::ptr_vector<Spline> xSpline_;
 	boost::ptr_vector<Spline> ySpline_;

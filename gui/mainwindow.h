@@ -22,10 +22,6 @@ public:
     ~MainWindow();
     
 private slots:
-    void on_pushButton_clicked();
-
-    void on_pushButton_2_clicked();
-
     void on_rootImport_button_clicked();
     void on_rootZ_edit_editingFinished();
     void on_rootKerf_edit_editingFinished();

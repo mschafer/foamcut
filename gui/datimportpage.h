@@ -37,6 +37,7 @@ private:
     Ui::DatImportPage *ui;
 	boost::shared_ptr<foamcut::Shape> shape_;
 	boost::shared_ptr<foamcut::DatFile> datFile_;
+	std::unique_ptr<class ShapePlotMgr> plotMgr_;
 };
 
 #endif // DATIMPORTPAGE_H

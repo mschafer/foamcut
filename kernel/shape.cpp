@@ -30,8 +30,9 @@ void solve2x2(const double A[2][2], double b[2]) {
 	b[1] = (A[0][0] * b[1] - A[1][0] * b[0]) * det;
 }
 
-Shape::Shape(const std::vector<double> &x, const std::vector<double> &y, bool polyline) :
-	x_(x), y_(y)
+Shape::Shape(const std::vector<double> &x, const std::vector<double> &y,
+		const std::string &name, bool polyline) :
+	x_(x), y_(y), name_(name)
 {
 	if (polyline) {
 		invariant();
@@ -60,15 +61,45 @@ Shape::Shape(const std::vector<double> &x, const std::vector<double> &y, bool po
 }
 
 Shape::Shape(const DatFile &datfile) :
-		x_(datfile.x()), y_(datfile.y())
+		x_(datfile.x()), y_(datfile.y()), name_(datfile.name())
 {
 	invariant();
 	buildSplines();
 }
 
-Shape::Shape(const Shape &cpy) : x_(cpy.x_), y_(cpy.y_)
+Shape::Shape(const Shape &cpy) : x_(cpy.x_), y_(cpy.y_), name_(cpy.name_)
 {
 	buildSplines();
+}
+
+double
+Shape::breakS(size_t idx) const
+{
+	size_t nseg = xSpline_.size();
+	if (idx < nseg) {
+		return xSpline_[idx].x().front();
+	} else if (idx == nseg) {
+		return s_.back();
+	} else {
+		throw std::out_of_range("Shape::breakS idx exceeds segment count");
+	}
+}
+
+std::pair<double, double>
+Shape::breakPoint(size_t idx) const
+{
+	std::pair<double, double> ret;
+	size_t nseg = xSpline_.size();
+	if (idx < nseg) {
+		ret.first = xSpline_[idx].y().front();
+		ret.second = ySpline_[idx].y().front();
+	} else if (idx == nseg) {
+		ret.first = x_.back();
+		ret.second = y_.back();
+	} else {
+		throw std::out_of_range("Shape::breakPoint idx exceeds segment count");
+	}
+	return ret;
 }
 
 double
@@ -209,7 +240,7 @@ Shape::offset(double d) const {
 		dy.insert(dy.end(), dit->y_.begin(), dit->y_.end());
 	}
 
-	return handle(new Shape(dx, dy));
+	return handle(new Shape(dx, dy, name_));
 }
 
 Shape::handle
@@ -227,7 +258,7 @@ Shape::rotate(double theta) const
 		y[i] = x_[i] * sint + y_[i] * cost;
 	}
 
-	handle ret(new Shape(x, y));
+	handle ret(new Shape(x, y, name_));
 	return ret;
 }
 
@@ -242,7 +273,7 @@ Shape::scale(double sx, double sy) const
 		y[i] = y_[i] * sy;
 	}
 
-	handle ret(new Shape(x,y));
+	handle ret(new Shape(x, y, name_));
 	return ret;
 }
 
@@ -257,7 +288,7 @@ Shape::reverse() const
 		y[i] = y_[n-i];
 	}
 
-	handle ret(new Shape(x,y));
+	handle ret(new Shape(x, y, name_));
 	return ret;
 }
 
@@ -398,7 +429,7 @@ Shape::insertShape(size_t insseg, const Shape &shape) const
 		}
 	}
 
-	handle ret(new Shape(xn, yn));
+	handle ret(new Shape(xn, yn, name_));
 	return ret;
 }
 

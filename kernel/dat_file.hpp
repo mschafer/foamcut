@@ -40,13 +40,6 @@ public:
 
 	static handle read(std::istream &in);
 
-	/// Reverse the order of points.
-	handle reverse() const;
-
-	handle rotate(double theta) const;
-	handle scale(double s) const;
-	handle scale(double sx, double sy) const;
-
 private:
 	DatFile();
 
