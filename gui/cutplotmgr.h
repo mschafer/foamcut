@@ -18,19 +18,35 @@
 #include "qcustomplot.h"
 
 /**
- * Displays a single shape on a plot.
+ * Displays a cut on a 2d plot.
+ * Root and tip shapes (line fit)
+ * Part surface.
+ * Interpolated surface at frames.
  */
 class CutPlotMgr : public boost::noncopyable
 {
 public:
 	enum {
-		LINE_CURVE = 0,
-		BREAK_CURVE = 1
+		ROOT_BASE_CURVE   = 0,
+		TIP_BASE_CURVE    = 1,
+		ROOT_PART_CURVE   = 2,
+		TIP_PART_CURVE    = 3,
+		LEFT_FRAME_CURVE  = 4,
+		RIGHT_FRAME_CURVE = 5
 	};
 
 	CutPlotMgr(QCustomPlot *plot);
 
-	//void update(foamcut::Shape::handle shape) { shape_ = shape; replot(); }
+	void update(foamcut::Shape::handle root, foamcut::Shape::handle tip,
+			foamcut::RuledSurface::handle part, foamcut::RuledSurface::handle frame) {
+		root_ = root;
+		tip_ = tip;
+		part_ = part;
+		frame_ = frame;
+		replot();
+	}
+
+	static std::pair<QCPCurveDataMap*, QCPCurveDataMap*> surfacePoints(const foamcut::RuledSurface::handle);
 
 private:
 	CutPlotMgr();
@@ -40,7 +56,7 @@ private:
 	foamcut::Shape::handle root_;
 	foamcut::Shape::handle tip_;
 	foamcut::RuledSurface::handle part_;
-	foamcut::RuledSurface::handle cut_;
+	foamcut::RuledSurface::handle frame_;
 };
 
 #endif
