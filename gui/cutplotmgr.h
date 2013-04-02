@@ -9,17 +9,18 @@
  * Contributors:
  *     Marc Schafer
  */
-#ifndef shapeplotmgr_h
-#define shapeplotmgr_h
+#ifndef cutplotmgr_h
+#define cutplotmgr_h
 
 #include <boost/utility.hpp>
 #include "shape.hpp"
+#include "ruled_surface.hpp"
 #include "qcustomplot.h"
 
 /**
  * Displays a single shape on a plot.
  */
-class ShapePlotMgr : public boost::noncopyable
+class CutPlotMgr : public boost::noncopyable
 {
 public:
 	enum {
@@ -27,19 +28,19 @@ public:
 		BREAK_CURVE = 1
 	};
 
-	ShapePlotMgr(QCustomPlot *plot);
+	CutPlotMgr(QCustomPlot *plot);
 
-	void update(foamcut::Shape::handle shape) { shape_ = shape; replot(); }
-
-	static QCPCurveDataMap *lineFit(const foamcut::Shape::handle shape);
-	static QCPCurveDataMap *breakPoints(const foamcut::Shape::handle shape);
+	//void update(foamcut::Shape::handle shape) { shape_ = shape; replot(); }
 
 private:
-	ShapePlotMgr();
+	CutPlotMgr();
 	void replot();
 
 	QCustomPlot *plot_;
-	foamcut::Shape::handle shape_;
+	foamcut::Shape::handle root_;
+	foamcut::Shape::handle tip_;
+	foamcut::RuledSurface::handle part_;
+	foamcut::RuledSurface::handle cut_;
 };
 
 #endif

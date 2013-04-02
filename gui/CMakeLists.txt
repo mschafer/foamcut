@@ -42,6 +42,7 @@ include_directories(
 
 add_executable(foamcut_gui
   ${UI_HDRS} 
+  cutplotmgr.cpp
   datimportpage.cpp
   importwizard.cpp
   main.cpp
