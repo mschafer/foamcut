@@ -40,6 +40,7 @@ private:
 	boost::shared_ptr<foamcut::Shape> tipKerfShape_;
 	boost::shared_ptr<foamcut::RuledSurface> partPath_;
 	boost::shared_ptr<foamcut::RuledSurface> cutterPath_;
+	std::unique_ptr<class CutPlotMgr> cutPlotMgr_;
 
 };
 

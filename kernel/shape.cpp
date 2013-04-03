@@ -57,7 +57,6 @@ Shape::Shape(const std::vector<double> &x, const std::vector<double> &y,
 		invariant();
 		buildSplines();
 	}
-	origin();
 }
 
 Shape::Shape(const DatFile &datfile) :
@@ -144,7 +143,7 @@ Shape::handle
 Shape::offset(double d) const {
 
 	// displace all the splines and make each one into a new Shape
-	std::vector<double> dx, dy;
+	std::vector<double> dx(x_.size()), dy(y_.size());
 	boost::ptr_vector<Shape> dshape;
 	for (size_t i=0; i<xSpline_.size(); ++i) {
 		const std::vector<double> &sspl = xSpline_[i].x();

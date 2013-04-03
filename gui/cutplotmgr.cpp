@@ -90,15 +90,14 @@ void CutPlotMgr::replot()
 	QCPCurveDataMap *cdm;
 	QCPCurve *curve;
 
-	std::string rootName = root_->name();
-	if (rootName.empty()) rootName = "root";
-	std::string tipName = root_->name();
-	if (rootName.empty()) rootName = "tip";
+	std::string rootName = "root";
+	std::string tipName = "tip";
 
 	if (root_.get() != nullptr) {
 		cdm = ShapePlotMgr::lineFit(root_);
 		curve = (QCPCurve*)(plot_->plottable(ROOT_BASE_CURVE));
 		curve->setData(cdm, false);
+		if (!root_->name().empty()) rootName = root_->name();
 		curve->setName(QString::fromStdString(rootName + " base"));
 	}
 
@@ -106,6 +105,7 @@ void CutPlotMgr::replot()
 		cdm = ShapePlotMgr::lineFit(tip_);
 		curve = (QCPCurve*)(plot_->plottable(TIP_BASE_CURVE));
 		curve->setData(cdm, false);
+		if (!tip_->name().empty()) tipName = tip_->name();
 		curve->setName(QString::fromStdString(tipName + " base"));
 	}
 

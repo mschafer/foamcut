@@ -14,7 +14,7 @@
 #include "ui_mainwindow.h"
 #include "importwizard.h"
 #include "ruled_surface.hpp"
-
+#include "cutplotmgr.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -35,6 +35,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tipKerf_edit->setValidator(new QDoubleValidator());
     ui->tipName_label->setText("");
     ui->tipSpeeds_label->setText("");
+
+    cutPlotMgr_.reset(new CutPlotMgr(ui->customPlot));
 }
 
 MainWindow::~MainWindow()
@@ -49,6 +51,7 @@ void MainWindow::on_rootImport_button_clicked()
 	if (iw->result() == QDialog::Accepted) {
 		rootShape_ = iw->shape();
 		ui->rootName_label->setText(QString::fromStdString(rootShape_->name()));
+		geometryChanged();
 	}
 }
 
@@ -59,6 +62,7 @@ void MainWindow::on_tipImport_button_clicked()
 	if (iw->result() == QDialog::Accepted) {
 		tipShape_ = iw->shape();
 		ui->tipName_label->setText(QString::fromStdString(tipShape_->name()));
+		geometryChanged();
 	}
 }
 
@@ -66,23 +70,23 @@ void MainWindow::on_tipImport_button_clicked()
 
 void MainWindow::on_rootZ_edit_editingFinished()
 {
-
+	geometryChanged();
 }
 
 void MainWindow::on_rootKerf_edit_editingFinished()
 {
-
+	geometryChanged();
 }
 
 
 void MainWindow::on_tipZ_edit_editingFinished()
 {
-
+	geometryChanged();
 }
 
 void MainWindow::on_tipKerf_edit_editingFinished()
 {
-
+	geometryChanged();
 }
 
 foamcut::Shape::handle addLeadInHelper(const foamcut::Shape::handle shape, double xl, double yl)
@@ -130,11 +134,9 @@ void MainWindow::geometryChanged()
 		partPath_.reset(new foamcut::RuledSurface(*rootKerfShape_, *tipKerfShape_, rootZ, tipZ-rootZ, .001));
 		double zRightFrame = ui->zRightFrame_edit->text().toDouble();
 		cutterPath_ = partPath_->interpolateZ(0., zRightFrame);
-
-		// update the plot
-
 	} else {
 		partPath_ = nullptr;
 		cutterPath_ = nullptr;
 	}
+	cutPlotMgr_->update(rootShape_, tipShape_, partPath_, cutterPath_);
 }
