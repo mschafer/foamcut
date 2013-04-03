@@ -169,6 +169,7 @@ Shape::offset(double d) const {
 		Point p0 = s0.evaluate(sInit[0]);
 		Point p1 = s1.evaluate(sInit[1]);
 
+		///\todo change this to within 1% of d
 		// nothing to do if endpoints are already identical
 		if (p0.x == p1.x && p0.y == p1.y) {
 			continue;
@@ -210,13 +211,15 @@ Shape::offset(double d) const {
 			} while (iter > 0 && (fabs(ds[0]) > tol || fabs(ds[1]) > tol));
 
 			if (iter == 0) {
-				throw std::runtime_error("Shape::displace breakpoint correction failed to converge");
+				throw std::runtime_error("Shape::offset breakpoint correction failed to converge");
 			}
 
 			// in case there was no perfect solution, average the endpoints to make sure
 			// that each spline gets exactly the same value
 			double xFin = .5 * (p0.x + p1.x);
 			double yFin = .5 * (p0.y + p1.y);
+
+			///\todo might be cutting off another point, replacing first and last won't work
 
 			// replace the endpoint of 0
 			s0.x_.back() = xFin;

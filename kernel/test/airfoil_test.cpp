@@ -44,3 +44,20 @@ BOOST_AUTO_TEST_CASE( airfoil_xfoil_import )
     ///\todo add test for le insertion, winding, etc.
 
 }
+
+BOOST_AUTO_TEST_CASE( airfoil_offset_test )
+{
+    using namespace foamcut;
+    std::string fname(FOAMCUT_TEST_DATA_DIR);
+    fname += "/ag45c-03.dat";
+    std::ifstream xfs(fname.c_str(), std::ifstream::in);
+    BOOST_CHECK(xfs.is_open());
+
+    DatFile::handle dat = DatFile::read(xfs);
+    Airfoil air(dat, 10, 0, false);
+    Shape::handle shp = air.shape();
+
+    Shape::handle kshp = shp->offset(-.01);
+
+    std::cout << "area " << shp->area() << "\toffset area " << kshp->area() << std::endl;
+}
