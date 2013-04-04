@@ -26,10 +26,20 @@ BOOST_AUTO_TEST_CASE( shape_break_kerf )
     Shape shape(x, y);
 
     Shape::handle dshape = shape.offset(.1);
+    BOOST_CHECK(dshape->x().size() == 6);
     BOOST_CHECK_SMALL(dshape->x()[0],      1e-9); BOOST_CHECK_CLOSE(dshape->y()[0], -.1, 1e-9);
-    BOOST_CHECK_CLOSE(dshape->x()[1], 1.1, 1e-9); BOOST_CHECK_CLOSE(dshape->y()[1], -.1, 1e-9);
+    BOOST_CHECK_CLOSE(dshape->x()[1], 1. , 1e-9); BOOST_CHECK_CLOSE(dshape->y()[1], -.1, 1e-9);
     BOOST_CHECK_CLOSE(dshape->x()[2], 1.1, 1e-9); BOOST_CHECK_CLOSE(dshape->y()[2], -.1, 1e-9);
-    BOOST_CHECK_CLOSE(dshape->x()[3], 1.1, 1e-9); BOOST_CHECK_CLOSE(dshape->y()[3], 1.,  1e-9);
+    BOOST_CHECK_CLOSE(dshape->x()[3], 1.1, 1e-9); BOOST_CHECK_CLOSE(dshape->y()[3], -.1,  1e-9);
+    BOOST_CHECK_CLOSE(dshape->x()[4], 1.1, 1e-9); BOOST_CHECK_CLOSE(dshape->y()[4],  0.,  1e-9);
+    BOOST_CHECK_CLOSE(dshape->x()[5], 1.1, 1e-9); BOOST_CHECK_CLOSE(dshape->y()[5],  1.,  1e-9);
+
+    dshape = shape.offset(-.1);
+    BOOST_CHECK(dshape->x().size() == 4);
+    BOOST_CHECK_SMALL(dshape->x()[0],     1e-9); BOOST_CHECK_CLOSE(dshape->y()[0], .1, 1e-9);
+    BOOST_CHECK_CLOSE(dshape->x()[1], .9, 1e-9); BOOST_CHECK_CLOSE(dshape->y()[1], .1, 1e-9);
+    BOOST_CHECK_CLOSE(dshape->x()[2], .9, 1e-9); BOOST_CHECK_CLOSE(dshape->y()[2], .1, 1e-9);
+    BOOST_CHECK_CLOSE(dshape->x()[3], .9, 1e-9); BOOST_CHECK_CLOSE(dshape->y()[3], 1.,  1e-9);
 }
 
 BOOST_AUTO_TEST_CASE( shape_fit_line )
@@ -48,11 +58,9 @@ BOOST_AUTO_TEST_CASE( shape_fit_line )
 	double s0 = pi/4.;
 	double eps = .001;
 	double sfit = s.fitLineSegment(s0, eps);
-	std::cout << "ds = " << sfit-s0 << "\tanalytic = " << 2.*acos(1.-eps) << std::endl;
 	BOOST_CHECK_SMALL(sfit-s0 - 2.*acos(1.-eps), eps);
 
 	eps = .01;
 	sfit = s.fitLineSegment(s0, eps);
-	std::cout << "ds = " << sfit-s0 << "\tanalytic = " << 2.*acos(1.-eps) << std::endl;
 	BOOST_CHECK_SMALL(sfit-s0 - 2.*acos(1.-eps), eps);
 }

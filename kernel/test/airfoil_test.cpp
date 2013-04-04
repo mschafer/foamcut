@@ -57,7 +57,26 @@ BOOST_AUTO_TEST_CASE( airfoil_offset_test )
     Airfoil air(dat, 10, 0, false);
     Shape::handle shp = air.shape();
 
-    Shape::handle kshp = shp->offset(-.01);
+    // use the last 4 points of the first spline and the first 4 of the second as offset test.
+    auto xs0 = shp->xSpline(0);
+    auto ys0 = shp->ySpline(0);
+    auto xs1 = shp->xSpline(1);
+    auto ys1 = shp->ySpline(1);
+    std::vector<double> x(8), y(8);
+    size_t n0 = xs0.x().size();
+    for (size_t i=0; i<4; ++i) {
+    	x[i] = xs0.y()[n0-4+i];
+    	y[i] = ys0.y()[n0-4+i];
+    	x[i+4] = xs1.y()[i];
+    	y[i+4] = ys1.y()[i];
+    }
+    BOOST_CHECK(x[3] == x[4] && y[3] == y[4]);
 
-    std::cout << "area " << shp->area() << "\toffset area " << kshp->area() << std::endl;
+    shp.reset(new Shape(x, y));
+    for (size_t i=0; i<shp->x().size(); ++i) {
+    	//std::cout << shp->x()[i] << '\t' << shp->y()[i] << std::endl;
+    }
+
+//    auto shp2 = shp->offset(.01);
+
 }

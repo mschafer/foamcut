@@ -82,6 +82,9 @@ public:
 	 */
 	size_t segmentCount() const { return xSpline_.size(); }
 
+	const foamcut::Spline &xSpline(size_t idx) const { return xSpline_[idx]; }
+	const foamcut::Spline &ySpline(size_t idx) const { return ySpline_[idx]; }
+
 	/**
 	 * \return The s coordinate for the break point specified by idx.
 	 */
@@ -206,6 +209,18 @@ private:
 	void invariant() const;
 	void buildSplines();
 	void origin();
+
+	/**
+	 * Replace the last point in the shape with one at the given x,y coordinates.
+	 * All points past where xEnd, yEnd is nearest to the shape are discarded.
+	 */
+	void replaceEndPoint(double xEnd, double yEnd);
+
+	/**
+	 * Replace the first point in the shape with one at the given x,y coordinates.
+	 * All points past where xEnd, yEnd is nearest to the shape are discarded.
+	 */
+	void replaceStartPoint(double xStart, double yStart);
 
 	/**
 	 *  Returns the index of the first spline with s_end >= s.

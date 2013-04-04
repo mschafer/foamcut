@@ -72,7 +72,7 @@ void Spline::calculate() {
 		c[i] = dxm;
 		y_x_[i] = 3.
 				* ((y_[i + 1] - y_[i]) * dxm / dxp
-						+ (y_[i] - y_[i - 1]) * dxp / dxm);
+				+ (y_[i] - y_[i - 1]) * dxp / dxm);
 	}
 
 	// set 0 2nd derivative end conditions (not a knot)

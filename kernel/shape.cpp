@@ -158,6 +158,8 @@ Shape::offset(double d) const {
 		dshape.push_back(new Shape(dx, dy));
 	}
 
+	// the displaced shapes will not be contiguous any longer so the
+	// ends need to be adjusted.
 	for (size_t ishp=0; ishp<dshape.size()-1; ++ishp) {
 		Shape &s0 = dshape[ishp];
 		Shape &s1 = dshape[ishp+1];
@@ -169,19 +171,24 @@ Shape::offset(double d) const {
 		Point p0 = s0.evaluate(sInit[0]);
 		Point p1 = s1.evaluate(sInit[1]);
 
-		///\todo change this to within 1% of d
-		// nothing to do if endpoints are already identical
-		if (p0.x == p1.x && p0.y == p1.y) {
-			continue;
-		}
+		// new end point is average of offset end points
+		double xFin = .5 * (p0.x + p1.x);
+		double yFin = .5 * (p0.y + p1.y);
 
-		// avoid intersection testing for pathological case of nearly parallel segments
-		// endpoints will just get averaged
-		double cond = fabs(p1.x_s * p0.y_s - p0.x_s * p1.y_s);
-		if (cond > 1.e-6) {
+		// cross product of tangent vectors is measure of parallelism
+		double cross = fabs(p1.x_s * p0.y_s - p0.x_s * p1.y_s);
+
+		// separation of end points relative to offset
+		double rdist = fabs(hypot(p0.x - p1.x, p0.y - p1.y) / d);
+
+		// if the end points are relatively far apart and the ends of the two
+		// segments are not parallel, then we can do better than the
+		// average by finding where the segments intersect.
+		if (rdist > .03 && cross > 1.e-2) {
+
 			int iter = 5;
-			double tol = std::min(1.e-3 * d, 1.e-9);
-			double dsmax = 3. * d;
+			double tol = std::min(1.e-3 * fabs(d), 1.e-9);
+			double dsmax = fabs(3. * d);
 
 			do {
 				double A[2][2];
@@ -207,6 +214,8 @@ Shape::offset(double d) const {
 
 				p0 = s0.evaluate(sFin[0]);
 				p1 = s1.evaluate(sFin[1]);
+				xFin = .5 * (p0.x + p1.x);
+				yFin = .5 * (p0.y + p1.y);
 				iter--;
 			} while (iter > 0 && (fabs(ds[0]) > tol || fabs(ds[1]) > tol));
 
@@ -214,23 +223,11 @@ Shape::offset(double d) const {
 				throw std::runtime_error("Shape::offset breakpoint correction failed to converge");
 			}
 
-			// in case there was no perfect solution, average the endpoints to make sure
-			// that each spline gets exactly the same value
-			double xFin = .5 * (p0.x + p1.x);
-			double yFin = .5 * (p0.y + p1.y);
-
-			///\todo might be cutting off another point, replacing first and last won't work
-
-			// replace the endpoint of 0
-			s0.x_.back() = xFin;
-			s0.y_.back() = yFin;
-			s0.buildSplines();
-
-			// replace the first point of 1
-			s1.x_.front() = xFin;
-			s1.y_.front() = yFin;
-			s1.buildSplines();
 		}
+
+		// replace the endpoint of 0
+		s0.replaceEndPoint(xFin, yFin);
+		s1.replaceStartPoint(xFin, yFin);
 	}
 
 	// compose new x,y array from list of shapes
@@ -292,6 +289,50 @@ Shape::reverse() const
 
 	handle ret(new Shape(x, y, name_));
 	return ret;
+}
+
+void
+Shape::replaceEndPoint(double xEnd, double yEnd)
+{
+	double sEnd = nearestPoint(xEnd, yEnd, s_.back());
+	std::vector<double> x,y;
+	size_t i = 0;
+	while(i < s_.size() && s_[i] < sEnd) {
+		x.push_back(x_[i]);
+		y.push_back(y_[i]);
+		++i;
+	}
+	x.push_back(xEnd);
+	y.push_back(yEnd);
+
+	x_.swap(x);
+	y_.swap(y);
+	buildSplines();
+}
+
+void
+Shape::replaceStartPoint(double xStart, double yStart)
+{
+	double sStart = nearestPoint(xStart, yStart, s_.front());
+	std::vector<double> x,y;
+	size_t i = 0;
+
+	// skip points up to new start
+	while (i < s_.size() && s_[i] < sStart) ++i;
+	x.push_back(xStart);
+	y.push_back(yStart);
+
+	if (s_[i] == sStart) ++i;
+
+	while(i < x_.size()) {
+		x.push_back(x_[i]);
+		y.push_back(y_[i]);
+		++i;
+	}
+
+	x_.swap(x);
+	y_.swap(y);
+	buildSplines();
 }
 
 double
@@ -511,11 +552,11 @@ double Shape::nearestPoint(double x, double y, double guess) const {
 		ds = tx * dx + ty * dy;
 		s += ds;
 
-	} while (ds < tol && iterLeft > 0);
+		--iterLeft;
+	} while (fabs(ds) > tol && iterLeft > 0);
 
 	if (iterLeft == 0) {
-		throw(std::range_error(
-				"Shape::nearestPoint failed to converge"));
+		throw(std::range_error("Shape::nearestPoint failed to converge"));
 	}
 	return s;
 }
