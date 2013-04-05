@@ -107,7 +107,7 @@ foamcut::Shape::handle addLeadInHelper(const foamcut::Shape::handle shape, doubl
 
 void MainWindow::geometryChanged()
 {
-	///\todo handle error of mismatched segment count
+	///\todo catch errors
 	double xLead = ui->xLeadIn_edit->text().toDouble();
 	double yLead = ui->yLeadIn_edit->text().toDouble();
 

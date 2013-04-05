@@ -48,11 +48,11 @@ RuledSurface::RuledSurface(const Shape &lShape, const Shape &rShape,
 			double rsNext = rShape.fitLineSegment(rs, eps);
 
 			// advance by the largest length fraction that satisfies the tolerance on both sides.
-			double lsFrac = (lsNext - ls) / dls;
-			double rsFrac = (rsNext - rs) / drs;
+			double lsFrac = (lsNext - lsLimits.first) / dls;
+			double rsFrac = (rsNext - rsLimits.first) / drs;
 			double sFrac = std::min(lsFrac, rsFrac);
-			ls = ls + sFrac*dls;
-			rs = rs + sFrac*dls;
+			ls = sFrac*dls + lsLimits.first;
+			rs = sFrac*drs + rsLimits.first;
 
 			// match endpoint exactly when within eps.
 			if (fabs(ls - lsLimits.second) <= eps || (fabs(rs - rsLimits.second) <= eps)) {
@@ -63,8 +63,10 @@ RuledSurface::RuledSurface(const Shape &lShape, const Shape &rShape,
 		}
 
 		// last point
-		lx_.push_back(lShape.x().back()); ly_.push_back(lShape.y().back());
-		rx_.push_back(rShape.x().back()); ry_.push_back(rShape.y().back());
+		auto lastPoint = lShape.breakPoint(iseg+1);
+		lx_.push_back(lastPoint.first); ly_.push_back(lastPoint.second);
+		lastPoint = rShape.breakPoint(iseg+1);
+		rx_.push_back(lastPoint.first); ry_.push_back(lastPoint.second);
 	}
 
 }

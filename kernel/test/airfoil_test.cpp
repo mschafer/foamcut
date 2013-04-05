@@ -16,6 +16,7 @@
 
 #include "airfoil.hpp"
 #include "dat_file.hpp"
+#include "ruled_surface.hpp"
 
 BOOST_AUTO_TEST_CASE( airfoil_xfoil_import )
 {
@@ -23,7 +24,6 @@ BOOST_AUTO_TEST_CASE( airfoil_xfoil_import )
     
     std::string fname(FOAMCUT_TEST_DATA_DIR);
     fname += "/ag45c-03.dat";
-    std::cout << fname << std::endl;
     std::ifstream xfs(fname.c_str(), std::ifstream::in);
     BOOST_CHECK(xfs.is_open());
 
@@ -72,11 +72,43 @@ BOOST_AUTO_TEST_CASE( airfoil_offset_test )
     }
     BOOST_CHECK(x[3] == x[4] && y[3] == y[4]);
 
-    shp.reset(new Shape(x, y));
-    for (size_t i=0; i<shp->x().size(); ++i) {
-    	//std::cout << shp->x()[i] << '\t' << shp->y()[i] << std::endl;
-    }
+    double a = shp->area();
+    auto kshp = shp->offset(.01);
+    BOOST_CHECK_CLOSE((a-kshp->area()), -.01*shp->s().back(), .1);
 
-//    auto shp2 = shp->offset(.01);
+    kshp = shp->offset(-.01);
+    BOOST_CHECK_CLOSE((a-kshp->area()), .01*shp->s().back(), .1);
+}
 
+BOOST_AUTO_TEST_CASE( airfoil_make_wing )
+{
+    using namespace foamcut;
+    std::string datDir(FOAMCUT_TEST_DATA_DIR);
+    std::string fname = datDir + "/ag45c-03.dat";
+    std::ifstream xfs(fname.c_str(), std::ifstream::in);
+    BOOST_CHECK(xfs.is_open());
+    DatFile::handle dat = DatFile::read(xfs);
+    xfs.close();
+    Airfoil root(dat, 10, 0, false);
+
+    fname = datDir + "/ag47c-03.dat";
+    xfs.open(fname.c_str(), std::ifstream::in);
+    dat = DatFile::read(xfs);
+    xfs.close();
+    Airfoil tip(dat, 5, 3, false);
+
+    auto rootShp = root.shape();
+    auto tipShp = tip.shape();
+
+    auto rootKShp = rootShp->offset(-.02);
+    auto tipKShp = tipShp->offset(-.02);
+
+	RuledSurface::handle partRS(new foamcut::RuledSurface(*rootKShp, *tipKShp, 1., 20., .001));
+	size_t n = partRS->leftX().size();
+	for (size_t i=0; i<n; ++i) {
+		std::cout << partRS->leftX()[i] << '\t' << partRS->leftY()[i] <<
+			  '\t'<< partRS->rightX()[i] << '\t'<< partRS->rightY()[i] << std::endl;
+	}
+
+	auto frameRS = partRS->interpolateZ(0., 30.);
 }
