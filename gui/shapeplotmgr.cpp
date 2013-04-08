@@ -39,7 +39,8 @@ QCPCurveDataMap *ShapePlotMgr::lineFit(const foamcut::Shape::handle shape)
 	dataMap->insert(s, QCPCurveData(s, p0.x, p0.y));
 	double sMax = shape->s().back();
 	while (s < .99999 * sMax) {
-		double s1 = shape->fitLineSegment(s, .001*sMax);
+		/// \todo use step size to correctly set tolerance
+		double s1 = shape->fitLineSegment(s, .001);
 		auto p1 = shape->evaluate(s1);
 		dataMap->insert(s1, QCPCurveData(s1, p1.x, p1.y));
 		s = s1;
