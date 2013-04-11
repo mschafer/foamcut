@@ -15,6 +15,7 @@
 #include <QFileDialog>
 #include <fstream>
 #include <QDebug>
+#include <QSettings>
 #include <boost/algorithm/minmax_element.hpp>
 #include "airfoil.hpp"
 
@@ -65,11 +66,17 @@ int DatImportPage::nextId() const
 
 void DatImportPage::on_fileBrowseButton_clicked()
 {
+	QSettings settings;
+	QString lastPath = settings.value("DatImportPage/lastPath", "").toString();
+	qDebug() << lastPath;
     QString fileName = QFileDialog::getOpenFileName(this,
-         tr("Open .dat file"), "", tr(".dat files (*.dat);;All files (*.*)"));
+         tr("Open .dat file"), lastPath, tr(".dat files (*.dat);;All files (*.*)"));
 
     if (fileName.length() != 0) {
         ui->fileName_edit->setText(fileName);
+        QString lastPath = QFileInfo(fileName).absolutePath() + QDir::separator() + "*";
+        settings.setValue("DatImportPage/lastPath", lastPath);
+    	qDebug() << lastPath;
     }
 
 	on_fileName_edit_editingFinished();

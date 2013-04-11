@@ -109,6 +109,7 @@ Shape::area() const
     for (size_t i=0; i<npt-1; i++) {
         area += x_[i] * y_[i+1] - x_[i+1] * y_[i];
     }
+    area += x_[npt-1] * y_[0] - x_[0] * y_[npt-1];
     return area / 2.;
 }
 

@@ -58,7 +58,7 @@
           <enum>Qt::PreventContextMenu</enum>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="root_tab">
           <attribute name="title">
@@ -366,7 +366,7 @@
      <x>0</x>
      <y>0</y>
      <width>692</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

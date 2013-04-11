@@ -89,26 +89,35 @@ BOOST_AUTO_TEST_CASE( airfoil_make_wing )
     BOOST_CHECK(xfs.is_open());
     DatFile::handle dat = DatFile::read(xfs);
     xfs.close();
-    Airfoil root(dat, 10, 0, false);
+    Airfoil root(dat, 6., 0., false);
 
     fname = datDir + "/ag47c-03.dat";
     xfs.open(fname.c_str(), std::ifstream::in);
     dat = DatFile::read(xfs);
     xfs.close();
-    Airfoil tip(dat, 5, 3, false);
+    Airfoil tip(dat, 3., 3., false);
 
     auto rootShp = root.shape();
     auto tipShp = tip.shape();
 
-    auto rootKShp = rootShp->offset(-.02);
-    auto tipKShp = tipShp->offset(-.02);
+    auto rootKShp = rootShp->offset(-.03);
+    auto tipKShp = tipShp->offset(-.03);
 
-	RuledSurface::handle partRS(new foamcut::RuledSurface(*rootKShp, *tipKShp, 1., 20., .001));
+ #if 0
+    size_t n = tipKShp->x().size();
+    for (size_t i=0; i<n; ++i) {
+		std::cout << tipKShp->x()[i] << '\t' << tipKShp->y()[i] << std::endl;
+	}
+#endif
+
+	RuledSurface::handle partRS(new foamcut::RuledSurface(*rootKShp, *tipKShp, 1., 24., .001));
+#if 0
 	size_t n = partRS->leftX().size();
 	for (size_t i=0; i<n; ++i) {
 		std::cout << partRS->leftX()[i] << '\t' << partRS->leftY()[i] <<
 			  '\t'<< partRS->rightX()[i] << '\t'<< partRS->rightY()[i] << std::endl;
 	}
+#endif
 
 	auto frameRS = partRS->interpolateZ(0., 30.);
 }

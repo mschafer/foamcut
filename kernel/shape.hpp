@@ -93,7 +93,11 @@ public:
 	/** \return x,y coordinates of break point at idx. */
 	std::pair<double, double> breakPoint(size_t idx) const;
 
-    /** \return area of the shape.  A positive value indicates CCW winding. */
+    /**
+     * \return area of the shape.  A positive value indicates CCW winding.
+     * If the first and last points are not the same, then the shape is
+     * closed by connecting them.
+     */
     double area() const;
 
 	/**
