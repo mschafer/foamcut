@@ -2,3 +2,5 @@
 *.bak
 *.*~
 *.user*
+
+.DS_Store
