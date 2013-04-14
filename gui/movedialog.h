@@ -15,6 +15,12 @@ public:
     explicit MoveDialog(QWidget *parent = 0);
     ~MoveDialog();
     
+private slots:
+	void on_up_button_clicked();
+	void on_left_button_clicked();
+	void on_right_button_clicked();
+	void on_down_button_clicked();
+
 private:
     Ui::MoveDialog *ui;
 };
