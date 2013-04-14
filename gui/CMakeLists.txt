@@ -32,7 +32,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5PrintSupport REQUIRED)
 
-set(UI_FILES mainwindow.ui datimportpage.ui)
+set(UI_FILES mainwindow.ui cutdialog.ui movedialog.ui datimportpage.ui)
 qt5_wrap_ui(UI_HDRS ${UI_FILES})
 
 include_directories( 
@@ -41,12 +41,15 @@ include_directories(
 )
 
 add_executable(foamcut_gui
-  ${UI_HDRS} 
+  ${UI_HDRS}
+  cutdialog.cpp
   cutplotmgr.cpp
   datimportpage.cpp
   importwizard.cpp
+  logdoublespinbox.cpp
   main.cpp
   mainwindow.cpp
+  movedialog.cpp
   qcustomplot.cpp
   shapeplotmgr.cpp
 )

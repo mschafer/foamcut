@@ -116,6 +116,8 @@ public:
 
 	/**
 	 * Offset all the points in the shape by distance d in the direction normal to the shape.
+	 * A positive offset will increase the magnitude of the shapes area, ie. offset to the left for
+	 * shapes w/ CW winding and to the right for shapes with CCW winding.
 	 * a.k.a. kerf correction
 	 * \return handle to the new, displaced shape
 	 */

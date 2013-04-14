@@ -23,8 +23,10 @@
  * Part surface.
  * Interpolated surface at frames.
  */
-class CutPlotMgr : public boost::noncopyable
+class CutPlotMgr : public QObject
 {
+	Q_OBJECT
+
 public:
 	enum {
 		ROOT_BASE_CURVE   = 0,
@@ -47,6 +49,11 @@ public:
 	}
 
 	static std::pair<QCPCurveDataMap*, QCPCurveDataMap*> surfacePoints(const foamcut::RuledSurface::handle);
+
+private slots:
+	void mousePress();
+	void mouseWheel();
+	void legendDoubleClick(QCPLegend* legend, QCPAbstractLegendItem* item);
 
 private:
 	CutPlotMgr();

@@ -143,6 +143,12 @@ Shape::evaluate(double s, size_t idx) const {
 Shape::handle
 Shape::offset(double d) const {
 
+	// change sign of d based on area because point offset method is always based on
+	// right handed coordinate system regardless of shape winding.
+	if (area() < 0.) {
+		d *= -1.;
+	}
+
 	// displace all the splines and make each one into a new Shape
 	std::vector<double> dx(x_.size()), dy(y_.size());
 	boost::ptr_vector<Shape> dshape;

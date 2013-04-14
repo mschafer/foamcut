@@ -32,6 +32,8 @@ private slots:
 
 	void geometryChanged();
 
+	void on_move_button_clicked();
+
 private:
     Ui::MainWindow *ui;
 	boost::shared_ptr<foamcut::Shape> rootShape_;

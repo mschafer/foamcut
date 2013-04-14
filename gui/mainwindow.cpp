@@ -11,6 +11,7 @@
  */
 #include <memory>
 #include "mainwindow.h"
+#include "movedialog.h"
 #include "ui_mainwindow.h"
 #include "importwizard.h"
 #include "ruled_surface.hpp"
@@ -50,6 +51,11 @@ void MainWindow::on_rootImport_button_clicked()
     iw->exec();
 	if (iw->result() == QDialog::Accepted) {
 		rootShape_ = iw->shape();
+		if (rootShape_->area() < 0) {
+			ui->rootKerf_label->setText("Kerf [CW]");
+		} else {
+			ui->rootKerf_label->setText("Kerf [CCW]");
+		}
 		ui->rootName_label->setText(QString::fromStdString(rootShape_->name()));
 		geometryChanged();
 	}
@@ -61,12 +67,15 @@ void MainWindow::on_tipImport_button_clicked()
     iw->exec();
 	if (iw->result() == QDialog::Accepted) {
 		tipShape_ = iw->shape();
+		if (tipShape_->area() < 0) {
+			ui->tipKerf_label->setText("Kerf [CW]");
+		} else {
+			ui->tipKerf_label->setText("Kerf [CCW]");
+		}
 		ui->tipName_label->setText(QString::fromStdString(tipShape_->name()));
 		geometryChanged();
 	}
 }
-
-
 
 void MainWindow::on_rootZ_edit_editingFinished()
 {
@@ -139,4 +148,10 @@ void MainWindow::geometryChanged()
 		cutterPath_ = nullptr;
 	}
 	cutPlotMgr_->update(rootShape_, tipShape_, partPath_, cutterPath_);
+}
+
+void MainWindow::on_move_button_clicked()
+{
+	std::auto_ptr<MoveDialog> md(new MoveDialog());
+	md->exec();
 }

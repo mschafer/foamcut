@@ -68,7 +68,6 @@ void DatImportPage::on_fileBrowseButton_clicked()
 {
 	QSettings settings;
 	QString lastPath = settings.value("DatImportPage/lastPath", "").toString();
-	qDebug() << lastPath;
     QString fileName = QFileDialog::getOpenFileName(this,
          tr("Open .dat file"), lastPath, tr(".dat files (*.dat);;All files (*.*)"));
 
@@ -76,7 +75,6 @@ void DatImportPage::on_fileBrowseButton_clicked()
         ui->fileName_edit->setText(fileName);
         QString lastPath = QFileInfo(fileName).absolutePath() + QDir::separator() + "*";
         settings.setValue("DatImportPage/lastPath", lastPath);
-    	qDebug() << lastPath;
     }
 
 	on_fileName_edit_editingFinished();

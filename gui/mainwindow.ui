@@ -95,7 +95,10 @@
               </widget>
              </item>
              <item row="2" column="0">
-              <widget class="QLabel" name="label_4">
+              <widget class="QLabel" name="rootKerf_label">
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indicates winding CW or CCW&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
                <property name="text">
                 <string>Kerf</string>
                </property>
@@ -104,7 +107,7 @@
              <item row="2" column="1">
               <widget class="QLineEdit" name="rootKerf_edit">
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wire kerf may be + (right) or - (left).  Shape will be displaced by half of the kerf.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Shape is displaced by half the kerf.  A positive kerf will increase the shape's area, i.e. displace to the left for a CCW wound shape.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="text">
                 <string>.03</string>
@@ -181,7 +184,10 @@
               </widget>
              </item>
              <item row="2" column="0">
-              <widget class="QLabel" name="label_10">
+              <widget class="QLabel" name="tipKerf_label">
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indicates winding CW or CCW&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
                <property name="text">
                 <string>Kerf</string>
                </property>
@@ -190,7 +196,7 @@
              <item row="2" column="1">
               <widget class="QLineEdit" name="tipKerf_edit">
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wire kerf may be + (right) or - (left).  Shape will be displaced by half of the kerf.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Shape is displaced by half the kerf. A positive kerf will increase the shape's area, i.e. displace to the left for a CCW wound shape.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="text">
                 <string>.03</string>

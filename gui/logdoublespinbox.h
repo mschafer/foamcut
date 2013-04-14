@@ -9,17 +9,15 @@
  * Contributors:
  *     Marc Schafer
  */
-#include "mainwindow.h"
-#include <QApplication>
+#include <QDoubleSpinBox>
 
-int main(int argc, char *argv[])
+class LogDoubleSpinBox : public QDoubleSpinBox
 {
-    QCoreApplication::setOrganizationName("mit");
-    QCoreApplication::setOrganizationDomain("mit.edu");
-    QCoreApplication::setApplicationName("FoamCut");
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    
-    return a.exec();
-}
+public:
+	LogDoubleSpinBox(QWidget *parent);
+	void stepBy(int steps);
+
+private:
+	static double next125(double v);
+	static double prev125(double v);
+};

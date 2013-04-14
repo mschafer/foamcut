@@ -23,8 +23,16 @@ CutPlotMgr::CutPlotMgr(QCustomPlot *plot) : plot_(plot)
 	plot_->xAxis->setRange(-1., 1.);
 	plot_->yAxis->setRange(-1., 1.);
 
+	plot_->setInteractions(QCustomPlot::iRangeDrag | QCustomPlot::iRangeZoom |
+			QCustomPlot::iSelectAxes | QCustomPlot::iSelectLegend);
 	plot_->setRangeDrag(Qt::Horizontal | Qt::Vertical);
 	plot_->setRangeZoom(Qt::Horizontal | Qt::Vertical);
+	plot_->legend->setSelectable(QCPLegend::spItems); // legend box shall not be selectable, only legend items
+
+	// connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
+	connect(plot_, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
+	connect(plot_, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
+	connect(plot_, SIGNAL(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*)));
 
 	QCPCurve *curve;
 	QPen pen;
@@ -149,3 +157,41 @@ void CutPlotMgr::replot()
 	plot_->xAxis->setRange(range);
 	plot_->replot();
 }
+
+void CutPlotMgr::mousePress() {
+	// if an axis is selected, only allow the direction of that axis to be dragged
+	// if no axis is selected, both directions may be dragged
+
+	if (plot_->xAxis->selected().testFlag(QCPAxis::spAxis))
+		plot_->setRangeDrag(plot_->xAxis->orientation());
+	else if (plot_->yAxis->selected().testFlag(QCPAxis::spAxis))
+		plot_->setRangeDrag(plot_->yAxis->orientation());
+	else
+		plot_->setRangeDrag(Qt::Horizontal | Qt::Vertical);
+}
+
+void CutPlotMgr::mouseWheel() {
+	// if an axis is selected, only allow the direction of that axis to be zoomed
+	// if no axis is selected, both directions may be zoomed
+
+	if (plot_->xAxis->selected().testFlag(QCPAxis::spAxis))
+		plot_->setRangeZoom(plot_->xAxis->orientation());
+	else if (plot_->yAxis->selected().testFlag(QCPAxis::spAxis))
+		plot_->setRangeZoom(plot_->yAxis->orientation());
+	else
+		plot_->setRangeZoom(Qt::Horizontal | Qt::Vertical);
+}
+
+void CutPlotMgr::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item)
+{
+	// hide or show a curve by double clicking on its legend item.
+	Q_UNUSED(legend)
+	if (item) // only react if item was clicked (user could have clicked on border padding of legend where there is no item, then item is 0)
+	{
+		QCPPlottableLegendItem *plItem = qobject_cast<QCPPlottableLegendItem*>(item);
+		bool visible = plItem->plottable()->visible();
+		plItem->plottable()->setVisible(!visible);
+	}
+}
+
+
