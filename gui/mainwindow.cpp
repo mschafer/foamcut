@@ -116,38 +116,41 @@ foamcut::Shape::handle addLeadInHelper(const foamcut::Shape::handle shape, doubl
 
 void MainWindow::geometryChanged()
 {
-	///\todo catch errors
-	double xLead = ui->xLeadIn_edit->text().toDouble();
-	double yLead = ui->yLeadIn_edit->text().toDouble();
+	try {
+		double xLead = ui->xLeadIn_edit->text().toDouble();
+		double yLead = ui->yLeadIn_edit->text().toDouble();
 
-	if (rootShape_ != nullptr) {
-		double rootKerf = ui->rootKerf_edit->text().toDouble();
-		rootKerfShape_ = rootShape_->offset(rootKerf / 2.);
-		rootKerfShape_ = addLeadInHelper(rootKerfShape_, xLead, yLead);
-	} else {
-		rootKerfShape_ = nullptr;
-	}
+		if (rootShape_ != nullptr) {
+			double rootKerf = ui->rootKerf_edit->text().toDouble();
+			rootKerfShape_ = rootShape_->offset(rootKerf / 2.);
+			rootKerfShape_ = addLeadInHelper(rootKerfShape_, xLead, yLead);
+		} else {
+			rootKerfShape_ = nullptr;
+		}
 
-	if (tipShape_ != nullptr) {
-		double tipKerf = ui->tipKerf_edit->text().toDouble();
-		tipKerfShape_ = tipShape_->offset(tipKerf / 2.);
-		tipKerfShape_ = addLeadInHelper(tipKerfShape_, xLead, yLead);
-	} else {
-		tipKerfShape_ = nullptr;
-	}
+		if (tipShape_ != nullptr) {
+			double tipKerf = ui->tipKerf_edit->text().toDouble();
+			tipKerfShape_ = tipShape_->offset(tipKerf / 2.);
+			tipKerfShape_ = addLeadInHelper(tipKerfShape_, xLead, yLead);
+		} else {
+			tipKerfShape_ = nullptr;
+		}
 
-	if (rootKerfShape_ != nullptr && tipKerfShape_ != nullptr) {
-		double rootZ = ui->rootZ_edit->text().toDouble();
-		double tipZ  = ui->tipZ_edit->text().toDouble();
-		///\todo get correct eps value from step size
-		partPath_.reset(new foamcut::RuledSurface(*rootKerfShape_, *tipKerfShape_, rootZ, tipZ-rootZ, .001));
-		double zRightFrame = ui->zRightFrame_edit->text().toDouble();
-		cutterPath_ = partPath_->interpolateZ(0., zRightFrame);
-	} else {
-		partPath_ = nullptr;
-		cutterPath_ = nullptr;
+		if (rootKerfShape_ != nullptr && tipKerfShape_ != nullptr) {
+			double rootZ = ui->rootZ_edit->text().toDouble();
+			double tipZ  = ui->tipZ_edit->text().toDouble();
+			///\todo get correct eps value from step size
+			partPath_.reset(new foamcut::RuledSurface(*rootKerfShape_, *tipKerfShape_, rootZ, tipZ-rootZ, .001));
+			double zRightFrame = ui->zRightFrame_edit->text().toDouble();
+			cutterPath_ = partPath_->interpolateZ(0., zRightFrame);
+		} else {
+			partPath_ = nullptr;
+			cutterPath_ = nullptr;
+		}
+		cutPlotMgr_->update(rootShape_, tipShape_, partPath_, cutterPath_);
+	} catch (std::exception &ex) {
+		qDebug() << ex.what();
 	}
-	cutPlotMgr_->update(rootShape_, tipShape_, partPath_, cutterPath_);
 }
 
 void MainWindow::on_move_button_clicked()

@@ -165,6 +165,15 @@ Shape::offset(double d) const {
 		dshape.push_back(new Shape(dx, dy));
 	}
 
+	for (size_t ishp=0; ishp<dshape.size(); ++ishp) {
+		Shape &s = dshape[ishp];
+		size_t n = s.x().size();
+		for (size_t i=0; i<n; ++i) {
+			std::cout << s.x()[i] << '\t' << s.y()[i] << std::endl;
+		}
+		std::cout << "--------------------------------------------------------" << std::endl;
+	}
+
 	// the displaced shapes will not be contiguous any longer so the
 	// ends need to be adjusted.
 	for (size_t ishp=0; ishp<dshape.size()-1; ++ishp) {
@@ -227,7 +236,9 @@ Shape::offset(double d) const {
 			} while (iter > 0 && (fabs(ds[0]) > tol || fabs(ds[1]) > tol));
 
 			if (iter == 0) {
-				throw std::runtime_error("Shape::offset breakpoint correction failed to converge");
+				std::stringstream ss;
+				ss << "Shape::offset breakpoint correction failed to converge at ishp = " << ishp;
+				throw std::runtime_error(ss.str());
 			}
 
 		}
@@ -301,44 +312,16 @@ Shape::reverse() const
 void
 Shape::replaceEndPoint(double xEnd, double yEnd)
 {
-	double sEnd = nearestPoint(xEnd, yEnd, s_.back());
-	std::vector<double> x,y;
-	size_t i = 0;
-	while(i < s_.size() && s_[i] < sEnd) {
-		x.push_back(x_[i]);
-		y.push_back(y_[i]);
-		++i;
-	}
-	x.push_back(xEnd);
-	y.push_back(yEnd);
-
-	x_.swap(x);
-	y_.swap(y);
+	x_.back() = xEnd;
+	y_.back() = yEnd;
 	buildSplines();
 }
 
 void
 Shape::replaceStartPoint(double xStart, double yStart)
 {
-	double sStart = nearestPoint(xStart, yStart, s_.front());
-	std::vector<double> x,y;
-	size_t i = 0;
-
-	// skip points up to new start
-	while (i < s_.size() && s_[i] < sStart) ++i;
-	x.push_back(xStart);
-	y.push_back(yStart);
-
-	if (s_[i] == sStart) ++i;
-
-	while(i < x_.size()) {
-		x.push_back(x_[i]);
-		y.push_back(y_[i]);
-		++i;
-	}
-
-	x_.swap(x);
-	y_.swap(y);
+	x_[0] = xStart;
+	y_[0] = yStart;
 	buildSplines();
 }
 
