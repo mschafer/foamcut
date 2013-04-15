@@ -33,6 +33,7 @@ private slots:
 	void geometryChanged();
 
 	void on_move_button_clicked();
+	void on_cut_button_clicked();
 
 private:
     Ui::MainWindow *ui;

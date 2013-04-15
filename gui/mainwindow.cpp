@@ -11,6 +11,7 @@
  */
 #include <memory>
 #include "mainwindow.h"
+#include "cutdialog.h"
 #include "movedialog.h"
 #include "ui_mainwindow.h"
 #include "importwizard.h"
@@ -136,6 +137,7 @@ void MainWindow::geometryChanged()
 			tipKerfShape_ = nullptr;
 		}
 
+<<<<<<< HEAD
 		if (rootKerfShape_ != nullptr && tipKerfShape_ != nullptr) {
 			double rootZ = ui->rootZ_edit->text().toDouble();
 			double tipZ  = ui->tipZ_edit->text().toDouble();
@@ -150,6 +152,20 @@ void MainWindow::geometryChanged()
 		cutPlotMgr_->update(rootShape_, tipShape_, partPath_, cutterPath_);
 	} catch (std::exception &ex) {
 		qDebug() << ex.what();
+=======
+	if (rootKerfShape_ != nullptr && tipKerfShape_ != nullptr) {
+		double rootZ = ui->rootZ_edit->text().toDouble();
+		double tipZ  = ui->tipZ_edit->text().toDouble();
+		///\todo get correct eps value from step size
+		partPath_.reset(new foamcut::RuledSurface(*rootKerfShape_, *tipKerfShape_, rootZ, tipZ-rootZ, .001));
+		double zRightFrame = ui->zRightFrame_edit->text().toDouble();
+		cutterPath_ = partPath_->interpolateZ(0., zRightFrame);
+		ui->cut_button->setEnabled(true);
+	} else {
+		partPath_ = nullptr;
+		cutterPath_ = nullptr;
+		ui->cut_button->setEnabled(false);
+>>>>>>> cut button
 	}
 }
 
@@ -158,3 +174,10 @@ void MainWindow::on_move_button_clicked()
 	std::auto_ptr<MoveDialog> md(new MoveDialog());
 	md->exec();
 }
+
+void MainWindow::on_cut_button_clicked()
+{
+	std::auto_ptr<CutDialog> cd(new CutDialog());
+	cd->exec();
+}
+
