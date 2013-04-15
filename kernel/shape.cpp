@@ -26,8 +26,10 @@ void solve2x2(const double A[2][2], double b[2]) {
 	if (fabs(det) < tol) {
 		throw std::range_error("solve2x2: singular A matrix");
 	}
-	b[0] = (A[1][1] * b[0] - A[0][1] * b[1]) * det;
-	b[1] = (A[0][0] * b[1] - A[1][0] * b[0]) * det;
+	double x0 = (A[1][1] * b[0] - A[0][1] * b[1]) * det;
+	double x1 = (A[0][0] * b[1] - A[1][0] * b[0]) * det;
+
+	b[0] = x0; b[1] = x1;
 }
 
 Shape::Shape(const std::vector<double> &x, const std::vector<double> &y,
@@ -163,15 +165,6 @@ Shape::offset(double d) const {
 			dy.push_back(dp.second);
 		}
 		dshape.push_back(new Shape(dx, dy));
-	}
-
-	for (size_t ishp=0; ishp<dshape.size(); ++ishp) {
-		Shape &s = dshape[ishp];
-		size_t n = s.x().size();
-		for (size_t i=0; i<n; ++i) {
-			std::cout << s.x()[i] << '\t' << s.y()[i] << std::endl;
-		}
-		std::cout << "--------------------------------------------------------" << std::endl;
 	}
 
 	// the displaced shapes will not be contiguous any longer so the

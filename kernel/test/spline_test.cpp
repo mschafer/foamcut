@@ -61,6 +61,33 @@ BOOST_AUTO_TEST_CASE( spline_shape_linearize )
     for (size_t i=0; i<xl.size(); i++) {
         BOOST_CHECK_CLOSE(1., hypot(xl[i], yl[i]), .1);
     }
-    
-    
+}
+
+BOOST_AUTO_TEST_CASE( spline_slopes )
+{
+	using namespace foamcut;
+	std::vector<double> x,y,s;
+	x.push_back(-.5); y.push_back(-.5);
+	x.push_back(.2); y.push_back(-.2);
+	x.push_back(.5); y.push_back(.5);
+
+	s.resize(x.size());
+	s[0] = 0.;
+	for (size_t i=1; i<x.size(); ++i) {
+		s[i] = s[i-1] + hypot(x[i]-x[i-1], y[i]-y[i-1]);
+	}
+
+	std::auto_ptr<Spline> xspl(new Spline(s, x));
+	std::auto_ptr<Spline> yspl(new Spline(s, y));
+
+	for (size_t i=0; i<x.size(); ++i) {
+		auto px0 = xspl->evaluateAll(s[i]);
+		auto px1 = xspl->evaluateAll(s[i] + 1.e-6);
+		BOOST_CHECK_CLOSE((px1.y-px0.y)/(px1.x-px0.x), xspl->dydx()[i], 1.e-2);
+
+		auto py0 = yspl->evaluateAll(s[i]);
+		auto py1 = yspl->evaluateAll(s[i] + 1.e-6);
+		BOOST_CHECK_CLOSE((py1.y-py0.y)/(py1.x-py0.x), yspl->dydx()[i], 1.e-2);
+	}
+
 }

@@ -74,10 +74,10 @@ BOOST_AUTO_TEST_CASE( airfoil_offset_test )
 
     double a = shp->area();
     auto kshp = shp->offset(.01);
-    BOOST_CHECK_CLOSE((a-kshp->area()), -.01*shp->s().back(), .1);
+    BOOST_CHECK_CLOSE((a-kshp->area()), .01*shp->s().back(), .1);
 
     kshp = shp->offset(-.01);
-    BOOST_CHECK_CLOSE((a-kshp->area()), .01*shp->s().back(), .1);
+    BOOST_CHECK_CLOSE((a-kshp->area()), -.01*shp->s().back(), .1);
 }
 
 BOOST_AUTO_TEST_CASE( airfoil_make_wing )
@@ -100,8 +100,8 @@ BOOST_AUTO_TEST_CASE( airfoil_make_wing )
     auto rootShp = root.shape();
     auto tipShp = tip.shape();
 
-    auto rootKShp = rootShp->offset(-.03);
-    auto tipKShp = tipShp->offset(-.03);
+    auto rootKShp = rootShp->offset(.03);
+    auto tipKShp = tipShp->offset(.03);
 
  #if 0
     size_t n = tipKShp->x().size();
@@ -120,4 +120,20 @@ BOOST_AUTO_TEST_CASE( airfoil_make_wing )
 #endif
 
 	auto frameRS = partRS->interpolateZ(0., 30.);
+}
+
+
+BOOST_AUTO_TEST_CASE( airfoil_leloop_kerf )
+{
+	using namespace foamcut;
+	std::string datDir(FOAMCUT_TEST_DATA_DIR);
+	std::string fname = datDir + "/ag45c-03.dat";
+    std::ifstream xfs(fname.c_str(), std::ifstream::in);
+    BOOST_CHECK(xfs.is_open());
+    DatFile::handle dat = DatFile::read(xfs);
+    xfs.close();
+    Airfoil airfoil(dat, 10., 0., true);
+
+    auto shape = airfoil.shape();
+    auto kshape = shape->offset(.03);
 }

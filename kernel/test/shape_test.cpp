@@ -26,13 +26,11 @@ BOOST_AUTO_TEST_CASE( shape_break_kerf )
     Shape shape(x, y);
 
     Shape::handle dshape = shape.offset(.1);
-    BOOST_CHECK(dshape->x().size() == 6);
+    BOOST_CHECK(dshape->x().size() == 4);
     BOOST_CHECK_SMALL(dshape->x()[0],      1e-9); BOOST_CHECK_CLOSE(dshape->y()[0], -.1, 1e-9);
-    BOOST_CHECK_CLOSE(dshape->x()[1], 1. , 1e-9); BOOST_CHECK_CLOSE(dshape->y()[1], -.1, 1e-9);
-    BOOST_CHECK_CLOSE(dshape->x()[2], 1.1, 1e-9); BOOST_CHECK_CLOSE(dshape->y()[2], -.1, 1e-9);
-    BOOST_CHECK_CLOSE(dshape->x()[3], 1.1, 1e-9); BOOST_CHECK_CLOSE(dshape->y()[3], -.1,  1e-9);
-    BOOST_CHECK_CLOSE(dshape->x()[4], 1.1, 1e-9); BOOST_CHECK_CLOSE(dshape->y()[4],  0.,  1e-9);
-    BOOST_CHECK_CLOSE(dshape->x()[5], 1.1, 1e-9); BOOST_CHECK_CLOSE(dshape->y()[5],  1.,  1e-9);
+    BOOST_CHECK_CLOSE(dshape->x()[1], 1.1, 1e-9); BOOST_CHECK_CLOSE(dshape->y()[1], -.1, 1e-9);
+    BOOST_CHECK_CLOSE(dshape->x()[2], 1.1, 1e-9); BOOST_CHECK_CLOSE(dshape->y()[2], -.1,  1e-9);
+    BOOST_CHECK_CLOSE(dshape->x()[3], 1.1, 1e-9); BOOST_CHECK_CLOSE(dshape->y()[3],  1.,  1e-9);
 
     dshape = shape.offset(-.1);
     BOOST_CHECK(dshape->x().size() == 4);
@@ -63,4 +61,21 @@ BOOST_AUTO_TEST_CASE( shape_fit_line )
 	eps = .01;
 	sfit = s.fitLineSegment(s0, eps);
 	BOOST_CHECK_SMALL(sfit-s0 - 2.*acos(1.-eps), eps);
+}
+
+BOOST_AUTO_TEST_CASE( shape_leloop_kerf )
+{
+	using namespace foamcut;
+	std::vector<double> x,y;
+	x.push_back(9.99952); y.push_back(-0.157591);
+	x.push_back(9.99189); y.push_back(-0.575956);
+	x.push_back(9.99189); y.push_back(-0.575956);
+	x.push_back(10.4179); y.push_back(-0.165221);
+	x.push_back(10.0071); y.push_back(0.260775);
+
+	std::auto_ptr<Shape> shape(new Shape(x, y));
+	Shape::Point p = shape->evaluate(0.);
+
+	auto kshape = shape->offset(-.03);
+
 }
