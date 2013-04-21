@@ -35,6 +35,8 @@ private slots:
 	void on_move_button_clicked();
 	void on_cut_button_clicked();
 
+	void on_actionSetup_triggered();
+
 private:
     Ui::MainWindow *ui;
 	boost::shared_ptr<foamcut::Shape> rootShape_;

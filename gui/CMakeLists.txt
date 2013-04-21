@@ -32,7 +32,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5PrintSupport REQUIRED)
 
-set(UI_FILES mainwindow.ui cutdialog.ui movedialog.ui datimportpage.ui)
+set(UI_FILES mainwindow.ui cutdialog.ui movedialog.ui datimportpage.ui setupdialog.ui)
 qt5_wrap_ui(UI_HDRS ${UI_FILES})
 
 include_directories( 

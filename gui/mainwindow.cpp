@@ -168,3 +168,8 @@ void MainWindow::on_cut_button_clicked()
 	cd->exec();
 }
 
+void MainWindow::on_actionSetup_triggered()
+{
+	qDebug() <<"action setup";
+}
+
