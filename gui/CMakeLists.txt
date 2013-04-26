@@ -58,13 +58,31 @@ qt5_use_modules(foamcut_gui Widgets PrintSupport)
 target_link_libraries( foamcut_gui foamcut_kernel )
 
 get_target_property(QtCore_location_Release Qt5::Core LOCATION_Release)
-get_target_property(QtWidgets_location_Release Qt5::Widgets LOCATION_Release)
-get_target_property(QtPrintSupport_location_Release Qt5::PrintSupport LOCATION_Release)
+#get_target_property(QtWidgets_location_Release Qt5::Widgets LOCATION_Release)
+#get_target_property(QtPrintSupport_location_Release Qt5::PrintSupport LOCATION_Release)
+#get_target_property(QtGui_location_Release Qt5::Gui LOCATION_Release)
+#get_target_property(QtCore_location_Debug Qt5::Core LOCATION_Debug)
+#get_target_property(QtWidgets_location_Debug Qt5::Widgets LOCATION_Debug)
+#get_target_property(QtPrintSupport_location_Debug Qt5::PrintSupport LOCATION_Debug)
+#get_target_property(QtGui_location_Debug Qt5::Gui LOCATION_Debug)
 
-add_custom_command(TARGET foamcut_gui POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/bin
-    COMMAND ${CMAKE_COMMAND} -E copy ${QtCore_location_Release} ${PROJECT_BINARY_DIR}/bin
-    COMMAND ${CMAKE_COMMAND} -E copy ${QtWidgets_location_Release} ${PROJECT_BINARY_DIR}/bin
-    COMMAND ${CMAKE_COMMAND} -E copy ${QtPrintSupport_location_Release} ${PROJECT_BINARY_DIR}/bin
-)
+#add_custom_command(TARGET foamcut_gui POST_BUILD
+#    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/bin
+#    COMMAND ${CMAKE_COMMAND} -E copy ${QtCore_location_Release} ${PROJECT_BINARY_DIR}/bin
+#    COMMAND ${CMAKE_COMMAND} -E copy ${QtWidgets_location_Release} ${PROJECT_BINARY_DIR}/bin
+#    COMMAND ${CMAKE_COMMAND} -E copy ${QtPrintSupport_location_Release} ${PROJECT_BINARY_DIR}/bin
+#    COMMAND ${CMAKE_COMMAND} -E copy ${QtGui_location_Release} ${PROJECT_BINARY_DIR}/bin
+#    COMMAND ${CMAKE_COMMAND} -E copy ${QtCore_location_Debug} ${PROJECT_BINARY_DIR}/bin
+#    COMMAND ${CMAKE_COMMAND} -E copy ${QtWidgets_location_Debug} ${PROJECT_BINARY_DIR}/bin
+#    COMMAND ${CMAKE_COMMAND} -E copy ${QtPrintSupport_location_Debug} ${PROJECT_BINARY_DIR}/bin
+#    COMMAND ${CMAKE_COMMAND} -E copy ${QtGui_location_Debug} ${PROJECT_BINARY_DIR}/bin
+#)
 
+get_filename_component(QT_BIN_DIR ${QtCore_location_Release} PATH)
+
+if (WIN32)
+    add_custom_command(TARGET foamcut_gui POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/bin
+		COMMAND ${CMAKE_COMMAND} -E copy_directory ${QT_BIN_DIR} "${PROJECT_BINARY_DIR}/bin"
+	)
+endif (WIN32)
