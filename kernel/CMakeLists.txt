@@ -45,6 +45,7 @@ add_library (foamcut_kernel SHARED
 	${KERNEL_HDR}
 )
 
-install (TARGETS foamcut_kernel DESTINATION bin
-  LIBRARY DESTINATION bin
+add_custom_command(TARGET foamcut_kernel POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/bin
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:foamcut_kernel> ${PROJECT_BINARY_DIR}/bin
 )

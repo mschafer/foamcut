@@ -21,7 +21,7 @@ find_package( Boost REQUIRED COMPONENTS
 # todo find a better way to do this
 if (WIN32)
   set (CMAKE_PREFIX_PATH C:/Qt/Qt5.0.1/5.0.1/msvc2010/lib/cmake)
-else (win32)
+else (WIN32)
   set(Qt5Widgets_DIR /Users/mschafer/Qt5.0.0/5.0.0/clang_64/lib/cmake/Qt5Widgets)
   set(Qt5PrintSupport_DIR /Users/mschafer/Qt5.0.0/5.0.0/clang_64/lib/cmake/Qt5PrintSupport)
 endif (WIN32)
@@ -56,3 +56,15 @@ add_executable(foamcut_gui
 
 qt5_use_modules(foamcut_gui Widgets PrintSupport)
 target_link_libraries( foamcut_gui foamcut_kernel )
+
+get_target_property(QtCore_location_Release Qt5::Core LOCATION_Release)
+get_target_property(QtWidgets_location_Release Qt5::Widgets LOCATION_Release)
+get_target_property(QtPrintSupport_location_Release Qt5::PrintSupport LOCATION_Release)
+
+add_custom_command(TARGET foamcut_gui POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/bin
+    COMMAND ${CMAKE_COMMAND} -E copy ${QtCore_location_Release} ${PROJECT_BINARY_DIR}/bin
+    COMMAND ${CMAKE_COMMAND} -E copy ${QtWidgets_location_Release} ${PROJECT_BINARY_DIR}/bin
+    COMMAND ${CMAKE_COMMAND} -E copy ${QtPrintSupport_location_Release} ${PROJECT_BINARY_DIR}/bin
+)
+
