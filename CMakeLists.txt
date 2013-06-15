@@ -15,11 +15,12 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ -g")
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
 
-# to find some custome cmake modules
+# to find some custom cmake modules
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
 
 add_subdirectory(kernel)
 add_subdirectory(gui)
+add_subdirectory(stepper)
 
 #set (CPACK_PACKAGE_EXECUTABLES "motor-stepper")
 set (CPACK_GENERATOR "ZIP")
