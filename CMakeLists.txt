@@ -16,7 +16,7 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
 
 # to find some custom cmake modules
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 
 add_subdirectory(kernel)
 add_subdirectory(gui)

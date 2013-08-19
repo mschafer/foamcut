@@ -20,7 +20,7 @@ find_package( Boost REQUIRED COMPONENTS
 
 # todo find a better way to do this
 if (WIN32)
-  set (CMAKE_PREFIX_PATH C:/Qt/Qt5.0.1/5.0.1/msvc2010/lib/cmake)
+  set (CMAKE_PREFIX_PATH C:/Qt/Qt5.1.0/5.1.0/msvc2012/lib/cmake)
 else (WIN32)
   set(Qt5Widgets_DIR /Users/mschafer/Qt5.0.0/5.0.0/clang_64/lib/cmake/Qt5Widgets)
   set(Qt5PrintSupport_DIR /Users/mschafer/Qt5.0.0/5.0.0/clang_64/lib/cmake/Qt5PrintSupport)
