@@ -5,8 +5,25 @@
 
 /** \file This header defines all the commands that the script engine can execute. */
 
+namespace stepper { namespace device {
 
-namespace foamcut { namespace device {
+enum AxisIdx {
+	X_AXIS = 0,
+	Y_AXIS = 1,
+	Z_AXIS = 2,
+	U_AXIS = 3
+};
+
+enum StepDirBits {
+	X_STEP = 0x01,
+	X_DIR = 0x02,
+	Y_STEP = 0x04,
+	Y_DIR = 0x08,
+	Z_STEP = 0x10,
+	Z_DIR = 0x20,
+	U_STEP = 0x40,
+	U_DIR = 0x80,
+};
 
 struct Command
 {

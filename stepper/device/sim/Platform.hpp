@@ -1,9 +1,9 @@
-#ifndef foamcut_Platform_hpp
-#define foamcut_Platform_hpp
+#ifndef stepper_sim_Platform_hpp
+#define stepper_sim_Platform_hpp
 
-#include "Pin.hpp"
+#include "Stepper.hpp"
 
-namespace stepper {
+namespace stepper { namespace device { namespace sim {
 
 /**
  * This class provides platform specific services.
@@ -27,7 +27,6 @@ public:
 
 };
 
-
-}
+}}}
 
 #endif

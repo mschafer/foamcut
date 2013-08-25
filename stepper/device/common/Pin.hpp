@@ -1,9 +1,10 @@
 #ifndef stepper_Pin_hpp
 #define stepper_Pin_hpp
 
+#include <stdint.h>
 #include <assert.h>
 
-namespace stepper {
+namespace stepper { namespace device {
 
 /**
  * This class encapsulates the functionality of a single digital i/o pin.
@@ -28,7 +29,7 @@ public:
      * limit switches that are not connected.
      * The results of all other operations on an unassigned pin are undefined.
      */
-	bool unassigned() const { return val_ = UNASSIGNED; }
+	bool unassigned() const { return val_ == UNASSIGNED; }
 
 	/**
 	 * If the pin is inverted, then Platform::setPin(true) will result in a logic
@@ -63,6 +64,6 @@ private:
 	};
 };
 
-}
+}}
 
 #endif
