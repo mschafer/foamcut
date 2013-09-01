@@ -10,9 +10,9 @@
  *     Marc Schafer
  */
 #define BOOST_TEST_MAIN
-#define BOOST_TEST_MODULE Test Kernel
+#define BOOST_TEST_MODULE Test Stepper
 
-// use dynamic boost test library on non-Windows arches
+// use debug stream to print to visual console on windows
 #ifdef _WIN32
 #include "debug_stream.hpp"
 #endif

@@ -1,29 +1,23 @@
+/*
+ * (C) Copyright 2013 Marc Schafer
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Marc Schafer
+ */
 #ifndef stepper_Commands_hpp
 #define stepper_Commands_hpp
 
-#include <stdint.h>
+#include "StepDir.hpp"
 
 /** \file This header defines all the commands that the script engine can execute. */
 
 namespace stepper { namespace device {
 
-enum AxisIdx {
-	X_AXIS = 0,
-	Y_AXIS = 1,
-	Z_AXIS = 2,
-	U_AXIS = 3
-};
-
-enum StepDirBits {
-	X_STEP = 0x01,
-	X_DIR = 0x02,
-	Y_STEP = 0x04,
-	Y_DIR = 0x08,
-	Z_STEP = 0x10,
-	Z_DIR = 0x20,
-	U_STEP = 0x40,
-	U_DIR = 0x80,
-};
 
 struct Command
 {
@@ -43,7 +37,7 @@ struct Command
  */
 struct AxisCmd : public Command
 {
-	/** Name of axis being configured. *
+	/** Name of axis being configured. */
 	enum AxisName {
 		LEFT_X = 0,
 		LEFT_Y = 1,
@@ -55,7 +49,7 @@ struct AxisCmd : public Command
 	    ID = 1,
 		UNASSIGNED = 0xFF,
 		INVERT_PIN = 0x10, ///\< Valid pin numbers are 0-15.  Adding this bit signifies inversion.
-	}
+	};
 
 	uint8_t axisName_;
 	uint8_t stepPort_;

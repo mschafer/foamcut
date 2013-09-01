@@ -1,3 +1,14 @@
+/*
+ * (C) Copyright 2013 Marc Schafer
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Marc Schafer
+ */
 #ifndef foamcut_device_RingBuffer_hpp
 #define foamcut_device_RingBuffer_hpp
 
@@ -25,10 +36,12 @@ public:
 	uint16_t count() const {
 		int32_t d = head_ - tail_;
 		d = d<0 ? d+N : d;
+		return d;
 	}
 	
 	/// \return space available in RingBuffer == number of pushes that will succeed.
 	uint16_t space() const {
+		return N - count() - 1;
 	}
 	
 	bool push(const T &val) {
@@ -45,6 +58,7 @@ public:
 		for (uint16_t i=0; i<count; ++i) {
 			push(vals[i]);
 		}
+		return true;
 	}
 	
 	bool pop(T &out) {
@@ -61,6 +75,7 @@ public:
 		for (uint16_t i=0; i<count; ++i) {
 			pop(vals[i]);
 		}
+		return true;
 	}
 	
 private:

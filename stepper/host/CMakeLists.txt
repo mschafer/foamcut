@@ -27,6 +27,7 @@ add_subdirectory(test)
 
 # source files
 set (STEPPER_SRC
+  ${DEVICE_COMMON_DIR}/Line.cpp
   ${DEVICE_SIM_DIR}/Platform.cpp
   stub.cpp
 )

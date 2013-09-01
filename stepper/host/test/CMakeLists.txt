@@ -20,13 +20,19 @@ find_package( Boost REQUIRED COMPONENTS
 
 link_directories(${Boost_LIBRARY_DIRS})
 
+set (DEVICE_COMMON_DIR ${CMAKE_SOURCE_DIR}/stepper/device/common)
+set (DEVICE_SIM_DIR ${CMAKE_SOURCE_DIR}/stepper/device/sim)
+
 include_directories ( 
-  ${Boost_INCLUDE_DIRS} 
+  ${Boost_INCLUDE_DIRS}
+  ${DEVICE_COMMON_DIR}
+  ${DEVICE_SIM_DIR} 
   ..
 )
 
 add_executable(test-stepper
 	hello_test.cpp
+	line_test.cpp
 )
 
 target_link_libraries(test-stepper 

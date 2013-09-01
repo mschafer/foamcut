@@ -1,3 +1,14 @@
+/*
+ * (C) Copyright 2013 Marc Schafer
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Marc Schafer
+ */
 #ifndef stepper_Pool_hpp
 #ifndef stepper_Pool_hpp
 
@@ -14,7 +25,7 @@ public:
 	/** \param blockSize The size of a memory block returned by alloc.
 	  *  The actual size will be adjusted upward to a multiple of sizeof(void*).
 	  */
-    Pool(size_t blockSize) {
+    Pool(size_t blockSize) : blockSize_(blockSize) {
     	size_t actualSizeWords = (blockSize + sizeof(void*) - 1) / sizeof(void*);
         size_t blockCount = POOL_SIZE / (actualSizeWords * sizeof(void*));
         Node *nodes = reinterpret_cast<Node*>(memory_);
@@ -29,7 +40,7 @@ public:
     }
     
     void *alloc() {
-    	
+    	return NULL;
     }
     
     void free(void *block) {
