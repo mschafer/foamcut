@@ -32,7 +32,7 @@ set (KERNEL_SRC
 )
 
 # headers
-file(GLOB KERNEL_HDR *.hpp)
+file(GLOB KERNEL_HDR *.h*)
 source_group("Headers" FILES ${KERNEL_HDR})
 
 link_directories(${Boost_LIBRARY_DIRS})
