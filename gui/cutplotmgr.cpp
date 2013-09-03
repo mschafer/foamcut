@@ -23,11 +23,11 @@ CutPlotMgr::CutPlotMgr(QCustomPlot *plot) : plot_(plot)
 	plot_->xAxis->setRange(-1., 1.);
 	plot_->yAxis->setRange(-1., 1.);
 
-	plot_->setInteractions(QCustomPlot::iRangeDrag | QCustomPlot::iRangeZoom |
-			QCustomPlot::iSelectAxes | QCustomPlot::iSelectLegend);
-	plot_->setRangeDrag(Qt::Horizontal | Qt::Vertical);
-	plot_->setRangeZoom(Qt::Horizontal | Qt::Vertical);
-	plot_->legend->setSelectable(QCPLegend::spItems); // legend box shall not be selectable, only legend items
+	plot_->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom |
+			QCP::iSelectAxes | QCP::iSelectLegend);
+	plot_->axisRect()->setRangeDrag(Qt::Horizontal | Qt::Vertical);
+	plot_->axisRect()->setRangeZoom(Qt::Horizontal | Qt::Vertical);
+	plot_->legend->setSelectableParts(QCPLegend::spItems); // legend box shall not be selectable, only legend items
 
 	// connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
 	connect(plot_, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
@@ -162,24 +162,24 @@ void CutPlotMgr::mousePress() {
 	// if an axis is selected, only allow the direction of that axis to be dragged
 	// if no axis is selected, both directions may be dragged
 
-	if (plot_->xAxis->selected().testFlag(QCPAxis::spAxis))
-		plot_->setRangeDrag(plot_->xAxis->orientation());
-	else if (plot_->yAxis->selected().testFlag(QCPAxis::spAxis))
-		plot_->setRangeDrag(plot_->yAxis->orientation());
+	if (plot_->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
+		plot_->axisRect()->setRangeDrag(plot_->xAxis->orientation());
+	else if (plot_->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
+		plot_->axisRect()->setRangeDrag(plot_->yAxis->orientation());
 	else
-		plot_->setRangeDrag(Qt::Horizontal | Qt::Vertical);
+		plot_->axisRect()->setRangeDrag(Qt::Horizontal | Qt::Vertical);
 }
 
 void CutPlotMgr::mouseWheel() {
 	// if an axis is selected, only allow the direction of that axis to be zoomed
 	// if no axis is selected, both directions may be zoomed
 
-	if (plot_->xAxis->selected().testFlag(QCPAxis::spAxis))
-		plot_->setRangeZoom(plot_->xAxis->orientation());
-	else if (plot_->yAxis->selected().testFlag(QCPAxis::spAxis))
-		plot_->setRangeZoom(plot_->yAxis->orientation());
+	if (plot_->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
+		plot_->axisRect()->setRangeZoom(plot_->xAxis->orientation());
+	else if (plot_->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
+		plot_->axisRect()->setRangeZoom(plot_->yAxis->orientation());
 	else
-		plot_->setRangeZoom(Qt::Horizontal | Qt::Vertical);
+		plot_->axisRect()->setRangeZoom(Qt::Horizontal | Qt::Vertical);
 }
 
 void CutPlotMgr::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item)

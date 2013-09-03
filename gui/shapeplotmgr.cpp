@@ -19,7 +19,7 @@ ShapePlotMgr::ShapePlotMgr(QCustomPlot *plot) : plot_(plot)
 
 	curve = new QCPCurve(plot_->xAxis, plot_->yAxis);
 	curve->setLineStyle(QCPCurve::lsNone);
-	curve->setScatterStyle(QCP::ssDiamond);
+	curve->setScatterStyle(QCPScatterStyle::ssDiamond);
 	plot_->addPlottable(curve);
 
 	plot_->xAxis->setLabel("X");
@@ -27,8 +27,8 @@ ShapePlotMgr::ShapePlotMgr(QCustomPlot *plot) : plot_(plot)
 	plot_->xAxis->setRange(-1., 1.);
 	plot_->yAxis->setRange(-1., 1.);
 
-	plot_->setRangeDrag(Qt::Horizontal | Qt::Vertical);
-	plot_->setRangeZoom(Qt::Horizontal | Qt::Vertical);
+	plot_->axisRect()->setRangeDrag(Qt::Horizontal | Qt::Vertical);
+	plot_->axisRect()->setRangeZoom(Qt::Horizontal | Qt::Vertical);
 }
 
 QCPCurveDataMap *ShapePlotMgr::lineFit(const foamcut::Shape::handle shape)
