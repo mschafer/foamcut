@@ -30,12 +30,12 @@ include_directories (
   ..
 )
 
-add_executable(test-stepper
+add_executable(test_stepper
 	hello_test.cpp
 	line_test.cpp
 )
 
-target_link_libraries(test-stepper 
+target_link_libraries(test_stepper 
   ${Boost_LIBRARIES}
   foamcut_stepper
 )

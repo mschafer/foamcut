@@ -41,6 +41,7 @@ Line::Line(int dx, int dy, int dz, int du, uint32_t delay) :
     	stepDelay_ = delay;
     }
     absd_[4] = delay - (stepDelay_ * maxd_);
+    e_[4] = 0;
 }
 
 Line::NextStep
@@ -54,7 +55,7 @@ Line::nextStep()
 	// loop over axes (no foreach for enums yet)
 	for (int i=0; i<5; ++i) {
 		e_[i] += 2 * absd_[i];
-		if (e_[i] > maxd_  && i<4) {
+		if (e_[i] > maxd_) {
 			e_[i] -= 2 * maxd_;
 
 			// time handled differently than axes
@@ -65,6 +66,7 @@ Line::nextStep()
 			}
 		}
 	}
+    ++count_;
 	return ret;
 }
 

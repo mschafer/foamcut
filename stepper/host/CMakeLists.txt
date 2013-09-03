@@ -55,6 +55,7 @@ add_library (foamcut_stepper SHARED
 	${DEVICE_SIM_HDR}
 )
 
-install (TARGETS foamcut_stepper DESTINATION bin
-  LIBRARY DESTINATION bin
+install (TARGETS foamcut_stepper 
+  RUNTIME DESTINATION ${PROJECT_BINARY_DIR}/bin
+  LIBRARY DESTINATION ${PROJECT_BINARY_DIR}/bin
 )
