@@ -30,7 +30,7 @@ building a DLL on windows.
     #define  foamcut_stepper_API __declspec(dllimport)
   #endif
 #else
- #define foamcut_kernel_API
+ #define foamcut_stepper_API
 #endif
 
 #endif
