@@ -22,17 +22,24 @@ using stepper::device::Line;
 
 BOOST_AUTO_TEST_CASE( line_test )
 {
-
-
-	double theta = 1.;
-	double r = 117.;
-
-	int dx = (int)(r * cos(theta));
-	int dy = (int)(r * sin(theta));
-	Line l(dx, dy, 0, 0, 12345);
+	int dx = 100;
+	int dy = -87;
+	int dz = 50;
+	int du = -33;
+	uint32_t dt = 517;
+	Line l(dx, dy, dz, du, dt);
+	int x=0, y=0, z=0, u=0, t=0;
 	while (!l.done()) {
 		Line::NextStep ns = l.nextStep();
-
+		t += ns.delay_;
+		if (ns.step_.xStep()) { x += ns.step_.xDir() ? 1 : -1; }
+		if (ns.step_.yStep()) { y += ns.step_.yDir() ? 1 : -1; }
+		if (ns.step_.zStep()) { z += ns.step_.zDir() ? 1 : -1; }
+		if (ns.step_.uStep()) { u += ns.step_.uDir() ? 1 : -1; }
 	}
-
+	BOOST_CHECK(x == dx);
+	BOOST_CHECK(y == dy);
+	BOOST_CHECK(z == dz);
+	BOOST_CHECK(u == du);
+	BOOST_CHECK(t == dt);
 }

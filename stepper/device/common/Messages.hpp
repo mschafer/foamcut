@@ -27,7 +27,7 @@ struct Message
 /** A block of commands for the script engine. */
 struct ScriptCommands : public Message
 {
-	ScriptCommands() : id_(ID);
+	ScriptCommands() : id_(ID) {}
 
 	enum {
 		ID = 1,

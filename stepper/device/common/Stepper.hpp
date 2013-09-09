@@ -12,17 +12,37 @@
 #ifndef stepper_device_Stepper_hpp
 #define stepper_device_Stepper_hpp
 
-#include "Axis.hpp"
+#include "foamcut_stepper_dll.h"
+#include "StepDir.hpp"
 
 namespace stepper { namespace device {
 
-struct Stepper
+class foamcut_stepper_API Stepper
 {
+public:
+	Stepper &instance();
 
-	Axis x_;
-	Axis y_;
-	Axis z_;
-	Axis u_;
+	/**
+	 * This method should be called by the Platform when the timer expires.
+	 */
+	void run();
+
+	/**
+	 * Specify bits in \sa StepDir that need to be inverted.
+	 * Inverting a step bit will result in the generation of a falling edge
+	 * whenever a step is desired instead of a rising edge.
+	 * Inverting a direction bit will cause forward steps to output a logical
+	 * 0 on the direction pin instead of a 1.
+	 */
+	void invertMask(StepDir invertMask) { invertMask_ = invertMask; }
+
+
+private:
+	Stepper();
+	Stepper(const Stepper &cpy);
+	Stepper &operator=(const Stepper &rhs);
+
+	StepDir invertMask_;
 };
 
 }}

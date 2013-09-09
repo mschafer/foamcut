@@ -19,14 +19,15 @@ namespace stepper { namespace device {
 /**
  * This class represents 4 axes of step and direction information.
  */
-class StepDir
+class foamcut_stepper_API StepDir
 {
 public:
 	enum AxisIdx {
 		X_AXIS = 0,
 		Y_AXIS = 1,
 		Z_AXIS = 2,
-		U_AXIS = 3
+		U_AXIS = 3,
+		AXIS_END = 4
 	};
 
 	enum Bits {

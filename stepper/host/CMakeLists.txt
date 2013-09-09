@@ -25,8 +25,8 @@ set (DEVICE_SIM_DIR ${CMAKE_SOURCE_DIR}/stepper/device/sim)
 # source files
 set (STEPPER_SRC
   ${DEVICE_COMMON_DIR}/Line.cpp
+  ${DEVICE_COMMON_DIR}/Stepper.cpp
   ${DEVICE_SIM_DIR}/Platform.cpp
-  stub.cpp
 )
 
 # headers
