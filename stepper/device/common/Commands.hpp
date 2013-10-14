@@ -18,57 +18,50 @@
 
 namespace stepper { namespace device {
 
-
-struct Command
-{
-	uint8_t id_;
+enum {
+	NO_OP_CMD        = 0,
+	SINGLE_STEP_CMD  = 1,
+	LINE_CMD         = 2,
+	LONG_LINE_CMD    = 3,
+	DELAY_CMD        = 4,
+	PAUSE_CMD        = 5,
 };
 
-/**
- * Command to define the port and pin for each of the four functions of an axis.
- * The step pin pulses when the axis is supposed to take a single step.
- * The dir pin is held high or low to control the direction of the step.
- * The fwd and rev pins are inputs that should be tied to limit switches.  If either
- * is active, then steps in that direction will be inhibited.  Assigning the limit
- * switches a port number of 255 (0xFF) will disable this function.
- *
- * Valid pin numbers must be in the range 0-15.
- * Valid port numbers must be in the range 0-254.
- */
-struct AxisCmd : public Command
+struct NoOpCmd
 {
-	/** Name of axis being configured. */
-	enum AxisName {
-		LEFT_X = 0,
-		LEFT_Y = 1,
-		RIGHT_X = 2,
-		RIGHT_Y = 3,		
-	};
-
-	enum {
-	    ID = 1,
-		UNASSIGNED = 0xFF,
-		INVERT_PIN = 0x10, ///\< Valid pin numbers are 0-15.  Adding this bit signifies inversion.
-	};
-
-	uint8_t axisName_;
-	uint8_t stepPort_;
-	uint8_t stepPin_;
-	uint8_t dirPort_;
-	uint8_t dirPin_;
-	uint8_t fwdPort_;
-	uint8_t fwdPin_;
-	uint8_t revPort_;
-	uint8_t revPin_;
-
 };
 
-// Axis
-// Single Step
-// Line
-// Long Line
-// Delay
-// Pause
+struct SingleStepCmd
+{
+	StepDir stepDir;
+};
+
+struct LineCmd
+{
+	int8_t dx;
+	int8_t dy;
+	int8_t dz;
+	int8_t du;
+	uint16_t delay;
+};
+
+struct LongLineCmd
+{
+	int16_t dx;
+	int16_t dy;
+	int16_t dz;
+	int16_t du;
+	uint32_t delay;
+};
+
+struct DelayCmd
+{
+	uint32_t delay;
+};
+
+struct PauseCmd
+{
+};
 
 }}
 

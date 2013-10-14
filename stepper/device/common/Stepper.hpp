@@ -13,19 +13,33 @@
 #define stepper_device_Stepper_hpp
 
 #include "foamcut_stepper_dll.h"
+#include "MessagePool.hpp"
+#include "MessageQueue.hpp"
 #include "StepDir.hpp"
+#include "LimitSwitches.hpp"
+#include "Platform.hpp"
 
 namespace stepper { namespace device {
 
 class foamcut_stepper_API Stepper
 {
 public:
-	Stepper &instance();
+
+	Stepper();
+	virtual ~Stepper() {}
 
 	/**
-	 * This method should be called by the Platform when the timer expires.
+	 * This method should be called from main as often as possible.
+	 * It is responsible for processing incoming data from the host,
+	 * sending telemetry back, and scheduling the timer to produce steps.
 	 */
-	void run();
+	void runBackgroundOnce();
+
+	/**
+	 * This method drives the steps onto the digital outputs.
+	 * It should be called whenever the Platform's timer expires.
+	 */
+	void onTimerExpired();
 
 	/**
 	 * Specify bits in \sa StepDir that need to be inverted.
@@ -36,13 +50,59 @@ public:
 	 */
 	void invertMask(StepDir invertMask) { invertMask_ = invertMask; }
 
+	/**
+	 * Allocate a MessageBuffer with at least the requested payload space.
+	 */
+	MessageBuffer *alloc(uint16_t payloadSize) {
+		return pool_.alloc(payloadSize);
+	}
+
+	/**
+	 * Free a MessageBuffer allocated from this Stepper.
+	 */
+	void free(MessageBuffer *mb) {
+		pool_.free(mb);
+	}
+
+	/**
+	 * This method transmits a message backs to the host.  Ownership
+	 * of \em mb is taken over by the stepper and it will eventually
+	 * be freed when transmission completes.
+	 */
+	void sendMessage(MessageBuffer *mb);
+
+	virtual void setStepDirBits(const StepDir &s) = 0;
+
+	virtual LimitSwitches readLimitSwitches() = 0;
+
+	virtual void startTimer(uint32_t period) = 0;
+
+protected:
+	MessageQueue<platform::Lock> rxQueue_;
+	MessageQueue<platform::Lock> txQueue_;
+
+	/**
+	 * This routine is called whenever a message is added to the send
+	 * queue. Implementors should use this hook to wake up the transmission
+	 * thread or to start an interrupt driven send.  It could also be used to
+	 * do a blocking send.
+	 */
+	virtual void notifySender() = 0;
+
+	/**
+	 * Called from the background task.
+	 * Implementors may add messages to the rxQueue in this method.
+	 */
+	virtual void pollForMessages() = 0;
 
 private:
-	Stepper();
+	uint8_t messageBlock_[2048];
+	StepDir invertMask_;
+	MessagePool<platform::Lock> pool_;
+
 	Stepper(const Stepper &cpy);
 	Stepper &operator=(const Stepper &rhs);
 
-	StepDir invertMask_;
 };
 
 }}

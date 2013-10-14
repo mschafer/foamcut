@@ -9,29 +9,29 @@
  * Contributors:
  *     Marc Schafer
  */
-#include "Stepper.hpp"
-#include "Platform.hpp"
+#ifndef stepper_device_LockGuard_hpp
+#define stepper_device_LockGuard_hpp
 
 namespace stepper { namespace device {
 
-Stepper::Stepper() : pool_(messageBlock_, sizeof(messageBlock_))
+/** Scoped lock. */
+template <typename lock_type>
+class LockGuard
 {
-	// alloc and free big blocks for script
-}
+public:
+    explicit LockGuard(lock_type &mtx) : mtx_(mtx) {
+        mtx_.lock();
+    }
 
-void Stepper::runBackgroundOnce()
-{
-}
+    ~LockGuard() {
+        mtx_.unlock();
 
-void Stepper::onTimerExpired()
-{
+    }
 
-}
-
-void Stepper::sendMessage(MessageBuffer *mb)
-{
-	txQueue_.push(mb);
-	notifySender();
-}
+private:
+    lock_type &mtx_;
+};
 
 }}
+
+#endif

@@ -21,12 +21,14 @@ find_package( Boost REQUIRED COMPONENTS
 
 set (DEVICE_COMMON_DIR ${CMAKE_SOURCE_DIR}/stepper/device/common)
 set (DEVICE_SIM_DIR ${CMAKE_SOURCE_DIR}/stepper/device/sim)
+set (STEPPER_LIB_DIR ${CMAKE_SOURCE_DIR}/stepper/host/lib)
 
 # source files
 set (STEPPER_SRC
+  ${STEPPER_LIB_DIR}/TCPHost.cpp
   ${DEVICE_COMMON_DIR}/Line.cpp
   ${DEVICE_COMMON_DIR}/Stepper.cpp
-  ${DEVICE_SIM_DIR}/Platform.cpp
+#  ${DEVICE_SIM_DIR}/Simulator.cpp
 )
 
 # headers
@@ -54,6 +56,8 @@ add_library (foamcut_stepper SHARED
 	${DEVICE_COMMON_HDR}
 	${DEVICE_SIM_HDR}
 )
+
+target_link_libraries(foamcut_stepper ${Boost_LIBRARIES})
 
 install (TARGETS foamcut_stepper 
   RUNTIME DESTINATION ${PROJECT_BINARY_DIR}/bin

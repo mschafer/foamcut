@@ -33,6 +33,7 @@ include_directories (
 add_executable(test_stepper
 	hello_test.cpp
 	line_test.cpp
+	pool_test.cpp
 )
 
 target_link_libraries(test_stepper 
