@@ -73,19 +73,27 @@ void Simulator::runComm()
 
 }
 
+void Simulator::notifySender()
+{
+	impl_->startSending();
+}
 
 void Simulator::acceptComplete(const boost::system::error_code &error)
 	{
     if (!error) {
-    	boost::asio::async_read(socket_,
-    		boost::asio::buffer(&recvHeader_, sizeof(device::Message)),
-    		boost::bind(&Simulator::headerComplete, this,
-    		boost::asio::placeholders::error));
+    	///\todo
     }
 }
 
+void Simulator::handler(device::MessageBuffer *msg, const boost::system::error_code &error)
+{
+	///\todo
+}
 
-
+MessageBuffer *Simulator::popTx()
+{
+	return txQueue_.pop();
+}
 
 
 

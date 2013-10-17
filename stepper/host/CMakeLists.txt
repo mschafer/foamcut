@@ -28,7 +28,7 @@ set (STEPPER_SRC
   ${STEPPER_LIB_DIR}/TCPHost.cpp
   ${DEVICE_COMMON_DIR}/Line.cpp
   ${DEVICE_COMMON_DIR}/Stepper.cpp
-#  ${DEVICE_SIM_DIR}/Simulator.cpp
+  ${DEVICE_SIM_DIR}/Simulator.cpp
 )
 
 # headers

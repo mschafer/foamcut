@@ -42,6 +42,19 @@ public:
     		boost::asio::placeholders::error));
 	}
 
+	void startSending()
+	{
+		if (sendInProgress_ == nullptr) {
+			sendInProgress_ = link_.popTx();
+			if (sendInProgress_ != nullptr) {
+				boost::asio::async_write(link_.socket(),
+					boost::asio::buffer(sendInProgress_->start(), sendInProgress_->totalSize()),
+					boost::bind(&ASIOImpl::sendComplete, this,
+					boost::asio::placeholders::error));
+			}
+		}
+	}
+
 private:
 	link_type &link_;
 	device::MessageHeader recvHeader_;
@@ -89,19 +102,6 @@ private:
 	    		boost::asio::placeholders::error));
 		} else {
 			link_.handler(nullptr, error);
-		}
-	}
-
-	void startSending()
-	{
-		if (sendInProgress_ == nullptr) {
-			sendInProgress_ = link_.popTx();
-			if (sendInProgress_ != nullptr) {
-				boost::asio::async_write(link_.socket(),
-					boost::asio::buffer(sendInProgress_->start(), sendInProgress_->totalSize()),
-					boost::bind(&ASIOImpl::sendComplete, this,
-					boost::asio::placeholders::error));
-			}
 		}
 	}
 

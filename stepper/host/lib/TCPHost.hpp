@@ -35,10 +35,9 @@ public:
 
 	device::MessageBuffer *alloc(uint16_t payloadSize) { return pool_->alloc(payloadSize); }
 	void free(device::MessageBuffer *mb) { pool_->free(mb); }
-	boost::asio::ip::tcp::socket &socket() { return socket_; }
-	void handler(device::MessageBuffer *msg, const boost::system::error_code &error);
 
 private:
+	friend class device::ASIOImpl<TCPHost>;
     std::string hostName_;
     std::string portStr_;
 
@@ -49,10 +48,17 @@ private:
 
     typedef device::MessagePool<boost::mutex> pool_type;
     std::unique_ptr<pool_type> pool_;
+	device::MessageQueue<boost::mutex> rxQueue_;
+	device::MessageQueue<boost::mutex> txQueue_;
+
     std::unique_ptr<device::ASIOImpl<TCPHost> > impl_;
 
     void run();
     void connectComplete(const boost::system::error_code &error);
+
+	boost::asio::ip::tcp::socket &socket() { return socket_; }
+	void handler(device::MessageBuffer *msg, const boost::system::error_code &error);
+	device::MessageBuffer *popTx() { return txQueue_.pop(); }
 };
 
 }

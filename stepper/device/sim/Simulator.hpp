@@ -16,7 +16,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/high_resolution_timer.hpp>
 #include <boost/utility.hpp>
-#include "ASIOLink.hpp"
+#include "ASIOImpl.hpp"
 #include "Stepper.hpp"
 
 namespace boost {
@@ -44,6 +44,7 @@ protected:
 
 
 private:
+	friend class ASIOImpl<Simulator>;
 	boost::asio::io_service ios_;
 	std::auto_ptr<boost::asio::ip::tcp::acceptor> acceptor_;
     boost::asio::ip::tcp::socket socket_;
@@ -54,9 +55,8 @@ private:
 	uint16_t port_;
 
     typedef device::MessagePool<boost::mutex> pool_type;
-    typedef device::ASIOLink<boost::asio::ip::tcp::socket , pool_type> link_type;
     std::unique_ptr<pool_type> pool_;
-    std::unique_ptr<link_type> link_;
+    std::unique_ptr<ASIOImpl<Simulator> > impl_;
 
 	int pos_[StepDir::AXIS_END];
 	std::array<std::pair<int, int>, StepDir::AXIS_END> limit_;
@@ -69,6 +69,11 @@ private:
 
 	void runBackground();
 	void runTimer();
+
+	//ASIOImpl support
+	boost::asio::ip::tcp::socket &socket() { return socket_; }
+	void handler(device::MessageBuffer *msg, const boost::system::error_code &error);
+	MessageBuffer *popTx();
 };
 
 }}
