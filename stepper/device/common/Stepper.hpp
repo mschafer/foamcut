@@ -12,16 +12,15 @@
 #ifndef stepper_device_Stepper_hpp
 #define stepper_device_Stepper_hpp
 
-#include "foamcut_stepper_dll.h"
 #include "MessagePool.hpp"
 #include "MessageQueue.hpp"
 #include "StepDir.hpp"
 #include "LimitSwitches.hpp"
-#include "Platform.hpp"
+#include <Platform.hpp>
 
 namespace stepper { namespace device {
 
-class foamcut_stepper_API Stepper
+class Stepper
 {
 public:
 
@@ -102,11 +101,10 @@ private:
 
 	Stepper(const Stepper &cpy);
 	Stepper &operator=(const Stepper &rhs);
+	void handleMessage(MessageBuffer &m);
 
 };
 
 }}
 
 #endif
-
-

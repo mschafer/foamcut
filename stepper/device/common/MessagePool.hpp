@@ -24,7 +24,7 @@ namespace stepper { namespace device {
  * and sorted in ascending order.
  */
 const int POOL_COUNT = 3;
-const uint16_t POOL_PAYLOAD_SIZES[3] = {4, 16, 256};
+const uint16_t POOL_PAYLOAD_SIZES[3] = {8, 16, 256};
 
 /**
  * Thread safe pool for allocation of MessageBuffers.
@@ -50,9 +50,9 @@ public:
     	blockStart_(block), blockEnd_(block+blockSize)
     {
         for (int i=0; i<POOL_COUNT; ++i) {
+            sizes_[i] = POOL_PAYLOAD_SIZES[i] + static_cast<uint16_t>(sizeof(MessageBuffer));
             assert(sizes_[i] % sizeof(void*) == 0); ///\< chunk alignment requirement
             if (i>0) assert(sizes_[i] > sizes_[i-1]);
-            sizes_[i] = POOL_PAYLOAD_SIZES[i] + static_cast<uint16_t>(sizeof(MessageBuffer));
             allocated_[i] = freed_[i] = 0;
             freeList_[i] = NULL;
         }

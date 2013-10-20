@@ -9,8 +9,8 @@
  * Contributors:
  *     Marc Schafer
  */
-#ifndef stepper_device_Messages_hpp
-#define stepper_device_Messages_hpp
+#ifndef stepper_device_Message_hpp
+#define stepper_device_Message_hpp
 
 #include <stdint.h>
 

@@ -27,15 +27,16 @@ Simulator::Simulator(uint16_t port) : socket_(ios_),
         port_ = acceptor_->local_endpoint().port();
     }
 
-
-	backgroundTimer_.expires_from_now(std::chrono::milliseconds(10));
-	backgroundTimer_.async_wait(boost::bind(&Simulator::runBackground, this));
-	thread_.reset(new boost::thread(boost::bind(&boost::asio::io_service::run, &ios_)));
+	//backgroundTimer_.expires_from_now(std::chrono::milliseconds(10));
+	//backgroundTimer_.async_wait(boost::bind(&Simulator::runBackground, this));
 
 	for (int i=0; i<StepDir::AXIS_END; ++i) {
 		pos_[i] = 0;
 	}
 
+	impl_.reset(new ASIOImpl<Simulator>(*this));
+
+	thread_.reset(new boost::thread(boost::bind(&Simulator::runComm, this)));
 }
 
 Simulator::~Simulator()
@@ -86,6 +87,7 @@ void Simulator::pollForMessages()
 void Simulator::acceptComplete(const boost::system::error_code &error)
 	{
     if (!error) {
+    	std::cout << "accept complete" << std::endl;
     	impl_->receiveOne();
     	impl_->startSending();
     } else {
@@ -102,6 +104,7 @@ void Simulator::handler(device::MessageBuffer *msg, const boost::system::error_c
 
 	if (error) {
 		///\todo handle error
+    	std::cout << "Simulator error " << error << std::endl;
 	}
 }
 
@@ -109,24 +112,6 @@ MessageBuffer *Simulator::popTx()
 {
 	return txQueue_.pop();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

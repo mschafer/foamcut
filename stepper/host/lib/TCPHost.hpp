@@ -37,7 +37,9 @@ public:
 	void free(device::MessageBuffer *mb) { pool_->free(mb); }
 
 	void send(device::MessageBuffer *mb);
-	device::MessageBuffer *receive();
+	device::MessageBuffer *receive() { return rxQueue_.pop(); }
+
+	bool connected() const { return connected_; }
 
 private:
 	friend class device::ASIOImpl<TCPHost>;
@@ -48,9 +50,11 @@ private:
     boost::asio::ip::tcp::socket socket_;
     std::unique_ptr<boost::thread> thread_;
     volatile bool running_;
+    volatile bool connected_;
 
     typedef device::MessagePool<boost::mutex> pool_type;
     std::unique_ptr<pool_type> pool_;
+    uint8_t messageBlock_[1048576];
 	device::MessageQueue<boost::mutex> rxQueue_;
 	device::MessageQueue<boost::mutex> txQueue_;
 

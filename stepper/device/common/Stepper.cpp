@@ -10,7 +10,8 @@
  *     Marc Schafer
  */
 #include "Stepper.hpp"
-#include "Platform.hpp"
+#include "Messages.hpp"
+#include <Platform.hpp>
 
 namespace stepper { namespace device {
 
@@ -21,6 +22,9 @@ Stepper::Stepper() : pool_(messageBlock_, sizeof(messageBlock_))
 
 void Stepper::runBackgroundOnce()
 {
+	pollForMessages();
+	MessageBuffer *m = txQueue_.pop();
+	if (m) { handleMessage(*m); }
 }
 
 void Stepper::onTimerExpired()
@@ -32,6 +36,22 @@ void Stepper::sendMessage(MessageBuffer *mb)
 {
 	txQueue_.push(mb);
 	notifySender();
+}
+
+void Stepper::handleMessage(MessageBuffer &m)
+{
+	switch (m.header().id0_) {
+	case PING_MSG:
+	{
+		PongMsg::init(m);
+		sendMessage(&m);
+	}
+	break;
+
+	default:
+		free(&m);
+		break;
+	}
 }
 
 }}

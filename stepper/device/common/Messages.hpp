@@ -14,32 +14,9 @@
 
 /** \file This header defines all the messages that are exchanged between the host and device. */
 
-#include <stdint.h>
-
+#include <Message.hpp>
 
 namespace stepper { namespace device {
-
-struct Message
-{
-	Message *next_;
-	uint8_t header_[sizeof(void*)];
-
-	enum {
-		ID_OFFSET = sizeof(header_) - 1,
-		POOL_TAG_OFFSET = sizeof(header_) - 2
-	};
-
-	uint8_t poolTag() const { return header_[POOL_TAG_OFFSET]; }
-	void poolTag(uint8_t val) { header_[POOL_TAG_OFFSET] = val; }
-
-	uint8_t id() const { return header_[ID_OFFSET]; }
-	void id(uint8_t val) { header_[ID_OFFSET] = val; }
-
-	uint8_t *payload() { return reinterpret_cast<uint8_t*>(this+1); }
-
-};
-
-static_assert(sizeof(Message)==2*sizeof(void*),"Alignment problem with Message");
 
 enum {
 	PING_MSG         = 0,
@@ -54,10 +31,20 @@ enum {
 
 struct PingMsg
 {
+	static void init(MessageBuffer &mb) {
+		mb.header().payloadSize_ = 0;
+		mb.header().id0_ = PING_MSG;
+		mb.header().id1_ = 0;
+	}
 };
 
 struct PongMsg
 {
+	static void init(MessageBuffer &mb) {
+		mb.header().payloadSize_ = 0;
+		mb.header().id0_ = PONG_MSG;
+		mb.header().id1_ = 0;
+	}
 };
 
 struct ScriptMsg

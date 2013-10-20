@@ -39,12 +39,12 @@ public:
 
 	uint16_t port() const { return port_; }
 
-protected:
+//protected:
 	virtual void notifySender();
 	virtual void pollForMessages();
 
 
-private:
+//private:
 	friend class ASIOImpl<Simulator>;
 	boost::asio::io_service ios_;
 	std::auto_ptr<boost::asio::ip::tcp::acceptor> acceptor_;

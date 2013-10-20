@@ -12,12 +12,11 @@
 #ifndef stepper_device_Line_hpp
 #define stepper_device_Line_hpp
 
-#include "foamcut_stepper_dll.h"
 #include "StepDir.hpp"
 
 namespace stepper { namespace device {
 
-class foamcut_stepper_API Line
+class Line
 {
 public:
 

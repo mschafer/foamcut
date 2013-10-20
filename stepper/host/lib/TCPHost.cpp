@@ -3,11 +3,13 @@
 namespace stepper {
 
 TCPHost::TCPHost(const char *hostName, uint16_t port) :
-	hostName_(hostName), socket_(ios_), running_(true)
+	hostName_(hostName), socket_(ios_), running_(true), connected_(false)
 {
     std::ostringstream oss;
     oss << port;
     portStr_ = oss.str();
+    pool_.reset(new pool_type(messageBlock_, sizeof(messageBlock_)));
+	impl_.reset(new device::ASIOImpl<TCPHost>(*this));
     thread_.reset(new boost::thread(boost::bind(&TCPHost::run, this)));
 }
 
@@ -28,11 +30,6 @@ void TCPHost::send(device::MessageBuffer *mb)
 	impl_->startSending();
 }
 
-device::MessageBuffer *TCPHost::receive()
-{
-	return rxQueue_.pop();
-}
-
 void TCPHost::run()
 {
     using namespace boost::asio::ip;
@@ -43,8 +40,7 @@ void TCPHost::run()
             boost::system::error_code error;
             tcp::resolver::iterator it = resolver.resolve(query, error);
             if (error || it == tcp::resolver::iterator()) {
-                boost::posix_time::time_duration d = boost::posix_time::milliseconds(TRY_CONNECT_TIMEOUT);
-                boost::this_thread::sleep(d);
+            	throw std::runtime_error("TCPHost : resolve failed");
             } else {
             	impl_.reset(new device::ASIOImpl<TCPHost>(*this));
                 boost::asio::async_connect(socket_, it,
@@ -53,7 +49,8 @@ void TCPHost::run()
                 ios_.run();
                 ios_.reset();
             }
-            ///\todo error happened here
+            boost::posix_time::time_duration d = boost::posix_time::milliseconds(TRY_CONNECT_TIMEOUT);
+            boost::this_thread::sleep(d);
         }
     }
 
@@ -75,17 +72,23 @@ void TCPHost::handler(device::MessageBuffer *msg, const boost::system::error_cod
 	}
 
 	if (error) {
-		///\todo handle error
+		connected_ = false;
+		socket_.close();
+		ios_.stop();
+		///\todo indicate error
+    	std::cout << "TCPHost error " << error << std::endl;
 	}
 }
 
 void TCPHost::connectComplete(const boost::system::error_code &error)
 {
 	if (!error) {
+    	std::cout << "connect complete" << std::endl;
+		connected_ = true;
 		impl_->receiveOne();
 		impl_->startSending();
 	} else {
-		///\todo handle error
+		// run loop will keep trying
 	}
 }
 
