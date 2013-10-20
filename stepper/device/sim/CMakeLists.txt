@@ -8,38 +8,40 @@
 # Contributors:
 #    Marc Schafer
 
-# foamcut/stepper/host/test
+# foamcut/stepper/device/sim
+
 
 # boost: static libs, no auto link on windows
 set(Boost_USE_STATIC_LIBS  ON)
 add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
 find_package( Boost REQUIRED COMPONENTS 
-  system thread date_time chrono unit_test_framework
+  system thread date_time chrono
 )
-
-link_directories(${Boost_LIBRARY_DIRS})
 
 set (DEVICE_COMMON_DIR ${CMAKE_SOURCE_DIR}/stepper/device/common)
 set (DEVICE_SIM_DIR ${CMAKE_SOURCE_DIR}/stepper/device/sim)
-set (HOST_LIB_DIR ${CMAKE_SOURCE_DIR}/stepper/host/lib)
+
+# source files
+set (SIM_SRC
+  ${DEVICE_COMMON_DIR}/Line.cpp
+  ${DEVICE_COMMON_DIR}/Stepper.cpp
+  Simulator.cpp
+)
+
+# headers
+file(GLOB DEVICE_COMMON_HDR "${DEVICE_COMMON_DIR}/*.h*" )
+file(GLOB DEVICE_SIM_HDR "*.h*" )
+source_group("Headers" FILES ${DEVICE_COMMON_HDR} ${DEVICE_SIM_HDR})
 
 include_directories ( 
-  ${Boost_INCLUDE_DIRS}
-  ${DEVICE_COMMON_DIR}
-  ${DEVICE_SIM_DIR} 
-  ${HOST_LIB_DIR}
+    ${Boost_INCLUDE_DIRS}
+    ${DEVICE_COMMON_DIR}
+    ${DEVICE_SIM_DIR}
 )
 
-add_executable(test_stepper
-	hello_test.cpp
-	line_test.cpp
-	pool_test.cpp
-	sim_test.cpp
-    $<TARGET_OBJECTS:stepper_sim>
-    $<TARGET_OBJECTS:stepper_host>
-)
-
-target_link_libraries(test_stepper 
-  ${Boost_LIBRARIES}
+add_library (stepper_sim OBJECT
+	${SIM_SRC}
+	${DEVICE_COMMON_HDR}
+	${DEVICE_SIM_HDR}
 )

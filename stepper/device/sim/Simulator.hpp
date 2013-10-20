@@ -41,6 +41,7 @@ public:
 
 protected:
 	virtual void notifySender();
+	virtual void pollForMessages();
 
 
 private:
@@ -72,6 +73,7 @@ private:
 
 	//ASIOImpl support
 	boost::asio::ip::tcp::socket &socket() { return socket_; }
+	boost::asio::io_service &ios() { return ios_; }
 	void handler(device::MessageBuffer *msg, const boost::system::error_code &error);
 	MessageBuffer *popTx();
 };

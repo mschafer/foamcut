@@ -8,7 +8,6 @@
 # Contributors:
 #    Marc Schafer
 
-# foamcut/stepper/host
+# foamcut/stepper/device
 
-add_subdirectory(test)
-add_subdirectory(lib)
+add_subdirectory(sim)

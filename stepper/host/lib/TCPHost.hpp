@@ -36,6 +36,9 @@ public:
 	device::MessageBuffer *alloc(uint16_t payloadSize) { return pool_->alloc(payloadSize); }
 	void free(device::MessageBuffer *mb) { pool_->free(mb); }
 
+	void send(device::MessageBuffer *mb);
+	device::MessageBuffer *receive();
+
 private:
 	friend class device::ASIOImpl<TCPHost>;
     std::string hostName_;
@@ -57,6 +60,7 @@ private:
     void connectComplete(const boost::system::error_code &error);
 
 	boost::asio::ip::tcp::socket &socket() { return socket_; }
+	boost::asio::io_service &ios() { return ios_; }
 	void handler(device::MessageBuffer *msg, const boost::system::error_code &error);
 	device::MessageBuffer *popTx() { return txQueue_.pop(); }
 };

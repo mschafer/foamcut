@@ -78,16 +78,31 @@ void Simulator::notifySender()
 	impl_->startSending();
 }
 
+void Simulator::pollForMessages()
+{
+	// nothing to do here because asio does it in background
+}
+
 void Simulator::acceptComplete(const boost::system::error_code &error)
 	{
     if (!error) {
-    	///\todo
+    	impl_->receiveOne();
+    	impl_->startSending();
+    } else {
+    	///\todo handle error
     }
 }
 
 void Simulator::handler(device::MessageBuffer *msg, const boost::system::error_code &error)
 {
-	///\todo
+	if (msg != nullptr) {
+		rxQueue_.push(msg);
+		impl_->receiveOne();
+	}
+
+	if (error) {
+		///\todo handle error
+	}
 }
 
 MessageBuffer *Simulator::popTx()

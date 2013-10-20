@@ -81,7 +81,7 @@ private:
 						boost::bind(&ASIOImpl::bodyComplete, this,
 						boost::asio::placeholders::error));
 				} else {
-					handler_(recvInProgress_, error);
+					link_.handler(recvInProgress_, error);
 					recvInProgress_ = nullptr;
 					receiveOne();
 				}
