@@ -83,6 +83,7 @@ public:
                 freeList_[idx] = ret->next();
                 --freed_[idx];
                 ++allocated_[idx];
+                ret->next(NULL);
                 return ret;
             }
         }
@@ -92,6 +93,7 @@ public:
         if (ret != NULL) {
             ret->poolTag(idx);
             ++allocated_[idx];
+            ret->next(NULL);
         }
         return ret;
     }

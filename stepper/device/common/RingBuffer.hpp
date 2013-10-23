@@ -14,7 +14,7 @@
 
 #include <stdint.h>
 
-namespace foamcut { namespace device {
+namespace stepper { namespace device {
 
 template <typename T, uint16_t N>
 class RingBuffer
@@ -69,10 +69,10 @@ public:
 	}
 
 	///\todo optimize with contiguous memcpy's
-	bool pop(T *vals, uint16_t count) {
-		if (count() < count) return false;
+	bool pop(T *vals, uint16_t numVals) {
+		if (count() < numVals) return false;
 		uint16_t i = 0;
-		for (uint16_t i=0; i<count; ++i) {
+		for (uint16_t i=0; i<numVals; ++i) {
 			pop(vals[i]);
 		}
 		return true;

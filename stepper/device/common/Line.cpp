@@ -15,6 +15,14 @@
 
 namespace stepper { namespace device {
 
+Line::Line() : maxd_(0), stepDelay_(0), count_(0)
+{
+    for (int i=0; i<5; ++i) {
+    	absd_[i] = 0;
+    	e_[i] = 0;
+    }
+}
+
 Line::Line(int dx, int dy, int dz, int du, uint32_t delay) :
 		count_(0)
 {

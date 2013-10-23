@@ -47,8 +47,22 @@ struct PongMsg
 	}
 };
 
+/**
+ * Message containing script bytes for the stepper to run.
+ * id1_ is unused.
+ */
 struct ScriptMsg
 {
+	enum {
+		PAYLOAD_SIZE=256
+	};
+
+	static void init(MessageBuffer &mb) {
+		mb.header().payloadSize_ = PAYLOAD_SIZE;
+		mb.header().id0_ = SCRIPT_MSG;
+		mb.header().id1_ = 0;
+	}
+	uint8_t scriptData_[PAYLOAD_SIZE];
 };
 
 struct GoMsg

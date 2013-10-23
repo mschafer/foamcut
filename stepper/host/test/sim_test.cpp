@@ -19,7 +19,7 @@
 #include <boost/thread.hpp>
 #include <TCPHost.hpp>
 #include <Simulator.hpp>
-#include <Messages.hpp>
+#include <Dictionary.hpp>
 
 void rtest(const boost::system::error_code &error)
 {

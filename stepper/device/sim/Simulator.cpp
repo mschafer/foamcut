@@ -27,8 +27,8 @@ Simulator::Simulator(uint16_t port) : socket_(ios_),
         port_ = acceptor_->local_endpoint().port();
     }
 
-	//backgroundTimer_.expires_from_now(std::chrono::milliseconds(10));
-	//backgroundTimer_.async_wait(boost::bind(&Simulator::runBackground, this));
+	backgroundTimer_.expires_from_now(std::chrono::milliseconds(10));
+	backgroundTimer_.async_wait(boost::bind(&Simulator::runBackground, this));
 
 	for (int i=0; i<StepDir::AXIS_END; ++i) {
 		pos_[i] = 0;
@@ -113,16 +113,13 @@ MessageBuffer *Simulator::popTx()
 	return txQueue_.pop();
 }
 
-
-
-
 void Simulator::runBackground()
 {
-	do {
-		runBackgroundOnce();
+	runBackgroundOnce();
+	if (running_) {
 		backgroundTimer_.expires_from_now(std::chrono::milliseconds(10));
 		backgroundTimer_.async_wait(boost::bind(&Simulator::runBackground, this));
-	} while (running_);
+	}
 }
 
 void Simulator::setStepDirBits(const StepDir &s)

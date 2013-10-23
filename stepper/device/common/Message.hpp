@@ -49,8 +49,10 @@ private:
 	MessageBuffer &operator=(const MessageBuffer &assign);
 };
 
+#if __cplusplus >= 201103L
 static_assert(sizeof(MessageBuffer)%sizeof(void*)==0,"Alignment problem with Message");
 static_assert(sizeof(MessageHeader)==4,"Alignment problem with Message");
+#endif
 
 }}
 

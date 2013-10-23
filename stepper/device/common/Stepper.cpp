@@ -10,7 +10,7 @@
  *     Marc Schafer
  */
 #include "Stepper.hpp"
-#include "Messages.hpp"
+#include "Dictionary.hpp"
 #include <Platform.hpp>
 
 namespace stepper { namespace device {
@@ -23,7 +23,7 @@ Stepper::Stepper() : pool_(messageBlock_, sizeof(messageBlock_))
 void Stepper::runBackgroundOnce()
 {
 	pollForMessages();
-	MessageBuffer *m = txQueue_.pop();
+	MessageBuffer *m = rxQueue_.pop();
 	if (m) { handleMessage(*m); }
 }
 
@@ -45,6 +45,12 @@ void Stepper::handleMessage(MessageBuffer &m)
 	{
 		PongMsg::init(m);
 		sendMessage(&m);
+	}
+	break;
+
+	case SCRIPT_MSG:
+	{
+
 	}
 	break;
 

@@ -25,6 +25,7 @@ public:
 		StepDir step_;
 	};
 
+    Line();
 	Line(int dx, int dy, int dz, int du, uint32_t delay);
 
 	NextStep nextStep();
@@ -38,7 +39,6 @@ private:
     uint32_t stepDelay_;
     StepDir dir_;
 
-    Line();
 };
 
 }}

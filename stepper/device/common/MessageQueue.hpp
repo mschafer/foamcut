@@ -12,6 +12,8 @@
 #ifndef stepper_device_MessageQueue_hpp
 #define stepper_device_MessageQueue_hpp
 
+#include <stddef.h>
+#include <assert.h>
 #include "Message.hpp"
 #include "LockGuard.hpp"
 
@@ -22,27 +24,31 @@ template <typename lock_type>
 class MessageQueue
 {
 public:
-	MessageQueue() : head_(nullptr), tail_(nullptr), size_(0) {}
+	MessageQueue() : head_(NULL), tail_(NULL), size_(0) {}
 	~MessageQueue() {}
 
+	/**
+	 * Push \em v onto tail of list. */
 	void push(MessageBuffer *v) {
+		assert(v->next() == NULL);
 		LockGuard<lock_type> guard(mtx_);
-        v->next(nullptr);
-        if (tail_ != nullptr) {
+        if (tail_ != NULL) {
             tail_->next(v);
         }
         tail_ = v;
 
-        if (head_ == nullptr) head_ = v;
+        if (head_ == NULL) head_ = v;
         ++size_;
 	}
 
+	/** Pop head off list. */
 	MessageBuffer *pop() {
 		LockGuard<lock_type> guard(mtx_);
         MessageBuffer *ret = head_;
-        if (head_ != nullptr) {
+        if (head_ != NULL) {
             head_ = head_->next();
-            if (head_ == nullptr) tail_ = nullptr;
+            ret->next(NULL);
+            if (head_ == NULL) tail_ = NULL;
         }
         --size_;
         return ret;
