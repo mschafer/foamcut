@@ -19,7 +19,10 @@
 
 namespace stepper { namespace device {
 
-namespace script {
+class Stepper;
+
+/** namespace for Engine instructions. */
+namespace Script {
 
 enum {
 	NO_OP_CMD        = 0,
@@ -27,39 +30,40 @@ enum {
 	LINE_CMD         = 2,
 	LONG_LINE_CMD    = 3,
 	DELAY_CMD        = 4,
-	PAUSE_CMD        = 5,
+	DONE_CMD         = 5
 };
 
 struct SingleStepCmd
 {
-	StepDir stepDir;
+	enum { SIZE=3 };
+	uint16_t delay_;
+	StepDir stepDir_;
 };
 
 struct LineCmd
 {
-	int8_t dx;
-	int8_t dy;
-	int8_t dz;
-	int8_t du;
-	uint16_t delay;
+	enum { SIZE=8 };
+	uint32_t delay_;
+	int8_t dx_;
+	int8_t dy_;
+	int8_t dz_;
+	int8_t du_;
 };
 
 struct LongLineCmd
 {
-	int16_t dx;
-	int16_t dy;
-	int16_t dz;
-	int16_t du;
-	uint32_t delay;
+	enum { SIZE=12 };
+	uint32_t delay_;
+	int16_t dx_;
+	int16_t dy_;
+	int16_t dz_;
+	int16_t du_;
 };
 
 struct DelayCmd
 {
-	uint32_t delay;
-};
-
-struct PauseCmd
-{
+	enum { SIZE=4 };
+	uint32_t delay_;
 };
 
 }
@@ -74,7 +78,7 @@ struct NoOpLock
 class Engine
 {
 public:
-	Engine();
+	explicit Engine(Stepper *);
 	~Engine() {}
 
 	/** Add a script message to the queue waiting to be processed. */
@@ -90,17 +94,27 @@ public:
 	bool nextStep(Line::NextStep &out) { return steps_.pop(out); }
 
 	/**
-	 * Process enqueued ScriptMessages and generates StepDir commands from them.
+	 * Parse enqueued instructions and generates StepDir commands
+	 * from them.  The StepDir commands are placed in a FIFO for use
+	 * by \sa Stepper::onTimerExpired.
 	 */
 	void operator()();
 
 private:
+	Stepper *stepper_;
 	MessageQueue<NoOpLock> queue_;
 	RingBuffer<Line::NextStep, 8> steps_;
 	Line line_;
+	MessageBuffer *currentMsg_;
+	uint16_t msgOffset_;
+	uint8_t cmdId_;
+	int8_t cmdOffset_;
+	uint8_t cmd_[sizeof(Script::LongLineCmd)];
 
+	bool getNextByte(uint8_t &out);
 	bool parseNextCommand();
 
+	Engine();
 	Engine(const Engine &cpy);
 	Engine &operator=(const Engine &assign);
 };

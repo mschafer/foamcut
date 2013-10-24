@@ -17,7 +17,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
-#include <TCPHost.hpp>
+#include <TCPLink.hpp>
 #include <Simulator.hpp>
 #include <Dictionary.hpp>
 
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE( sim_ping_test )
 
 	Simulator sim;
 	std::cout << "sim port " << sim.port() << std::endl;
-	TCPHost host("localhost", sim.port());
+	TCPLink host("localhost", sim.port());
 
     boost::posix_time::time_duration d = boost::posix_time::milliseconds(1000);
     boost::this_thread::sleep(d);

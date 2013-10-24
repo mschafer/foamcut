@@ -31,6 +31,7 @@ enum {
 
 struct PingMsg
 {
+	enum { PAYLOAD_SIZE = 0 };
 	static void init(MessageBuffer &mb) {
 		mb.header().payloadSize_ = 0;
 		mb.header().id0_ = PING_MSG;
@@ -79,21 +80,6 @@ struct HaltMsg
 
 struct SpeedAdjustMsg
 {
-};
-
-/** All messages are fixed size. */
-const uint8_t MessageSize[MESSAGE_COUNT] = {
-    static_cast<uint8_t>(sizeof(PingMsg)),
-    static_cast<uint8_t>(sizeof(PongMsg)),
-    static_cast<uint8_t>(sizeof(ScriptMsg)),
-    static_cast<uint8_t>(sizeof(GoMsg)),
-    static_cast<uint8_t>(sizeof(PauseMsg)),
-    static_cast<uint8_t>(sizeof(HaltMsg)),
-    static_cast<uint8_t>(sizeof(SpeedAdjustMsg))
-};
-
-enum {
-	MAX_MESSAGE_SIZE = 16
 };
 
 }}

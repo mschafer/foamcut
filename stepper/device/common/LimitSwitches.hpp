@@ -39,6 +39,16 @@ public:
 
 	void clear() { b_ = 0; }
 
+	/** Mask out steps deactivated by limit switches. */
+	StepDir apply(const StepDir &s) {
+		StepDir o(s);
+		if ((s.xDir() && xFwd()) || (!s.xDir() && xRev())) { o.xStep(false); }
+		if ((s.yDir() && yFwd()) || (!s.yDir() && yRev())) { o.yStep(false); }
+		if ((s.zDir() && zFwd()) || (!s.zDir() && zRev())) { o.zStep(false); }
+		if ((s.uDir() && uFwd()) || (!s.uDir() && uRev())) { o.uStep(false); }
+		return o;
+	}
+
 	bool forwardLimit(StepDir::AxisIdx axis) const { return getBit(forwardMask(axis)); }
 	void forwardLimit(StepDir::AxisIdx axis, bool v) { setBit(forwardMask(axis), v); }
 	bool reverseLimit(StepDir::AxisIdx axis) const { return getBit(reverseMask(axis)); }

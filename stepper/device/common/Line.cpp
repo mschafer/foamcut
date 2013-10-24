@@ -23,9 +23,15 @@ Line::Line() : maxd_(0), stepDelay_(0), count_(0)
     }
 }
 
-Line::Line(int dx, int dy, int dz, int du, uint32_t delay) :
-		count_(0)
+Line::Line(int dx, int dy, int dz, int du, uint32_t delay)
 {
+	reset(dx, dy, dz, du, delay);
+}
+
+void
+Line::reset(int dx, int dy, int dz, int du, uint32_t delay)
+{
+	count_ = 0;
 	absd_[StepDir::X_AXIS] = abs(dx);
 	absd_[StepDir::Y_AXIS] = abs(dy);
 	absd_[StepDir::Z_AXIS] = abs(dz);

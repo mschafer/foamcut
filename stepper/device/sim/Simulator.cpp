@@ -161,9 +161,9 @@ LimitSwitches Simulator::readLimitSwitches()
 
 void Simulator::startTimer(uint32_t period)
 {
-	uint32_t delay = period * 5;
+	uint32_t delay = period * Stepper::TIMER_PERIOD_USEC;
 	stepTimer_.expires_from_now(std::chrono::microseconds(delay));
-	stepTimer_.async_wait(boost::bind(&Simulator::runBackground, this));
+	stepTimer_.async_wait(boost::bind(&Stepper::onTimerExpired, this));
 }
 
 }}

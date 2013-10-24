@@ -16,6 +16,7 @@
 #include "MessageQueue.hpp"
 #include "StepDir.hpp"
 #include "LimitSwitches.hpp"
+#include "Engine.hpp"
 #include <Platform.hpp>
 
 namespace stepper { namespace device {
@@ -23,6 +24,10 @@ namespace stepper { namespace device {
 class Stepper
 {
 public:
+
+	enum {
+		TIMER_PERIOD_USEC = 5
+	};
 
 	Stepper();
 	virtual ~Stepper() {}
@@ -70,6 +75,10 @@ public:
 	 */
 	void sendMessage(MessageBuffer *mb);
 
+	/**
+	 * Set the output value of the digital I/O lines for each step
+	 * and direction output the value in s.
+	 */
 	virtual void setStepDirBits(const StepDir &s) = 0;
 
 	virtual LimitSwitches readLimitSwitches() = 0;
@@ -98,10 +107,15 @@ private:
 	uint8_t messageBlock_[2048];
 	StepDir invertMask_;
 	MessagePool<platform::Lock> pool_;
+	Engine engine_;
+
+	void handleMessage(MessageBuffer &m);
+
+	/** \return scaled value of the delay. */
+	uint32_t scaleDelay(uint32_t delay);
 
 	Stepper(const Stepper &cpy);
 	Stepper &operator=(const Stepper &rhs);
-	void handleMessage(MessageBuffer &m);
 
 };
 

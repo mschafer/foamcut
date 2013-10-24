@@ -25,7 +25,7 @@ namespace foamcut {
 /**
  * A 2 dimensional curve consisting of connected splines.  The splines define segments with
  * continuous value and slope.  The breaks between splines have continuous value only.
- * The endpoint condtions of the splines are "not a knot."
+ * The end point conditions of the splines are "not a knot."
  */
 class foamcut_kernel_API Shape {
 public:

@@ -1,19 +1,19 @@
-#include "TCPHost.hpp"
+#include "TCPLink.hpp"
 
 namespace stepper {
 
-TCPHost::TCPHost(const char *hostName, uint16_t port) :
+TCPLink::TCPLink(const char *hostName, uint16_t port) :
 	hostName_(hostName), socket_(ios_), running_(true), connected_(false)
 {
     std::ostringstream oss;
     oss << port;
     portStr_ = oss.str();
     pool_.reset(new pool_type(messageBlock_, sizeof(messageBlock_)));
-	impl_.reset(new device::ASIOImpl<TCPHost>(*this));
-    thread_.reset(new boost::thread(boost::bind(&TCPHost::run, this)));
+	impl_.reset(new device::ASIOImpl<TCPLink>(*this));
+    thread_.reset(new boost::thread(boost::bind(&TCPLink::run, this)));
 }
 
-TCPHost::~TCPHost()
+TCPLink::~TCPLink()
 {
 	try {
 		running_ = false;
@@ -24,13 +24,13 @@ TCPHost::~TCPHost()
 	}
 }
 
-void TCPHost::send(device::MessageBuffer *mb)
+void TCPLink::send(device::MessageBuffer *mb)
 {
 	txQueue_.push(mb);
 	impl_->startSending();
 }
 
-void TCPHost::run()
+void TCPLink::run()
 {
     using namespace boost::asio::ip;
     try {
@@ -40,11 +40,11 @@ void TCPHost::run()
             boost::system::error_code error;
             tcp::resolver::iterator it = resolver.resolve(query, error);
             if (error || it == tcp::resolver::iterator()) {
-            	throw std::runtime_error("TCPHost : resolve failed");
+            	throw std::runtime_error("TCPLink : resolve failed");
             } else {
-            	impl_.reset(new device::ASIOImpl<TCPHost>(*this));
+            	impl_.reset(new device::ASIOImpl<TCPLink>(*this));
                 boost::asio::async_connect(socket_, it,
-                boost::bind(&TCPHost::connectComplete, this,
+                boost::bind(&TCPLink::connectComplete, this,
 	            boost::asio::placeholders::error));
                 ios_.run();
                 ios_.reset();
@@ -64,7 +64,7 @@ void TCPHost::run()
     }
 }
 
-void TCPHost::handler(device::MessageBuffer *msg, const boost::system::error_code &error)
+void TCPLink::handler(device::MessageBuffer *msg, const boost::system::error_code &error)
 {
 	if (msg != nullptr) {
 		rxQueue_.push(msg);
@@ -76,11 +76,11 @@ void TCPHost::handler(device::MessageBuffer *msg, const boost::system::error_cod
 		socket_.close();
 		ios_.stop();
 		///\todo indicate error
-    	std::cout << "TCPHost error " << error << std::endl;
+    	std::cout << "TCPLink error " << error << std::endl;
 	}
 }
 
-void TCPHost::connectComplete(const boost::system::error_code &error)
+void TCPLink::connectComplete(const boost::system::error_code &error)
 {
 	if (!error) {
     	std::cout << "connect complete" << std::endl;

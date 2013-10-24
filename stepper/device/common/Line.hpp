@@ -21,6 +21,8 @@ class Line
 public:
 
 	struct NextStep {
+		NextStep(uint32_t delay, StepDir step) : delay_(delay), step_(step) {}
+		NextStep() : delay_(0) {}
 		uint32_t delay_;
 		StepDir step_;
 	};
@@ -28,6 +30,7 @@ public:
     Line();
 	Line(int dx, int dy, int dz, int du, uint32_t delay);
 
+	void reset(int dx, int dy, int dz, int du, uint32_t delay);
 	NextStep nextStep();
 	bool done() const { return count_ == maxd_; }
 

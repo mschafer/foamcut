@@ -46,6 +46,23 @@ public:
 
 	void clear() { b_ = 0; }
 
+	/*
+	 * \return logical value of bits to set direction with
+	 * all the steps inactive.
+	 */
+	StepDir getDirOnlyBitVals(StepDir invertMask) {
+		StepDir r;
+		r.b_ = b_ & (X_DIR | Y_DIR | Z_DIR | U_DIR);
+		r.b_ ^= invertMask.b_;
+		return r;
+	}
+
+	StepDir getStepDirBitVals(StepDir invertMask) {
+		StepDir r(invertMask);
+		r.b_ ^= b_;
+		return r;
+	}
+
 	bool step(AxisIdx axis) const { return getBit(stepMask(axis)); }
 	void step(AxisIdx axis, bool v) { setBit(stepMask(axis), v); }
 	bool dir(AxisIdx axis) const { return getBit(dirMask(axis)); }

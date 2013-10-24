@@ -9,8 +9,8 @@
  * Contributors:
  *     Marc Schafer
  */
-#ifndef stepper_TCPHost_hpp
-#define stepper_TCPHost_hpp
+#ifndef stepper_TCPLink_hpp
+#define stepper_TCPLink_hpp
 
 #include <memory>
 #include <boost/asio.hpp>
@@ -23,15 +23,15 @@ namespace stepper {
 /**
  * TCP/IP host link to the device.
  */
-class TCPHost
+class TCPLink
 {
 public:
 	enum {
 		TRY_CONNECT_TIMEOUT = 500
 	};
 
-	TCPHost(const char *hostName, uint16_t port);
-	virtual ~TCPHost();
+	TCPLink(const char *hostName, uint16_t port);
+	virtual ~TCPLink();
 
 	device::MessageBuffer *alloc(uint16_t payloadSize) { return pool_->alloc(payloadSize); }
 	void free(device::MessageBuffer *mb) { pool_->free(mb); }
@@ -42,7 +42,7 @@ public:
 	bool connected() const { return connected_; }
 
 private:
-	friend class device::ASIOImpl<TCPHost>;
+	friend class device::ASIOImpl<TCPLink>;
     std::string hostName_;
     std::string portStr_;
 
@@ -58,7 +58,7 @@ private:
 	device::MessageQueue<boost::mutex> rxQueue_;
 	device::MessageQueue<boost::mutex> txQueue_;
 
-    std::unique_ptr<device::ASIOImpl<TCPHost> > impl_;
+    std::unique_ptr<device::ASIOImpl<TCPLink> > impl_;
 
     void run();
     void connectComplete(const boost::system::error_code &error);

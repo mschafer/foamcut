@@ -15,7 +15,7 @@
 
 namespace stepper { namespace device {
 
-Stepper::Stepper() : pool_(messageBlock_, sizeof(messageBlock_))
+Stepper::Stepper() : pool_(messageBlock_, sizeof(messageBlock_)), engine_(this)
 {
 	// alloc and free big blocks for script
 }
@@ -25,11 +25,35 @@ void Stepper::runBackgroundOnce()
 	pollForMessages();
 	MessageBuffer *m = rxQueue_.pop();
 	if (m) { handleMessage(*m); }
+	engine_();
 }
 
 void Stepper::onTimerExpired()
 {
+	Line::NextStep ns;
+	bool r = engine_.nextStep(ns);
+	if (!r) {
+		///\todo underflow error here
+	} else {
+		// delay == 0 means we are stopping
+		if (ns.delay_ == 0) {
 
+		} else {
+			startTimer(scaleDelay(ns.delay_));
+
+			LimitSwitches limits = readLimitSwitches();
+			StepDir s = limits.apply(ns.step_);
+
+			// set the direction bits with all steps inactive
+			setStepDirBits(s.getDirOnlyBitVals(invertMask_));
+
+			// set the direction bits with desired steps active
+			setStepDirBits(s.getStepDirBitVals(invertMask_));
+
+			// steps are edge triggered so return them inactive
+			setStepDirBits(s.getDirOnlyBitVals(invertMask_));
+		}
+	}
 }
 
 void Stepper::sendMessage(MessageBuffer *mb)
@@ -50,14 +74,20 @@ void Stepper::handleMessage(MessageBuffer &m)
 
 	case SCRIPT_MSG:
 	{
-
+		engine_.addScriptMessage(&m);
 	}
 	break;
 
 	default:
+		///\todo error unrecognized message here
 		free(&m);
 		break;
 	}
+}
+
+uint32_t Stepper::scaleDelay(uint32_t delay)
+{
+	return delay;
 }
 
 }}
