@@ -76,7 +76,7 @@ void TCPLink::handler(device::MessageBuffer *msg, const boost::system::error_cod
 		socket_.close();
 		ios_.stop();
 		///\todo indicate error
-    	std::cout << "TCPLink error " << error << std::endl;
+    	std::cout << "TCPLink error " << error.message() << std::endl;
 	}
 }
 

@@ -33,16 +33,27 @@ bool Host::connectToSimulator()
 	sim_.reset(new device::Simulator());
 	link_.reset(new TCPLink("localhost", sim_->port()));
 
+	auto end = boost::chrono::steady_clock::now() + boost::chrono::milliseconds(500);
+	while (boost::chrono::steady_clock::now() < end) {
+		if (link_->connected()) break;
+	}
+	if (!link_->connected()) return false;
+
+
 	device::MessageBuffer *mb = link_->alloc(device::PingMsg::PAYLOAD_SIZE);
 	device::PingMsg::init(*mb);
 	link_->send(mb);
 
-	auto end = boost::chrono::steady_clock::now() + boost::chrono::milliseconds(500);
+	end = boost::chrono::steady_clock::now() + boost::chrono::milliseconds(500);
 	while (boost::chrono::steady_clock::now() < end) {
-
+		if ((mb = link_->receive()) != NULL) {
+			uint8_t mbid = mb->header().id0_;
+			link_->free(mb);
+			if (mbid == device::PONG_MSG) return true;
+		}
+		boost::this_thread::yield();
 	}
-
-	return true;
+	return false;
 }
 
 }

@@ -36,7 +36,6 @@ public:
 	~ASIOImpl() {}
 
 	void receiveOne() {
-    	std::cout << "trying to receive " << sizeof(device::MessageHeader) << std::endl;
     	boost::asio::async_read(link_.socket(),
     		boost::asio::buffer(&recvHeader_, sizeof(device::MessageHeader)),
     		boost::bind(&ASIOImpl::headerComplete, this,
@@ -48,7 +47,6 @@ public:
 		if (sendInProgress_ == nullptr) {
 			sendInProgress_ = link_.popTx();
 			if (sendInProgress_ != nullptr) {
-		    	std::cout << "sending " << sendInProgress_->totalSize() << std::endl;
 				boost::asio::async_write(link_.socket(),
 					boost::asio::buffer(sendInProgress_->start(), sendInProgress_->totalSize()),
 					boost::bind(&ASIOImpl::sendComplete, this,
@@ -67,9 +65,7 @@ private:
 
 	void headerComplete(const boost::system::error_code &error)
 	{
-    	std::cout << "headerComplete " << std::endl;
 		if (!error) {
-	    	std::cout << "received header " << std::endl;
 			uint16_t s = recvHeader_.payloadSize_;
 			recvInProgress_ = link_.alloc(s);
 			if (recvInProgress_ == NULL) {
@@ -117,7 +113,6 @@ private:
 		}
 
 		if (!error) {
-	    	std::cout << "send complete " << std::endl;
 			startSending();
 		} else {
 			link_.handler(nullptr, error);

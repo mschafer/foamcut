@@ -10,7 +10,6 @@
  *     Marc Schafer
  */
 #include "Line.hpp"
-#include "Commands.hpp"
 #include <stdlib.h>
 
 namespace stepper { namespace device {
