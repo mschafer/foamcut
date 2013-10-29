@@ -21,18 +21,93 @@
 #include <Host.hpp>
 #include <Dictionary.hpp>
 
-void rtest(const boost::system::error_code &error)
+using boost::asio::ip::tcp;
+
+char bufft[10];
+char buffr[10];
+
+void sendComplete(const boost::system::error_code &error)
 {
-	std::cout << "rtest" << std::endl;
+	if (!error) {
+		std::cout << "send completed" << std::endl;
+	} else {
+		std::cout << "send: " << error.message() << std::endl;
+	}
+}
+
+void receiveComplete(const boost::system::error_code &error)
+{
+	if (!error) {
+		std::cout << "receive completed" << std::endl;
+	} else {
+		std::cout << "receive: " << error.message() << std::endl;
+	}
+}
+
+void connectComplete(boost::asio::ip::tcp::socket &s, const boost::system::error_code &error) {
+	if (!error) {
+		std::cout << "connection completed" << std::endl;
+        s.async_send(boost::asio::buffer(bufft, sizeof(bufft)), boost::bind(&sendComplete, boost::asio::placeholders::error));
+        s.async_receive(boost::asio::buffer(buffr, sizeof(buffr)), boost::bind(&receiveComplete, boost::asio::placeholders::error));
+	} else {
+		std::cout << "connect: " << error.message() << std::endl;
+	}
+}
+
+void acceptComplete(boost::asio::ip::tcp::socket &s, const boost::system::error_code &error) {
+	if (!error) {
+		std::cout << "accept completed with " << s.available() << " bytes available" << std::endl;
+	} else {
+		std::cout << "accept: " << error.message() << std::endl;
+	}
 }
 
 
 BOOST_AUTO_TEST_CASE( sim_ping_test )
 {
+	const uint16_t port = 54321;
+
+
+	boost::asio::io_service ios;
+    tcp::acceptor acc(ios, tcp::endpoint(tcp::v4(), port));
+    //uint16_t port = acc.local_endpoint().port();
+    tcp::socket server(ios);
+    acc.async_accept(server, boost::bind(&acceptComplete, boost::ref(server), boost::asio::placeholders::error));
+
+
+    std::ostringstream oss;
+    oss << port;
+    std::string portStr = oss.str();
+    tcp::resolver resolver(ios);
+    tcp::resolver::query query("localhost", portStr.c_str());
+    boost::system::error_code error;
+    tcp::resolver::iterator it = resolver.resolve(query, error);
+    tcp::socket client(ios);
+    boost::asio::async_connect(client, it, boost::bind(&connectComplete, boost::ref(client),
+    		boost::asio::placeholders::error));
+
+
+    for (int iter=0; iter<1000; iter++) {
+    	boost::system::error_code ec;
+    	ios.poll(ec);
+    	if (ec) {
+    		std::cout << ec.message() << std::endl;
+    	}
+        if (iter == 100) {
+            std::cout << "trying to accept" << std::endl;
+            acc.async_accept(server, boost::bind(&acceptComplete, boost::ref(server), boost::asio::placeholders::error));
+        }
+    	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+    }
+
+
+#if 0
 	using namespace stepper;
 	using namespace stepper::device;
+
 
 	Host host;
 
 	BOOST_CHECK(host.connectToSimulator());
+#endif
 }
