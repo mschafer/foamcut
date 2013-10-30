@@ -65,43 +65,35 @@ void acceptComplete(boost::asio::ip::tcp::socket &s, const boost::system::error_
 
 BOOST_AUTO_TEST_CASE( sim_ping_test )
 {
-	const uint16_t port = 54321;
-
-
 	boost::asio::io_service ios;
-    tcp::acceptor acc(ios, tcp::endpoint(tcp::v4(), port));
-    //uint16_t port = acc.local_endpoint().port();
+    tcp::acceptor acc(ios, tcp::endpoint());
+    uint16_t port = acc.local_endpoint().port();
     tcp::socket server(ios);
-    acc.async_accept(server, boost::bind(&acceptComplete, boost::ref(server), boost::asio::placeholders::error));
-
 
     std::ostringstream oss;
     oss << port;
     std::string portStr = oss.str();
     tcp::resolver resolver(ios);
-    tcp::resolver::query query("localhost", portStr.c_str());
+    tcp::resolver::query q(tcp::v4(), "localhost", portStr.c_str());
     boost::system::error_code error;
-    tcp::resolver::iterator it = resolver.resolve(query, error);
+    tcp::resolver::iterator it = resolver.resolve(q, error);
     tcp::socket client(ios);
     boost::asio::async_connect(client, it, boost::bind(&connectComplete, boost::ref(client),
-    		boost::asio::placeholders::error));
+   		boost::asio::placeholders::error));
 
-
-    for (int iter=0; iter<1000; iter++) {
+    for (int iter=0; iter<100; iter++) {
     	boost::system::error_code ec;
     	ios.poll(ec);
     	if (ec) {
     		std::cout << ec.message() << std::endl;
     	}
-        if (iter == 100) {
+        if (iter == 10) {
             std::cout << "trying to accept" << std::endl;
             acc.async_accept(server, boost::bind(&acceptComplete, boost::ref(server), boost::asio::placeholders::error));
         }
     	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
     }
 
-
-#if 0
 	using namespace stepper;
 	using namespace stepper::device;
 
@@ -109,5 +101,4 @@ BOOST_AUTO_TEST_CASE( sim_ping_test )
 	Host host;
 
 	BOOST_CHECK(host.connectToSimulator());
-#endif
 }

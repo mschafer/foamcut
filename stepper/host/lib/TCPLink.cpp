@@ -36,7 +36,7 @@ void TCPLink::run()
     try {
         while (running_) {
             tcp::resolver resolver(ios_);
-            tcp::resolver::query query(hostName_.c_str(), portStr_.c_str());
+            tcp::resolver::query query(tcp::v4(), hostName_.c_str(), portStr_.c_str());
             boost::system::error_code error;
             tcp::resolver::iterator it = resolver.resolve(query, error);
             if (error || it == tcp::resolver::iterator()) {

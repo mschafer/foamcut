@@ -6,5 +6,5 @@ embedded microcontroller.
 
 # Depends on boost 1.54 static libraries
 build on mac:
-./bootstrap.sh --with-toolset=clang --prefix=/where/you/want/boost
-./b2 toolset=clang cxxflags="-std=c++11 -stdlib=libc++" linkflags="-stdlib=libc++" -j N
+./bootstrap.sh --prefix=/where/you/want/boost
+./b2 cxxflags="-std=c++11 -stdlib=libc++" linkflags="-stdlib=libc++" link=static -j N install
