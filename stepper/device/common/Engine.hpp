@@ -100,6 +100,8 @@ public:
 	 */
 	void operator()();
 
+	void init();
+
 private:
 	Stepper *stepper_;
 	MessageQueue<NoOpLock> queue_;

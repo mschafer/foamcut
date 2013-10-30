@@ -111,4 +111,22 @@ bool Engine::parseNextCommand()
 	return true;
 }
 
+void Engine::init()
+{
+	MessageBuffer *mb;
+	while ((mb = queue_.pop()) != NULL) {
+		stepper_->free(mb);
+	}
+
+	if (currentMsg_ != NULL) {
+		stepper_->free(currentMsg_);
+		currentMsg_ = NULL;
+	}
+
+	steps_.clear();
+
+	msgOffset_ = 0;
+	cmdOffset_ = -1;
+}
+
 }}

@@ -26,7 +26,8 @@ class Stepper
 public:
 
 	enum {
-		TIMER_PERIOD_USEC = 5
+		TIMER_PERIOD_USEC = 5,
+		MESSAGE_BLOCK_SIZE = platform::SCRIPT_MSG_POOL * (ScriptMsg::PAYLOAD_SIZE + sizeof(MessageBuffer)) + 256
 	};
 
 	Stepper();
@@ -104,7 +105,7 @@ protected:
 	virtual void pollForMessages() = 0;
 
 private:
-	uint8_t messageBlock_[2048];
+	uint8_t messageBlock_[MESSAGE_BLOCK_SIZE];
 	StepDir invertMask_;
 	MessagePool<platform::Lock> pool_;
 	Engine engine_;

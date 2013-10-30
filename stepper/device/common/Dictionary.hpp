@@ -19,21 +19,22 @@
 namespace stepper { namespace device {
 
 enum {
-	PING_MSG         = 0,
-	PONG_MSG         = 1,
-	SCRIPT_MSG       = 2,
-	GO_MSG           = 3,
-	PAUSE_MSG        = 4,
-	HALT_MSG         = 5,
-	SPEED_ADJUST_MSG = 6,
-	MESSAGE_COUNT    = 7
+	PING_MSG,
+	PONG_MSG,
+	GO_MSG,
+	PAUSE_MSG,
+	RESET_MSG,
+	SPEED_ADJUST_MSG,
+	INIT_SCRIPT_MSG,
+	ACK_SCRIPT_MSG,
+	DATA_SCRIPT_MSG,
 };
 
 struct PingMsg
 {
 	enum { PAYLOAD_SIZE = 0 };
 	static void init(MessageBuffer &mb) {
-		mb.header().payloadSize_ = 0;
+		mb.header().payloadSize_ = PAYLOAD_SIZE;
 		mb.header().id0_ = PING_MSG;
 		mb.header().id1_ = 0;
 	}
@@ -41,45 +42,100 @@ struct PingMsg
 
 struct PongMsg
 {
+	enum { PAYLOAD_SIZE = 0 };
 	static void init(MessageBuffer &mb) {
-		mb.header().payloadSize_ = 0;
+		mb.header().payloadSize_ = PAYLOAD_SIZE;
 		mb.header().id0_ = PONG_MSG;
 		mb.header().id1_ = 0;
 	}
 };
 
-/**
- * Message containing script bytes for the stepper to run.
- * id1_ is unused.
- */
-struct ScriptMsg
-{
-	enum {
-		PAYLOAD_SIZE=256
-	};
-
-	static void init(MessageBuffer &mb) {
-		mb.header().payloadSize_ = PAYLOAD_SIZE;
-		mb.header().id0_ = SCRIPT_MSG;
-		mb.header().id1_ = 0;
-	}
-	uint8_t scriptData_[PAYLOAD_SIZE];
-};
-
+/** Starts the engine executing the currently cached script. */
 struct GoMsg
 {
+	enum { PAYLOAD_SIZE = 0 };
+	static void init(MessageBuffer &mb) {
+		mb.header().payloadSize_ = PAYLOAD_SIZE;
+		mb.header().id0_ = GO_MSG;
+		mb.header().id1_ = 0;
+	}
 };
 
+/** Stops the engine executing the currently cached script, resumes on GoMsg. */
 struct PauseMsg
 {
+	enum { PAYLOAD_SIZE = 0 };
+	static void init(MessageBuffer &mb) {
+		mb.header().payloadSize_ = PAYLOAD_SIZE;
+		mb.header().id0_ = PAUSE_MSG;
+		mb.header().id1_ = 0;
+	}
 };
 
-struct HaltMsg
+struct ResetMsg
 {
+	enum { PAYLOAD_SIZE = 0 };
+	static void init(MessageBuffer &mb) {
+		mb.header().payloadSize_ = PAYLOAD_SIZE;
+		mb.header().id0_ = RESET_MSG;
+		mb.header().id1_ = 0;
+	}
 };
 
 struct SpeedAdjustMsg
 {
+	enum { PAYLOAD_SIZE = 4 };
+	static void init(MessageBuffer &mb) {
+		mb.header().payloadSize_ = PAYLOAD_SIZE;
+		mb.header().id0_ = SPEED_ADJUST_MSG;
+		mb.header().id1_ = 0;
+	}
+	uint32_t speedAdjust_;
+};
+
+/**
+ * Initialize the engine in preparation for receiving a script to run.
+ * Device responds with ACK_SCRIPT
+ */
+struct InitScriptMsg
+{
+	enum { PAYLOAD_SIZE=0 };
+	static void init(MessageBuffer &mb) {
+		mb.header().payloadSize_ = PAYLOAD_SIZE;
+		mb.header().id0_ = INIT_SCRIPT_MSG;
+		mb.header().id1_ = 0;
+	}
+};
+
+/**
+ * Response to InitScriptMsg or a sequence of ScriptMsg
+ * id1_ is the ScriptMsg sequence number being Ack'd.
+ * payload byte is number of ScriptMsg buffer available.
+ */
+struct AckScriptMsg
+{
+	enum { PAYLOAD_SIZE=0 };
+	static void init(MessageBuffer &mb) {
+		mb.header().payloadSize_ = PAYLOAD_SIZE;
+		mb.header().id0_ = ACK_SCRIPT_MSG;
+		mb.header().id1_ = 0;
+	}
+	uint8_t window_;
+};
+
+/**
+ * Message containing script bytes for the stepper to run.
+ * id1_ is sequence number.
+ */
+struct ScriptMsg
+{
+	enum { PAYLOAD_SIZE=256	};
+	static void init(MessageBuffer &mb) {
+		mb.header().payloadSize_ = PAYLOAD_SIZE;
+		mb.header().id0_ = DATA_SCRIPT_MSG;
+		mb.header().id1_ = 0;
+	}
+	uint8_t scriptData_[PAYLOAD_SIZE];
 };
 
 }}

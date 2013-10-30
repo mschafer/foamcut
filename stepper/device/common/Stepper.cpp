@@ -18,6 +18,11 @@ namespace stepper { namespace device {
 Stepper::Stepper() : pool_(messageBlock_, sizeof(messageBlock_)), engine_(this)
 {
 	// alloc and free big blocks for script
+	for (int i=0; i<platform::SCRIPT_MSG_POOL; ++i) {
+		MessageBuffer *mb = alloc(ScriptMsg::PAYLOAD_SIZE);
+		assert(mb != NULL);
+		free(mb);
+	}
 }
 
 void Stepper::runBackgroundOnce()
@@ -72,7 +77,37 @@ void Stepper::handleMessage(MessageBuffer &m)
 	}
 	break;
 
-	case SCRIPT_MSG:
+	case GO_MSG:
+	{
+
+	}
+	break;
+
+	case PAUSE_MSG:
+	{
+
+	}
+	break;
+
+	case RESET_MSG:
+	{
+
+	}
+	break;
+
+	case SPEED_ADJUST_MSG:
+	{
+
+	}
+	break;
+
+	case INIT_SCRIPT_MSG:
+	{
+
+	}
+	break;
+
+	case DATA_SCRIPT_MSG:
 	{
 		engine_.addScriptMessage(&m);
 	}

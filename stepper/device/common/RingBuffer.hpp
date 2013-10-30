@@ -32,6 +32,11 @@ public:
 				(tail_ == 0 && head_ == N-1));
 	}
 
+	void clear() {
+		head_ = 0;
+		tail_ = 0;
+	}
+
 	/// \return The number of elements in the RingBuffer.
 	uint16_t count() const {
 		int32_t d = head_ - tail_;
