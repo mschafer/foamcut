@@ -23,8 +23,8 @@ namespace stepper { namespace device {
  * Sizes for individual free lists must be multiple of pointer size
  * and sorted in ascending order.
  */
-const int POOL_COUNT = 3;
-const uint16_t POOL_PAYLOAD_SIZES[3] = {8, 16, 256};
+const int POOL_SIZE_COUNT = 2;
+const uint16_t POOL_PAYLOAD_SIZES[POOL_SIZE_COUNT] = {16, 256};
 
 /**
  * Thread safe pool for allocation of MessageBuffers.
@@ -49,7 +49,7 @@ public:
     MessagePool(uint8_t *block, size_t blockSize)  :
     	blockStart_(block), blockEnd_(block+blockSize)
     {
-        for (int i=0; i<POOL_COUNT; ++i) {
+        for (int i=0; i<POOL_SIZE_COUNT; ++i) {
             sizes_[i] = POOL_PAYLOAD_SIZES[i] + static_cast<uint16_t>(sizeof(MessageBuffer));
             assert(sizes_[i] % sizeof(void*) == 0); ///\< chunk alignment requirement
             if (i>0) assert(sizes_[i] > sizes_[i-1]);
@@ -70,14 +70,14 @@ public:
     MessageBuffer *alloc(uint16_t payloadSize) {
         uint16_t totalSize = sizeof(MessageBuffer) + payloadSize;
         uint8_t idx = whichList(totalSize);
-        if (idx == POOL_COUNT) return NULL;
+        if (idx == POOL_SIZE_COUNT) return NULL;
 
         LockGuard<lock_type> guard(mtx_);
 
         // get a block from the freeList
         // check all lists starting with the smallest one that satisfies the request
         MessageBuffer *ret;
-        for (uint8_t fidx=idx; fidx<POOL_COUNT; ++fidx) {
+        for (uint8_t fidx=idx; fidx<POOL_SIZE_COUNT; ++fidx) {
             ret = freeList_[fidx];
             if (ret != NULL) {
                 freeList_[idx] = ret->next();
@@ -129,13 +129,13 @@ public:
 
 private:
     lock_type mtx_;
-    MessageBuffer *freeList_[POOL_COUNT];
+    MessageBuffer *freeList_[POOL_SIZE_COUNT];
     uint8_t *blockStart_;    ///\< start of block
     uint8_t *blockEnd_;      ///\< end of available memory, moved by \sa take
 
-    uint16_t sizes_[POOL_COUNT];  ///\< size in bytes of chunks on each free list != payloadSize.
-    size_t allocated_[POOL_COUNT];
-    size_t freed_[POOL_COUNT];
+    uint16_t sizes_[POOL_SIZE_COUNT];  ///\< size in bytes of chunks on each free list != payloadSize.
+    size_t allocated_[POOL_SIZE_COUNT];
+    size_t freed_[POOL_SIZE_COUNT];
     size_t totalPoolSize_;
 
     /**
@@ -144,7 +144,7 @@ private:
      */
     uint8_t whichList(uint16_t size) {
         uint8_t idx = 0;
-        while (idx < POOL_COUNT && size > sizes_[idx]) {
+        while (idx < POOL_SIZE_COUNT && size > sizes_[idx]) {
             idx++;
         }
         return idx;

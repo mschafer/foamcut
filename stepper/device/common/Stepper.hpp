@@ -109,6 +109,7 @@ private:
 	StepDir invertMask_;
 	MessagePool<platform::Lock> pool_;
 	Engine engine_;
+	volatile bool pause_;
 
 	void handleMessage(MessageBuffer &m);
 

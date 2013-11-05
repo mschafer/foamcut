@@ -115,11 +115,13 @@ struct InitScriptMsg
 struct AckScriptMsg
 {
 	enum { PAYLOAD_SIZE=0 };
-	static void init(MessageBuffer &mb) {
+	static AckScriptMsg &init(MessageBuffer &mb) {
 		mb.header().payloadSize_ = PAYLOAD_SIZE;
 		mb.header().id0_ = ACK_SCRIPT_MSG;
 		mb.header().id1_ = 0;
+		return *reinterpret_cast<AckScriptMsg*>(mb.payload());
 	}
+
 	uint8_t window_;
 };
 

@@ -7,13 +7,13 @@ namespace stepper { namespace device {
 using namespace stepper::device::Script;
 
 Engine::Engine(Stepper *stepper) : stepper_(stepper), currentMsg_(NULL),
-		msgOffset_(0), cmdOffset_(-1)
+		msgOffset_(0), cmdId_(0), cmdOffset_(-1)
 {
 }
 
 void Engine::operator()()
 {
-	while (!steps_.full()) {
+	while (!steps_.full()  && cmdId_ != DONE_CMD) {
 		if (!line_.done()) {
 			steps_.push(line_.nextStep());
 		} else {
@@ -127,6 +127,7 @@ void Engine::init()
 
 	msgOffset_ = 0;
 	cmdOffset_ = -1;
+	cmdId = 0;
 }
 
 }}

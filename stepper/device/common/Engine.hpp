@@ -78,6 +78,7 @@ struct NoOpLock
 class Engine
 {
 public:
+
 	explicit Engine(Stepper *);
 	~Engine() {}
 
@@ -101,6 +102,8 @@ public:
 	void operator()();
 
 	void init();
+	bool done() const { return cmdId_ == Script::DONE_CMD; }
+
 
 private:
 	Stepper *stepper_;

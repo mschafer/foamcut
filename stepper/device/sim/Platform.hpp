@@ -18,7 +18,7 @@ enum {
 	 * The number of cached script messages for the engine (minimum 4)
 	 * Uses about 270 bytes each.
 	 */
-	SCRIPT_MSG_POOL = 8
+	SCRIPT_MSG_POOL = 4
 };
 
 

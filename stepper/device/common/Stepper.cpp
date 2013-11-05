@@ -15,7 +15,7 @@
 
 namespace stepper { namespace device {
 
-Stepper::Stepper() : pool_(messageBlock_, sizeof(messageBlock_)), engine_(this)
+Stepper::Stepper() : pool_(messageBlock_, sizeof(messageBlock_)), engine_(this), pause_(false)
 {
 	// alloc and free big blocks for script
 	for (int i=0; i<platform::SCRIPT_MSG_POOL; ++i) {
@@ -35,14 +35,20 @@ void Stepper::runBackgroundOnce()
 
 void Stepper::onTimerExpired()
 {
+	if (engine_.done()) return;
+
+	if (pause_) {
+		pause_ = false;
+		return;
+	}
+
 	Line::NextStep ns;
 	bool r = engine_.nextStep(ns);
 	if (!r) {
 		///\todo underflow error here
 	} else {
-		// delay == 0 means we are stopping
 		if (ns.delay_ == 0) {
-
+			///\todo delay == 0 means we are stopping
 		} else {
 			startTimer(scaleDelay(ns.delay_));
 
@@ -79,36 +85,53 @@ void Stepper::handleMessage(MessageBuffer &m)
 
 	case GO_MSG:
 	{
-
+		///\todo error if engine done
+		startTimer(200);
+		free(&m);
 	}
 	break;
 
 	case PAUSE_MSG:
 	{
-
+		pause_ = true;
+		free(&m);
 	}
 	break;
 
 	case RESET_MSG:
 	{
-
+		///\todo implement me
+		free(&m);
 	}
 	break;
 
 	case SPEED_ADJUST_MSG:
 	{
-
+		///\todo implement me
+		free(&m);
 	}
 	break;
 
 	case INIT_SCRIPT_MSG:
 	{
+		engine_.init();
+		AckScriptMsg &am = AckScriptMsg::init(m);
+		am.window_ = pool_.freed()[1];
 
 	}
 	break;
 
 	case DATA_SCRIPT_MSG:
 	{
+		MessageBuffer *mb = pool_.alloc(AckScriptMsg::PAYLOAD_SIZE);
+		if (mb == NULL) {
+			///\todo error here
+		} else {
+			AckScriptMsg &am = AckScriptMsg::init(*mb);
+			am.window_ = pool_.freed()[1];
+			mb->header().id1_ = m.header().id1_;
+			sendMessage(mb);
+		}
 		engine_.addScriptMessage(&m);
 	}
 	break;
