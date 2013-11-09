@@ -13,6 +13,7 @@
 #define stepper_Script_hpp
 
 #include <StepDir.hpp>
+#include <deque>
 
 namespace stepper {
 
@@ -32,7 +33,7 @@ public:
 	 * \param s The step and direction information.
 	 * \param delay The delay in seconds after this step before the next one.
 	 */
-	void addStep(device::StepDir s, double delay);
+	void addStep(device::StepDir s, double delaySec);
 
 	/**
 	 * Add a linear move to the script relative to the current position.
@@ -43,7 +44,7 @@ public:
 	 * \param time The time in seconds to take making this linear move.  It will be
 	 * divided equally across all the individual steps.
 	 */
-	void addLine(int dx, int dy, int dz, int du, double time);
+	void addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double time);
 
 	/**
 	 * Close the script.  All adds after this will throw.
@@ -51,6 +52,7 @@ public:
 	void done();
 
 private:
+	std::deque<uint8_t> bytes_;
 };
 
 }

@@ -71,7 +71,7 @@ bool Engine::parseNextCommand()
 			++cmdOffset_;
 		}
 		LineCmd *l = reinterpret_cast<LineCmd*>(cmd_);
-		line_.reset(l->dx_, l->dy_, l->dz_, l->du_, l->delay_);
+		line_.reset(l->dx_, l->dy_, l->dz_, l->du_, l->time_);
 	}
 	break;
 
@@ -83,7 +83,7 @@ bool Engine::parseNextCommand()
 			++cmdOffset_;
 		}
 		LongLineCmd *l = reinterpret_cast<LongLineCmd*>(cmd_);
-		line_.reset(l->dx_, l->dy_, l->dz_, l->du_, l->delay_);
+		line_.reset(l->dx_, l->dy_, l->dz_, l->du_, l->time_);
 	}
 	break;
 
@@ -127,7 +127,7 @@ void Engine::init()
 
 	msgOffset_ = 0;
 	cmdOffset_ = -1;
-	cmdId = 0;
+	cmdId_ = 0;
 }
 
 }}

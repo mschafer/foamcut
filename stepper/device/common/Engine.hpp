@@ -43,7 +43,7 @@ struct SingleStepCmd
 struct LineCmd
 {
 	enum { SIZE=8 };
-	uint32_t delay_;
+	uint32_t time_;
 	int8_t dx_;
 	int8_t dy_;
 	int8_t dz_;
@@ -53,7 +53,7 @@ struct LineCmd
 struct LongLineCmd
 {
 	enum { SIZE=12 };
-	uint32_t delay_;
+	uint32_t time_;
 	int16_t dx_;
 	int16_t dy_;
 	int16_t dz_;

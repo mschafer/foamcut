@@ -45,6 +45,7 @@ public:
 	StepDir() : b_(0) {}
 
 	void clear() { b_ = 0; }
+	uint8_t byte() const { return b_; }
 
 	/*
 	 * \return logical value of bits to set direction with

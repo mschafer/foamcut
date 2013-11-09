@@ -26,6 +26,7 @@ set (DEVICE_SIM_DIR ${CMAKE_SOURCE_DIR}/stepper/device/sim)
 set (HOST_SRC
   Host.cpp
   TCPLink.cpp
+  Script.cpp
 )
 
 # headers
