@@ -16,6 +16,8 @@
 #include "MessageQueue.hpp"
 #include "StepDir.hpp"
 #include "Line.hpp"
+#include "MessagePool.hpp"
+#include <Platform.hpp>
 
 namespace stepper { namespace device {
 
@@ -79,7 +81,14 @@ class Engine
 {
 public:
 
-	explicit Engine(Stepper *);
+	enum Status {
+		RUNNING,
+		DONE,
+		QUEUE_UNDERFLOW,
+		FATAL_ERROR
+	};
+
+	explicit Engine(MessagePool<platform::Lock> &pool);
 	~Engine() {}
 
 	/** Add a script message to the queue waiting to be processed. */
@@ -99,14 +108,14 @@ public:
 	 * from them.  The StepDir commands are placed in a FIFO for use
 	 * by \sa Stepper::onTimerExpired.
 	 */
-	void operator()();
+	Status operator()();
 
 	void init();
 	bool done() const { return cmdId_ == Script::DONE_CMD; }
 
 
 private:
-	Stepper *stepper_;
+	MessagePool<platform::Lock> &pool_;
 	MessageQueue<NoOpLock> queue_;
 	RingBuffer<Line::NextStep, 8> steps_;
 	Line line_;
@@ -117,7 +126,7 @@ private:
 	uint8_t cmd_[sizeof(Script::LongLineCmd)];
 
 	bool getNextByte(uint8_t &out);
-	bool parseNextCommand();
+	Status parseNextCommand();
 
 	Engine();
 	Engine(const Engine &cpy);

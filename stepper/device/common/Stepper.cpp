@@ -15,7 +15,7 @@
 
 namespace stepper { namespace device {
 
-Stepper::Stepper() : pool_(messageBlock_, sizeof(messageBlock_)), engine_(this), pause_(false)
+Stepper::Stepper() : pool_(messageBlock_, sizeof(messageBlock_)), engine_(pool_), pause_(false)
 {
 	// alloc and free big blocks for script
 	for (int i=0; i<platform::SCRIPT_MSG_POOL; ++i) {

@@ -46,10 +46,6 @@ public:
 	 */
 	void addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double time);
 
-	/**
-	 * Close the script.  All adds after this will throw.
-	 */
-	void done();
 
 private:
 	std::deque<uint8_t> bytes_;
