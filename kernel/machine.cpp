@@ -15,7 +15,7 @@
 
 namespace foamcut {
 
-const float Machine::DEFAULT_STEP_SIZE = .001;
+const double Machine::DEFAULT_STEP_SIZE = .001;
 const size_t Machine::DEFAULT_MAX_STEP_RATE = 1000;
 const double Machine::DEFAULT_FRAME_SEPARATION = 30.;
 

@@ -51,7 +51,7 @@ public:
     boost::asio::ip::tcp::socket socket_;
 	boost::asio::high_resolution_timer backgroundTimer_;
 	boost::asio::high_resolution_timer stepTimer_;
-	volatile std::atomic_bool running_;
+	volatile bool running_;
 	std::unique_ptr<boost::thread> thread_;
 	uint16_t port_;
 

@@ -27,7 +27,7 @@ Simulator::Simulator(uint16_t port) : socket_(ios_),
         port_ = acceptor_->local_endpoint().port();
     }
 
-	backgroundTimer_.expires_from_now(std::chrono::milliseconds(10));
+	backgroundTimer_.expires_from_now(boost::chrono::milliseconds(10));
 	backgroundTimer_.async_wait(boost::bind(&Simulator::runBackground, this));
 
 	for (int i=0; i<StepDir::AXIS_END; ++i) {
@@ -76,7 +76,7 @@ void Simulator::runComm()
 
 void Simulator::notifySender()
 {
-	impl_->startSending();
+    ios_.post(boost::bind(&ASIOImpl<Simulator>::startSending, impl_.get()));
 }
 
 void Simulator::pollForMessages()
@@ -117,7 +117,7 @@ void Simulator::runBackground()
 {
 	runBackgroundOnce();
 	if (running_) {
-		backgroundTimer_.expires_from_now(std::chrono::milliseconds(10));
+		backgroundTimer_.expires_from_now(boost::chrono::milliseconds(10));
 		backgroundTimer_.async_wait(boost::bind(&Simulator::runBackground, this));
 	}
 }
@@ -162,7 +162,7 @@ LimitSwitches Simulator::readLimitSwitches()
 void Simulator::startTimer(uint32_t period)
 {
 	uint32_t delay = period * Stepper::TIMER_PERIOD_USEC;
-	stepTimer_.expires_from_now(std::chrono::microseconds(delay));
+	stepTimer_.expires_from_now(boost::chrono::microseconds(delay));
 	stepTimer_.async_wait(boost::bind(&Stepper::onTimerExpired, this));
 }
 

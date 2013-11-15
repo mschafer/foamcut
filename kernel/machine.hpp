@@ -30,7 +30,7 @@ struct Machine {
 	uint32_t maxStepsPerSecond_;
 	double frameSeparation_;
 
-	static const float DEFAULT_STEP_SIZE;
+	static const double DEFAULT_STEP_SIZE;
 	static const size_t DEFAULT_MAX_STEP_RATE;
 	static const double DEFAULT_FRAME_SEPARATION;
 

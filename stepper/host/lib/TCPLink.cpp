@@ -27,7 +27,7 @@ TCPLink::~TCPLink()
 void TCPLink::send(device::MessageBuffer *mb)
 {
 	txQueue_.push(mb);
-	impl_->startSending();
+    ios_.post(boost::bind(&device::ASIOImpl<TCPLink>::startSending, impl_.get()));
 }
 
 void TCPLink::run()
@@ -86,7 +86,7 @@ void TCPLink::connectComplete(const boost::system::error_code &error)
     	std::cout << "connect complete" << std::endl;
 		connected_ = true;
 		impl_->receiveOne();
-		impl_->startSending();
+        ios_.post(boost::bind(&device::ASIOImpl<TCPLink>::startSending, impl_.get()));
 	} else {
 		// run loop will keep trying
 	}

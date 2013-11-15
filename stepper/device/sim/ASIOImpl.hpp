@@ -9,8 +9,8 @@
  * Contributors:
  *     Marc Schafer
  */
-#ifndef stepper_device_ASIOLink_hpp
-#define stepper_device_ASIOLink_hpp
+#ifndef stepper_device_ASIOImpl_hpp
+#define stepper_device_ASIOImpl_hpp
 
 #include <boost/asio.hpp>
 #include <boost/asio/high_resolution_timer.hpp>
