@@ -13,6 +13,7 @@
 #define stepper_Script_hpp
 
 #include <StepDir.hpp>
+#include <Dictionary.hpp>
 #include <deque>
 
 namespace stepper {
@@ -46,9 +47,11 @@ public:
 	 */
 	void addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double time);
 
+	void fillNextMessage(device::ScriptMsg &sm);
 
 private:
 	std::deque<uint8_t> bytes_;
+	std::deque<uint8_t>::const_iterator msgIt_;
 };
 
 }

@@ -28,6 +28,7 @@ set (SIM_SRC
   ${DEVICE_COMMON_DIR}/Line.cpp
   ${DEVICE_COMMON_DIR}/Stepper.cpp
   Simulator.cpp
+  Machine.cpp
 )
 
 # headers

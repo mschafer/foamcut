@@ -16,8 +16,9 @@
 #include <boost/asio.hpp>
 #include <boost/asio/high_resolution_timer.hpp>
 #include <boost/utility.hpp>
+#include <Stepper.hpp>
 #include "ASIOImpl.hpp"
-#include "Stepper.hpp"
+#include "Machine.hpp"
 
 namespace boost {
 class thread;
@@ -49,8 +50,8 @@ public:
 	boost::asio::io_service ios_;
 	std::auto_ptr<boost::asio::ip::tcp::acceptor> acceptor_;
     boost::asio::ip::tcp::socket socket_;
-	boost::asio::high_resolution_timer backgroundTimer_;
-	boost::asio::high_resolution_timer stepTimer_;
+	boost::asio::deadline_timer backgroundTimer_;
+	boost::asio::deadline_timer stepTimer_;
 	volatile bool running_;
 	std::unique_ptr<boost::thread> thread_;
 	uint16_t port_;
@@ -59,11 +60,7 @@ public:
     std::unique_ptr<pool_type> pool_;
     std::unique_ptr<ASIOImpl<Simulator> > impl_;
 
-	int pos_[StepDir::AXIS_END];
-	std::array<std::pair<int, int>, StepDir::AXIS_END> limit_;
-	int time_;
-	StepDir invertMask_;
-	StepDir currentBits_;
+    Machine machine_;
 
 	void runComm();
 	void acceptComplete(const boost::system::error_code &error);

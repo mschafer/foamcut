@@ -10,6 +10,7 @@ const double MAX_LINE_TIME = std::numeric_limits<uint32_t>::max() * device::Step
 
 Script::Script()
 {
+	bytes_.push_back(device::Script::DONE_CMD);
 }
 
 Script::~Script()
@@ -26,9 +27,10 @@ Script::addStep(device::StepDir sd, double delaySec)
 	ssc.delay_ = (uint16_t)(delaySec * 1.e6 / device::Stepper::TIMER_PERIOD_USEC);
 	ssc.delay_ = (uint16_t)(delaySec * 1.e6) / device::Stepper::TIMER_PERIOD_USEC;
 	ssc.stepDir_ = sd;
-	bytes_.push_back(device::Script::SINGLE_STEP_CMD);
+	bytes_.back() = device::Script::SINGLE_STEP_CMD;
 	uint8_t *p = (uint8_t*)&ssc;
 	bytes_.insert(bytes_.end(), p, p+device::Script::SingleStepCmd::SIZE);
+	bytes_.push_back(device::Script::DONE_CMD);
 }
 
 void
@@ -50,7 +52,7 @@ Script::addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double time)
 		llc.dy_ = dy;
 		llc.dz_ = dz;
 		llc.du_ = du;
-		bytes_.push_back(device::Script::LONG_LINE_CMD);
+		bytes_.back() = device::Script::LONG_LINE_CMD;
 		uint8_t *p = (uint8_t*)&llc;
 		bytes_.insert(bytes_.end(), p, p+device::Script::LongLineCmd::SIZE);
 	} else {
@@ -60,10 +62,23 @@ Script::addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double time)
 		lc.dy_ = dy;
 		lc.dz_ = dz;
 		lc.du_ = du;
-		bytes_.push_back(device::Script::LINE_CMD);
+		bytes_.back() = device::Script::LINE_CMD;
 		uint8_t *p = (uint8_t*)&lc;
 		bytes_.insert(bytes_.end(), p, p+device::Script::LineCmd::SIZE);
 	}
+	bytes_.push_back(device::Script::DONE_CMD);
+}
+
+void
+Script::fillNextMessage(device::ScriptMsg &sm)
+{
+	auto endIt = msgIt_;
+	if (device::ScriptMsg::PAYLOAD_SIZE < bytes_.end() - msgIt_) {
+		endIt += device::ScriptMsg::PAYLOAD_SIZE;
+	} else {
+		endIt = bytes_.end();
+	}
+	std::copy(msgIt_, endIt, sm.scriptData_);
 }
 
 }

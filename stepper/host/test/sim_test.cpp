@@ -20,6 +20,8 @@
 #include <TCPLink.hpp>
 #include <Host.hpp>
 #include <Dictionary.hpp>
+#include <Script.hpp>
+#include <Engine.hpp>
 
 BOOST_AUTO_TEST_CASE( sim_ping_test )
 {
@@ -34,13 +36,27 @@ BOOST_AUTO_TEST_CASE( sim_ping_test )
 
 BOOST_AUTO_TEST_CASE(sim_script_test)
 {
-	double radius = 1.;
+	double radius = 1000.;
 	double dtheta = 1.; //degrees
+	double speed = 1.;
 	const double pi = 4. * atan(1.);
 	const double d2r = pi / 180.;
+	double segmentTime = 2.*pi*radius/speed*dtheta/360.;
 
-	for (double t=0.; t<=360.; t+=dtheta) {
+	stepper::Script script;
+	double ox = radius;
+	double oy = 0.;
+	for (double t=dtheta; t<=360.; t+=dtheta) {
 		double x = radius * cos(t * d2r);
 		double y = radius * sin(t * d2r);
+		uint16_t dx = (uint16_t)(x - ox);
+		uint16_t dy = (uint16_t)(y - oy);
+		script.addLine(dx, dy, 0, 0, segmentTime);
 	}
+
+	boost::scoped_array<uint8_t> buff(new uint8_t[1000]);
+	stepper::device::MessagePool<boost::mutex> pool(buff.get(), 1000);
+
+	stepper::device::Engine engine(pool);
+
 }

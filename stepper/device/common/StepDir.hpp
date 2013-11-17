@@ -27,7 +27,7 @@ public:
 		Y_AXIS = 1,
 		Z_AXIS = 2,
 		U_AXIS = 3,
-		AXIS_END = 4
+		AXIS_COUNT = 4
 	};
 
 	enum Bits {

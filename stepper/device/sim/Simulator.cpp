@@ -27,12 +27,8 @@ Simulator::Simulator(uint16_t port) : socket_(ios_),
         port_ = acceptor_->local_endpoint().port();
     }
 
-	backgroundTimer_.expires_from_now(boost::chrono::milliseconds(10));
+	backgroundTimer_.expires_from_now(boost::posix_time::milliseconds(10));
 	backgroundTimer_.async_wait(boost::bind(&Simulator::runBackground, this));
-
-	for (int i=0; i<StepDir::AXIS_END; ++i) {
-		pos_[i] = 0;
-	}
 
 	impl_.reset(new ASIOImpl<Simulator>(*this));
 
@@ -117,52 +113,25 @@ void Simulator::runBackground()
 {
 	runBackgroundOnce();
 	if (running_) {
-		backgroundTimer_.expires_from_now(boost::chrono::milliseconds(10));
+		backgroundTimer_.expires_from_now(boost::posix_time::milliseconds(10));
 		backgroundTimer_.async_wait(boost::bind(&Simulator::runBackground, this));
 	}
 }
 
 void Simulator::setStepDirBits(const StepDir &s)
 {
-	for (int i=0; i<StepDir::AXIS_END; ++i) {
-		StepDir::AxisIdx ai = static_cast<StepDir::AxisIdx>(i);
-
-		// set direction bits
-		currentBits_.dir(ai, s.dir(ai));
-
-		// was there an edge on a step bit?
-		if (s.step(ai) != currentBits_.step(ai)) {
-			currentBits_.step(ai, s.step(ai));
-			// was the edge in the right direction to cause a step?
-			if (currentBits_.step(ai) != invertMask_.step(ai)) {
-				int np = pos_[i] + ((invertMask_.dir(ai) == currentBits_.dir(ai)) ? -1 : 1);
-
-				// apply limits
-				if (np >= limit_[i].first && np <= limit_[i].second) {
-					pos_[i] = np;
-				}
-			}
-		}
-	}
+	machine_.setStepDir(s);
 }
 
 LimitSwitches Simulator::readLimitSwitches()
 {
-	LimitSwitches ret;
-	for (int i=0; i<StepDir::AXIS_END; ++i) {
-		StepDir::AxisIdx idx = static_cast<StepDir::AxisIdx>(i);
-		bool test = (pos_[i] <= limit_[i].first);
-		ret.reverseLimit(idx, test);
-		test = (pos_[i] >= limit_[i].second);
-		ret.forwardLimit(idx, test);
-	}
-	return ret;
+	return machine_.readLimitSwitches();
 }
 
 void Simulator::startTimer(uint32_t period)
 {
 	uint32_t delay = period * Stepper::TIMER_PERIOD_USEC;
-	stepTimer_.expires_from_now(boost::chrono::microseconds(delay));
+	stepTimer_.expires_from_now(boost::posix_time::microseconds(delay));
 	stepTimer_.async_wait(boost::bind(&Stepper::onTimerExpired, this));
 }
 
