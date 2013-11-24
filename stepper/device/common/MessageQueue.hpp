@@ -16,51 +16,37 @@
 #include <assert.h>
 #include "Message.hpp"
 #include "LockGuard.hpp"
+#include "SList.hpp"
 
 namespace stepper { namespace device {
 
-/** Queue of MessageBuffer, FIFO semantics. */
+/** Queue of MessageBuffer, FIFO semantics and thread safe. */
 template <typename lock_type>
 class MessageQueue
 {
 public:
-	MessageQueue() : head_(NULL), tail_(NULL), size_(0) {}
+	MessageQueue()  {}
 	~MessageQueue() {}
 
 	/**
 	 * Push \em v onto tail of list. */
-	void push(MessageBuffer *v) {
-		assert(v->next() == NULL);
+	void push(Message *v) {
 		LockGuard<lock_type> guard(mtx_);
-        if (tail_ != NULL) {
-            tail_->next(v);
-        }
-        tail_ = v;
-
-        if (head_ == NULL) head_ = v;
-        ++size_;
+		list_.pushBack(v);
 	}
 
 	/** Pop head off list. */
-	MessageBuffer *pop() {
+	Message *pop() {
 		LockGuard<lock_type> guard(mtx_);
-        MessageBuffer *ret = head_;
-        if (head_ != NULL) {
-            head_ = head_->next();
-            ret->next(NULL);
-            if (head_ == NULL) tail_ = NULL;
-        }
-        --size_;
-        return ret;
+		if (list_.empty()) return NULL;
+		return &(list_.popFront());
 	}
 
-	size_t size() const { return size_; }
+	size_t size() const { return list_.size(); }
 
 private:
-	MessageBuffer *head_;
-	MessageBuffer *tail_;
-	size_t size_;
 	lock_type mtx_;
+	SList<Message> list_;
 
 };
 

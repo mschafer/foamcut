@@ -14,7 +14,7 @@
 
 /** \file This header defines all the messages that are exchanged between the host and device. */
 
-#include <Message.hpp>
+#include "Message.hpp"
 
 namespace stepper { namespace device {
 
@@ -33,20 +33,20 @@ enum {
 struct PingMsg
 {
 	enum { PAYLOAD_SIZE = 0 };
-	static void init(MessageBuffer &mb) {
-		mb.header().payloadSize_ = PAYLOAD_SIZE;
-		mb.header().id0_ = PING_MSG;
-		mb.header().id1_ = 0;
+	static void init(Message &m) {
+		m.payloadSize(PAYLOAD_SIZE);
+		m.id0(PING_MSG);
+		m.id1(0);
 	}
 };
 
 struct PongMsg
 {
 	enum { PAYLOAD_SIZE = 0 };
-	static void init(MessageBuffer &mb) {
-		mb.header().payloadSize_ = PAYLOAD_SIZE;
-		mb.header().id0_ = PONG_MSG;
-		mb.header().id1_ = 0;
+	static void init(Message &m) {
+		m.payloadSize(PAYLOAD_SIZE);
+		m.id0(PONG_MSG);
+		m.id1(0);
 	}
 };
 
@@ -54,10 +54,10 @@ struct PongMsg
 struct GoMsg
 {
 	enum { PAYLOAD_SIZE = 0 };
-	static void init(MessageBuffer &mb) {
-		mb.header().payloadSize_ = PAYLOAD_SIZE;
-		mb.header().id0_ = GO_MSG;
-		mb.header().id1_ = 0;
+	static void init(Message &m) {
+		m.payloadSize(PAYLOAD_SIZE);
+		m.id0(GO_MSG);
+		m.id1(0);
 	}
 };
 
@@ -65,30 +65,30 @@ struct GoMsg
 struct PauseMsg
 {
 	enum { PAYLOAD_SIZE = 0 };
-	static void init(MessageBuffer &mb) {
-		mb.header().payloadSize_ = PAYLOAD_SIZE;
-		mb.header().id0_ = PAUSE_MSG;
-		mb.header().id1_ = 0;
+	static void init(Message &m) {
+		m.payloadSize(PAYLOAD_SIZE);
+		m.id0(PAUSE_MSG);
+		m.id1(0);
 	}
 };
 
 struct ResetMsg
 {
 	enum { PAYLOAD_SIZE = 0 };
-	static void init(MessageBuffer &mb) {
-		mb.header().payloadSize_ = PAYLOAD_SIZE;
-		mb.header().id0_ = RESET_MSG;
-		mb.header().id1_ = 0;
+	static void init(Message &m) {
+		m.payloadSize(PAYLOAD_SIZE);
+		m.id0(RESET_MSG);
+		m.id1(0);
 	}
 };
 
 struct SpeedAdjustMsg
 {
 	enum { PAYLOAD_SIZE = 4 };
-	static void init(MessageBuffer &mb) {
-		mb.header().payloadSize_ = PAYLOAD_SIZE;
-		mb.header().id0_ = SPEED_ADJUST_MSG;
-		mb.header().id1_ = 0;
+	static void init(Message &m) {
+		m.payloadSize(PAYLOAD_SIZE);
+		m.id0(SPEED_ADJUST_MSG);
+		m.id1(0);
 	}
 	uint32_t speedAdjust_;
 };
@@ -100,10 +100,10 @@ struct SpeedAdjustMsg
 struct InitScriptMsg
 {
 	enum { PAYLOAD_SIZE=0 };
-	static void init(MessageBuffer &mb) {
-		mb.header().payloadSize_ = PAYLOAD_SIZE;
-		mb.header().id0_ = INIT_SCRIPT_MSG;
-		mb.header().id1_ = 0;
+	static void init(Message &m) {
+		m.payloadSize(PAYLOAD_SIZE);
+		m.id0(INIT_SCRIPT_MSG);
+		m.id1(0);
 	}
 };
 
@@ -114,12 +114,12 @@ struct InitScriptMsg
  */
 struct AckScriptMsg
 {
-	enum { PAYLOAD_SIZE=0 };
-	static AckScriptMsg &init(MessageBuffer &mb) {
-		mb.header().payloadSize_ = PAYLOAD_SIZE;
-		mb.header().id0_ = ACK_SCRIPT_MSG;
-		mb.header().id1_ = 0;
-		return *reinterpret_cast<AckScriptMsg*>(mb.payload());
+	enum { PAYLOAD_SIZE=1 };
+	static AckScriptMsg &init(Message &m) {
+		m.payloadSize(PAYLOAD_SIZE);
+		m.id0(ACK_SCRIPT_MSG);
+		m.id1(0);
+		return *reinterpret_cast<AckScriptMsg*>(m.payload());
 	}
 
 	uint8_t window_;
@@ -129,13 +129,13 @@ struct AckScriptMsg
  * Message containing script bytes for the stepper to run.
  * id1_ is sequence number.
  */
-struct ScriptMsg
+struct DataScriptMsg
 {
 	enum { PAYLOAD_SIZE=256	};
-	static void init(MessageBuffer &mb) {
-		mb.header().payloadSize_ = PAYLOAD_SIZE;
-		mb.header().id0_ = DATA_SCRIPT_MSG;
-		mb.header().id1_ = 0;
+	static void init(Message &m) {
+		m.payloadSize(PAYLOAD_SIZE);
+		m.id0(DATA_SCRIPT_MSG);
+		m.id1(0);
 	}
 	uint8_t scriptData_[PAYLOAD_SIZE];
 };

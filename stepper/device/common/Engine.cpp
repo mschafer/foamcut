@@ -1,3 +1,4 @@
+#include <Platform.hpp>
 #include "Engine.hpp"
 #include "Dictionary.hpp"
 
@@ -5,8 +6,7 @@ namespace stepper { namespace device {
 
 using namespace stepper::device::Script;
 
-Engine::Engine(MessagePool<platform::Lock> &pool) : pool_(pool), currentMsg_(NULL),
-		msgOffset_(0), cmdId_(0), cmdOffset_(-1)
+Engine::Engine() : msgOffset_(0), cmdId_(0), cmdOffset_(-1)
 {
 }
 
@@ -28,14 +28,14 @@ Engine::Status Engine::operator()()
 
 bool Engine::getNextByte(uint8_t &byte)
 {
-	if (currentMsg_ == NULL && (currentMsg_ = queue_.pop()) == NULL) {
+	if (list_.empty()) {
 		return false;
 	}
 
-	byte = currentMsg_->payload()[msgOffset_++];
-	if (msgOffset_ == ScriptMsg::PAYLOAD_SIZE) {
-		pool_.free(currentMsg_);
-		currentMsg_ = NULL;
+	byte = list_.front().payload()[msgOffset_++];
+	if (msgOffset_ == DataScriptMsg::PAYLOAD_SIZE) {
+		Message &done = list_.popFront();
+		platform::getMemoryAllocator().free(&done);
 		msgOffset_ = 0;
 	}
 	return true;
@@ -117,14 +117,8 @@ Engine::Status Engine::parseNextCommand()
 
 void Engine::init()
 {
-	MessageBuffer *mb;
-	while ((mb = queue_.pop()) != NULL) {
-		pool_.free(mb);
-	}
-
-	if (currentMsg_ != NULL) {
-		pool_.free(currentMsg_);
-		currentMsg_ = NULL;
+	while (!list_.empty()) {
+		platform::getMemoryAllocator().free(&(list_.popFront()));
 	}
 
 	steps_.clear();

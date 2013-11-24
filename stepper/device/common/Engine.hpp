@@ -13,11 +13,10 @@
 #define foamcut_device_Engine_hpp
 
 #include "RingBuffer.hpp"
-#include "MessageQueue.hpp"
+#include "Message.hpp"
+#include "SList.hpp"
 #include "StepDir.hpp"
 #include "Line.hpp"
-#include "MessagePool.hpp"
-#include <Platform.hpp>
 
 namespace stepper { namespace device {
 
@@ -88,14 +87,14 @@ public:
 		FATAL_ERROR
 	};
 
-	explicit Engine(MessagePool<platform::Lock> &pool);
+	explicit Engine();
 	~Engine() {}
 
 	/** Add a script message to the queue waiting to be processed. */
-	void addScriptMessage(MessageBuffer *mb) { queue_.push(mb); }
+	void addScriptMessage(Message *m) { list_.pushBack(*m); }
 
 	/** \return Number of messages in the queue. */
-	size_t queueSize() const { return queue_.size(); }
+	size_t queueSize() const { return list_.size(); }
 
 	/**
 	 * Get the next StepDir to be executed.
@@ -115,11 +114,9 @@ public:
 
 
 private:
-	MessagePool<platform::Lock> &pool_;
-	MessageQueue<NoOpLock> queue_;
+	SList<Message> list_;
 	RingBuffer<Line::NextStep, 8> steps_;
 	Line line_;
-	MessageBuffer *currentMsg_;
 	uint16_t msgOffset_;
 	uint8_t cmdId_;
 	int8_t cmdOffset_;
@@ -128,7 +125,6 @@ private:
 	bool getNextByte(uint8_t &out);
 	Status parseNextCommand();
 
-	Engine();
 	Engine(const Engine &cpy);
 	Engine &operator=(const Engine &assign);
 };

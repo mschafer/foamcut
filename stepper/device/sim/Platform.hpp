@@ -8,6 +8,8 @@
 
 #include <boost/thread.hpp>
 #include <Dictionary.hpp>
+#include <MemoryAllocator.hpp>
+#include <Communicator.hpp>
 
 namespace stepper { namespace device { namespace platform {
 
@@ -20,6 +22,14 @@ enum {
 	 */
 	SCRIPT_MSG_POOL = 4
 };
+
+typedef MemoryAllocator<Lock, 2> MemoryAllocator_type;
+MemoryAllocator_type &getMemoryAllocator();
+
+typedef Communicator<Lock> Communicator_type;
+Communicator_type &getCommunicator();
+
+void resetPlatform();
 
 
 }}}

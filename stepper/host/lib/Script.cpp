@@ -2,6 +2,7 @@
 #include <Engine.hpp>
 #include <Stepper.hpp>
 #include <limits>
+#include <stdlib.h>
 
 namespace stepper {
 
@@ -70,11 +71,11 @@ Script::addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double time)
 }
 
 void
-Script::fillNextMessage(device::ScriptMsg &sm)
+Script::fillNextMessage(device::DataScriptMsg &sm)
 {
 	auto endIt = msgIt_;
-	if (device::ScriptMsg::PAYLOAD_SIZE < bytes_.end() - msgIt_) {
-		endIt += device::ScriptMsg::PAYLOAD_SIZE;
+	if (device::DataScriptMsg::PAYLOAD_SIZE < bytes_.end() - msgIt_) {
+		endIt += device::DataScriptMsg::PAYLOAD_SIZE;
 	} else {
 		endIt = bytes_.end();
 	}

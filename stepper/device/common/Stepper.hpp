@@ -12,12 +12,9 @@
 #ifndef stepper_device_Stepper_hpp
 #define stepper_device_Stepper_hpp
 
-#include "MessagePool.hpp"
-#include "MessageQueue.hpp"
 #include "StepDir.hpp"
 #include "LimitSwitches.hpp"
 #include "Engine.hpp"
-#include <Platform.hpp>
 
 namespace stepper { namespace device {
 
@@ -27,7 +24,6 @@ public:
 
 	enum {
 		TIMER_PERIOD_USEC = 5,
-		MESSAGE_BLOCK_SIZE = platform::SCRIPT_MSG_POOL * (ScriptMsg::PAYLOAD_SIZE + sizeof(MessageBuffer)) + 256
 	};
 
 	Stepper();
@@ -55,26 +51,6 @@ public:
 	 */
 	void invertMask(StepDir invertMask) { invertMask_ = invertMask; }
 
-	/**
-	 * Allocate a MessageBuffer with at least the requested payload space.
-	 */
-	MessageBuffer *alloc(uint16_t payloadSize) {
-		return pool_.alloc(payloadSize);
-	}
-
-	/**
-	 * Free a MessageBuffer allocated from this Stepper.
-	 */
-	void free(MessageBuffer *mb) {
-		pool_.free(mb);
-	}
-
-	/**
-	 * This method transmits a message backs to the host.  Ownership
-	 * of \em mb is taken over by the stepper and it will eventually
-	 * be freed when transmission completes.
-	 */
-	void sendMessage(MessageBuffer *mb);
 
 	/**
 	 * Set the output value of the digital I/O lines for each step
@@ -87,8 +63,6 @@ public:
 	virtual void startTimer(uint32_t period) = 0;
 
 protected:
-	MessageQueue<platform::Lock> rxQueue_;
-	MessageQueue<platform::Lock> txQueue_;
 
 	/**
 	 * This routine is called whenever a message is added to the send
@@ -105,13 +79,11 @@ protected:
 	virtual void pollForMessages() = 0;
 
 private:
-	uint8_t messageBlock_[MESSAGE_BLOCK_SIZE];
 	StepDir invertMask_;
-	MessagePool<platform::Lock> pool_;
 	Engine engine_;
 	volatile bool pause_;
 
-	void handleMessage(MessageBuffer &m);
+	void handleMessage(Message &m);
 
 	/** \return scaled value of the delay. */
 	uint32_t scaleDelay(uint32_t delay);
