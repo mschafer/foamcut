@@ -33,9 +33,9 @@ bool Engine::getNextByte(uint8_t &byte)
 	}
 
 	byte = list_.front().payload()[msgOffset_++];
-	if (msgOffset_ == DataScriptMsg::PAYLOAD_SIZE) {
-		Message &done = list_.popFront();
-		platform::getMemoryAllocator().free(&done);
+	if (msgOffset_ == DataScriptMsg<DeviceMessage::allocator_type>::PAYLOAD_SIZE) {
+		DeviceMessage &done = list_.popFront();
+		delete &done;
 		msgOffset_ = 0;
 	}
 	return true;
@@ -118,7 +118,7 @@ Engine::Status Engine::parseNextCommand()
 void Engine::init()
 {
 	while (!list_.empty()) {
-		platform::getMemoryAllocator().free(&(list_.popFront()));
+		delete (&(list_.popFront()));
 	}
 
 	steps_.clear();

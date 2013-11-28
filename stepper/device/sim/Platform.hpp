@@ -1,19 +1,31 @@
+/*
+ * (C) Copyright 2013 Marc Schafer
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Marc Schafer
+ */
 #ifndef stepper_sim_Platform_hpp
 #define stepper_sim_Platform_hpp
 
 /**\file
- * This file provides constants and typedefs to configure the common
- * code for a specific platform.
+ * This file provides constants, typedefs and accessors to singletons for
+ * the common code for a specific platform.
  */
 
-#include <boost/thread.hpp>
-#include <Dictionary.hpp>
-#include <MemoryAllocator.hpp>
-#include <Communicator.hpp>
+#include <stdint.h>
+#include <stddef.h>
 
-namespace stepper { namespace device { namespace platform {
+namespace stepper { namespace device {
 
-typedef boost::mutex Lock;
+template<uint8_t NUM_POOLS, typename size_type> class MemoryPool;
+class Communicator;
+
+namespace platform {
 
 enum {
 	/**
@@ -23,11 +35,10 @@ enum {
 	SCRIPT_MSG_POOL = 4
 };
 
-typedef MemoryAllocator<Lock, 2> MemoryAllocator_type;
-MemoryAllocator_type &getMemoryAllocator();
+typedef MemoryPool<2, size_t> MemoryPool_type;
+MemoryPool_type &getMemoryPool();
 
-typedef Communicator<Lock> Communicator_type;
-Communicator_type &getCommunicator();
+Communicator &getCommunicator();
 
 void resetPlatform();
 

@@ -9,28 +9,25 @@
  * Contributors:
  *     Marc Schafer
  */
-#ifndef stepper_device_LockGuard_hpp
-#define stepper_device_LockGuard_hpp
+#ifndef stepper_sim_SimComm_hpp
+#define stepper_sim_SimComm_hpp
 
-#include <Lock.hpp>
+#include <Communicator.hpp>
 
 namespace stepper { namespace device {
 
-/** Scoped lock. */
-class LockGuard
+class SimComm : public Communicator
 {
 public:
-    explicit LockGuard(platform::Lock &mtx) : mtx_(mtx) {
-        mtx_.lock();
-    }
+	SimComm();
+	virtual ~SimComm();
 
-    ~LockGuard() {
-        mtx_.unlock();
+	void initialize();
+	void operator()();
+	bool connected() const;
 
-    }
-
-private:
-    platform::Lock &mtx_;
+protected:
+	void startSending();
 };
 
 }}

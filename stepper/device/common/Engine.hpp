@@ -17,6 +17,7 @@
 #include "SList.hpp"
 #include "StepDir.hpp"
 #include "Line.hpp"
+#include "MemoryPool.hpp"
 
 namespace stepper { namespace device {
 
@@ -79,6 +80,7 @@ struct NoOpLock
 class Engine
 {
 public:
+	typedef Message<DeviceMessageAllocator> DeviceMessage;
 
 	enum Status {
 		RUNNING,
@@ -91,7 +93,7 @@ public:
 	~Engine() {}
 
 	/** Add a script message to the queue waiting to be processed. */
-	void addScriptMessage(Message *m) { list_.pushBack(*m); }
+	void addScriptMessage(DeviceMessage *m) { list_.pushBack(*m); }
 
 	/** \return Number of messages in the queue. */
 	size_t queueSize() const { return list_.size(); }
@@ -114,7 +116,7 @@ public:
 
 
 private:
-	SList<Message> list_;
+	SList<DeviceMessage> list_;
 	RingBuffer<Line::NextStep, 8> steps_;
 	Line line_;
 	uint16_t msgOffset_;

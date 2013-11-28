@@ -21,6 +21,7 @@ namespace stepper { namespace device {
 class Stepper
 {
 public:
+	typedef Message<DeviceMessageAllocator> DeviceMessage;
 
 	enum {
 		TIMER_PERIOD_USEC = 5,
@@ -83,13 +84,18 @@ private:
 	Engine engine_;
 	volatile bool pause_;
 
-	void handleMessage(Message &m);
+	void handleMessage(DeviceMessage &m);
 
 	/** \return scaled value of the delay. */
 	uint32_t scaleDelay(uint32_t delay);
 
 	Stepper(const Stepper &cpy);
 	Stepper &operator=(const Stepper &rhs);
+
+#if __cplusplus >= 201103L
+	static_assert(sizeof(DeviceMessage)%sizeof(void*)==0,"Alignment problem with Message");
+	static_assert(offsetof(DeviceMessage, reserved_)+sizeof(void*) == sizeof(DeviceMessage), "Message layout is incorrect");
+#endif
 
 };
 

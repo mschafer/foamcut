@@ -48,7 +48,7 @@ public:
 			sendInProgress_ = link_.popTx();
 			if (sendInProgress_ != nullptr) {
 				boost::asio::async_write(link_.socket(),
-					boost::asio::buffer(sendInProgress_->start(), sendInProgress_->totalSize()),
+					boost::asio::buffer(sendInProgress_->transmitStart(), sendInProgress_->transmitSize()),
 					boost::bind(&ASIOImpl::sendComplete, this,
 					boost::asio::placeholders::error));
 			}
@@ -58,8 +58,8 @@ public:
 private:
 	link_type &link_;
 	device::MessageHeader recvHeader_;
-	device::MessageBuffer *recvInProgress_;
-	device::MessageBuffer *sendInProgress_;
+	device::Message *recvInProgress_;
+	device::Message *sendInProgress_;
 	std::unique_ptr<boost::asio::deadline_timer> oomTimer;
 
 
@@ -74,7 +74,7 @@ private:
 		        oomTimer->async_wait(boost::bind(&ASIOImpl::headerComplete, this, error));
 
 			} else {
-				recvInProgress_->header() = recvHeader_;
+				recvInProgress_->header(recvHeader_);
 				if (s > 0) {
 					boost::asio::async_read(link_.socket(),
 						boost::asio::buffer(recvInProgress_->payload(), s),

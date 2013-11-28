@@ -9,8 +9,10 @@
  * Contributors:
  *     Marc Schafer
  */
+#include <new>
 #include "Stepper.hpp"
 #include "Dictionary.hpp"
+#include "Communicator.hpp"
 #include <Platform.hpp>
 
 namespace stepper { namespace device {
@@ -18,18 +20,18 @@ namespace stepper { namespace device {
 Stepper::Stepper() : pause_(false)
 {
 	// alloc and free big blocks for script
-	platform::MemoryAllocator_type &ma = platform::getMemoryAllocator();
 	for (int i=0; i<platform::SCRIPT_MSG_POOL; ++i) {
-		void *buff = ma.alloc(Message::memoryNeeded(DataScriptMsg::PAYLOAD_SIZE));
-		assert(buff != NULL);
-		ma.free(buff);
+		DataScriptMsg<DeviceMessage::allocator_type> *p = new DataScriptMsg<DeviceMessage::allocator_type>();
+		assert(p != NULL);
+		delete p;
+		///\todo verify size of free list
 	}
 }
 
 void Stepper::runBackgroundOnce()
 {
 	pollForMessages();
-	Message *m = platform::getCommunicator().receive();
+	DeviceMessage *m = platform::getCommunicator().receive();
 	if (m) { handleMessage(*m); }
 	engine_();
 }
@@ -69,16 +71,15 @@ void Stepper::onTimerExpired()
 }
 
 
-void Stepper::handleMessage(Message &m)
+void Stepper::handleMessage(DeviceMessage &m)
 {
-	platform::MemoryAllocator_type &ma = platform::getMemoryAllocator();
-	platform::Communicator_type &comm = platform::getCommunicator();
+	Communicator &comm = platform::getCommunicator();
 
 	switch (m.id0()) {
 	case PING_MSG:
 	{
-		PongMsg::init(m);
-		comm.send(&m);
+		PongMsg<DeviceMessage::allocator_type> *pm = new(&m)  PongMsg<DeviceMessage::allocator_type>();
+		comm.send(pm);
 	}
 	break;
 
@@ -86,48 +87,47 @@ void Stepper::handleMessage(Message &m)
 	{
 		///\todo error if engine done
 		startTimer(200);
-		free(&m);
+		delete &m;
 	}
 	break;
 
 	case PAUSE_MSG:
 	{
 		pause_ = true;
-		free(&m);
+		delete &m;
 	}
 	break;
 
 	case RESET_MSG:
 	{
 		///\todo implement me
-		free(&m);
+		delete &m;
 	}
 	break;
 
 	case SPEED_ADJUST_MSG:
 	{
 		///\todo implement me
-		free(&m);
+		delete &m;
 	}
 	break;
 
 	case INIT_SCRIPT_MSG:
 	{
 		engine_.init();
-		AckScriptMsg &am = AckScriptMsg::init(m);
-		am.window_ = 0;  ///\todo get the real window size!
-		comm.send(&m);
+		AckScriptMsg<DeviceMessage::allocator_type> *am = new (&m) AckScriptMsg<DeviceMessage::allocator_type>();
+		am->window_ = 0;  ///\todo get the real window size!
+		comm.send(am);
 	}
 	break;
 
 	case DATA_SCRIPT_MSG:
 	{
-		Message *amb = reinterpret_cast<Message*>(ma.alloc(Message::memoryNeeded(AckScriptMsg::PAYLOAD_SIZE)));
+		AckScriptMsg<DeviceMessage::allocator_type> *amb = new AckScriptMsg<DeviceMessage::allocator_type>();
 		if (amb == NULL) {
 			///\todo error here
 		} else {
-			AckScriptMsg &am = AckScriptMsg::init(*amb);
-			am.window_ = 0; ///\todo get real window size!
+			amb->window_ = 0; ///\todo get real window size!
 			amb->id1(m.id1());
 			comm.send(amb);
 		}
@@ -137,7 +137,7 @@ void Stepper::handleMessage(Message &m)
 
 	default:
 		///\todo error unrecognized message here
-		free(&m);
+		delete (&m);
 		break;
 	}
 }

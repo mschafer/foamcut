@@ -12,16 +12,16 @@
 #ifndef stepper_device_Communicator_hpp
 #define stepper_device_Communicator_hpp
 
+#include "MemoryPool.hpp"
 #include "MessageQueue.hpp"
 
 namespace stepper { namespace device {
 
-class Message;
-
-template <typename lock_type>
 class Communicator
 {
 public:
+	typedef Message<DeviceMessageAllocator> DeviceMessage;
+
 	Communicator();
 	virtual ~Communicator();
 
@@ -40,7 +40,10 @@ public:
 	 * and will be freed upon completion.
 	 * \return true if successful.  If the send is unsuccessful, then the caller retains ownership of \em msg.
 	 */
-	virtual bool send(Message *msg) = 0;
+	bool send(DeviceMessage *msg) {
+		txQueue_.push(msg);
+		return true;
+	}
 
 	/**
 	 * Check for received Messages.
@@ -48,15 +51,19 @@ public:
 	 * The caller assumes ownership of any returned Message and must free it using the
 	 * global MemoryAllocator when finished.
 	 */
-	Message *receive();
+	DeviceMessage *receive() {
+		return rxQueue_.pop();
+	}
 
 	/** \return true if the Communicator is currently connected to the host. */
-	bool connected();
+	virtual bool connected() const = 0;
+
+protected:
+	virtual void startSending() = 0;
 
 private:
-	MessageQueue<lock_type> rxQueue_;
-	MessageQueue<lock_type> txQueue_;
-
+	MessageQueue<DeviceMessageAllocator> rxQueue_;
+	MessageQueue<DeviceMessageAllocator> txQueue_;
 };
 
 }}

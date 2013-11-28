@@ -21,23 +21,25 @@
 namespace stepper { namespace device {
 
 /** Queue of MessageBuffer, FIFO semantics and thread safe. */
-template <typename lock_type>
+template <typename MsgAlloc>
 class MessageQueue
 {
 public:
+	typedef Message<MsgAlloc> Message_type;
+
 	MessageQueue()  {}
 	~MessageQueue() {}
 
 	/**
 	 * Push \em v onto tail of list. */
-	void push(Message *v) {
-		LockGuard<lock_type> guard(mtx_);
-		list_.pushBack(v);
+	void push(Message_type *v) {
+		LockGuard guard(mtx_);
+		list_.pushBack(*v);
 	}
 
 	/** Pop head off list. */
-	Message *pop() {
-		LockGuard<lock_type> guard(mtx_);
+	Message_type *pop() {
+		LockGuard guard(mtx_);
 		if (list_.empty()) return NULL;
 		return &(list_.popFront());
 	}
@@ -45,8 +47,8 @@ public:
 	size_t size() const { return list_.size(); }
 
 private:
-	lock_type mtx_;
-	SList<Message> list_;
+	platform::Lock mtx_;
+	SList<Message_type> list_;
 
 };
 

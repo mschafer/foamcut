@@ -9,9 +9,10 @@
  * Contributors:
  *     Marc Schafer
  */
-
 #ifndef stepper_device_SegregatedStorage_hpp
 #define stepper_device_SegregatedStorage_hpp
+
+#include <assert.h>
 
 namespace stepper { namespace device {
 

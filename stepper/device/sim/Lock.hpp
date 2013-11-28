@@ -9,10 +9,15 @@
  * Contributors:
  *     Marc Schafer
  */
-#include <Platform.hpp>
-#include "Communicator.hpp"
+#ifndef stepper_device_Lock_hpp
+#define stepper_device_Lock_hpp
 
-namespace stepper { namespace device {
+#include <boost/thread.hpp>
+namespace stepper { namespace device { namespace platform {
 
+typedef boost::mutex Lock;
 
-}}
+}}}
+
+#endif
+

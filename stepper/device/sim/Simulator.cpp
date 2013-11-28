@@ -91,10 +91,10 @@ void Simulator::acceptComplete(const boost::system::error_code &error)
     }
 }
 
-void Simulator::handler(device::MessageBuffer *msg, const boost::system::error_code &error)
+void Simulator::handler(DeviceMessage *msg, const boost::system::error_code &error)
 {
 	if (msg != nullptr) {
-		rxQueue_.push(msg);
+		///\todo rxQueue_.push(msg);
 		impl_->receiveOne();
 	}
 
@@ -104,9 +104,9 @@ void Simulator::handler(device::MessageBuffer *msg, const boost::system::error_c
 	}
 }
 
-MessageBuffer *Simulator::popTx()
+Stepper::DeviceMessage *Simulator::popTx()
 {
-	return txQueue_.pop();
+	return nullptr; ///\todo txQueue_.pop();
 }
 
 void Simulator::runBackground()

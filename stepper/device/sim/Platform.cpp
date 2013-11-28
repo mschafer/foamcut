@@ -9,33 +9,37 @@
  * Contributors:
  *     Marc Schafer
  */
-#include <memory>
+
 #include "Platform.hpp"
+#include <memory>
+#include "SimComm.hpp"
+#include <MemoryPool.hpp>
 
-namespace stepper { namespace device {
+
+namespace stepper { namespace device { namespace platform {
 
 
-std::unique_ptr<MemoryAllocator_type> theAllocator;
-std::unique_ptr<Communicator_type> theCommunicator;
+std::unique_ptr<MemoryPool_type> thePool;
+std::unique_ptr<Communicator> theCommunicator;
 
-MemoryAllocator_type *getMemoryAllocator()
+MemoryPool_type &getMemoryPool()
 {
 	static size_t poolSizes[2] = {64, 512};
 	static uint8_t block[10240];
 
-	if (theAllocator.get() == nullptr) {
-		theAllocator.reset(new MemoryAllocator_type(poolSizes, block, sizeof(block)));
+	if (thePool.get() == nullptr) {
+		thePool.reset(new MemoryPool_type(poolSizes, block, sizeof(block)));
 	}
-	return *(theAllocator.get());
+	return *(thePool.get());
 }
 
 
-Communicator_type *getCommunicator()
+Communicator &getCommunicator()
 {
 	if (theCommunicator.get() == nullptr) {
-		theCommunicator.reset(new Communicator_type());
+		theCommunicator.reset(new SimComm());
 	}
 	return *(theCommunicator.get());
 }
 
-}}
+}}}

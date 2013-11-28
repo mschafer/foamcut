@@ -29,3 +29,8 @@ BOOST_AUTO_TEST_CASE( pool_test )
 
 	MessageBuffer *mb = mp.alloc(8);
 }
+
+BOOST_AUTO_TEST_CASE()
+{
+
+}

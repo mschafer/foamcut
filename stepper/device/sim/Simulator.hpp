@@ -56,8 +56,6 @@ public:
 	std::unique_ptr<boost::thread> thread_;
 	uint16_t port_;
 
-    typedef device::MessagePool<boost::mutex> pool_type;
-    std::unique_ptr<pool_type> pool_;
     std::unique_ptr<ASIOImpl<Simulator> > impl_;
 
     Machine machine_;
@@ -71,8 +69,8 @@ public:
 	//ASIOImpl support
 	boost::asio::ip::tcp::socket &socket() { return socket_; }
 	boost::asio::io_service &ios() { return ios_; }
-	void handler(device::MessageBuffer *msg, const boost::system::error_code &error);
-	MessageBuffer *popTx();
+	void handler(DeviceMessage *msg, const boost::system::error_code &error);
+	DeviceMessage *popTx();
 };
 
 }}
