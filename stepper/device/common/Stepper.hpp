@@ -52,6 +52,7 @@ public:
 	 */
 	void invertMask(StepDir invertMask) { invertMask_ = invertMask; }
 
+	virtual void initialize() = 0;
 
 	/**
 	 * Set the output value of the digital I/O lines for each step
@@ -64,20 +65,6 @@ public:
 	virtual void startTimer(uint32_t period) = 0;
 
 protected:
-
-	/**
-	 * This routine is called whenever a message is added to the send
-	 * queue. Implementors should use this hook to wake up the transmission
-	 * thread or to start an interrupt driven send.  It could also be used to
-	 * do a blocking send.
-	 */
-	virtual void notifySender() = 0;
-
-	/**
-	 * Called from the background task.
-	 * Implementors may add messages to the rxQueue in this method.
-	 */
-	virtual void pollForMessages() = 0;
 
 private:
 	StepDir invertMask_;

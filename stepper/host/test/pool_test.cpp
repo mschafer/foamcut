@@ -17,20 +17,16 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
-#include "MessagePool.hpp"
+#include "MemoryPool.hpp"
 
 
 BOOST_AUTO_TEST_CASE( pool_test )
 {
 	using namespace stepper::device;
+	const size_t poolSizes[2] = {16, 256};
 
 	uint8_t block[1024];
-	MessagePool<boost::mutex> mp(block, sizeof(block));
+	MemoryPool<2, size_t> mp(poolSizes, block, sizeof(block));
 
-	MessageBuffer *mb = mp.alloc(8);
-}
-
-BOOST_AUTO_TEST_CASE()
-{
-
+	void *b = mp.alloc(8);
 }

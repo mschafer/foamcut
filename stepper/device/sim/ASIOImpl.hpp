@@ -58,8 +58,8 @@ public:
 private:
 	link_type &link_;
 	device::MessageHeader recvHeader_;
-	device::Message *recvInProgress_;
-	device::Message *sendInProgress_;
+	typename link_type::Message_type *recvInProgress_;
+	typename link_type::Message_type *sendInProgress_;
 	std::unique_ptr<boost::asio::deadline_timer> oomTimer;
 
 
@@ -67,7 +67,7 @@ private:
 	{
 		if (!error) {
 			uint16_t s = recvHeader_.payloadSize_;
-			recvInProgress_ = link_.alloc(s);
+			recvInProgress_ = link_type::Message_type::alloc(s);
 			if (recvInProgress_ == NULL) {
 				 ///\todo indicate out of memory error
 				oomTimer.reset(new boost::asio::deadline_timer(link_.ios(), boost::posix_time::milliseconds(OUT_OF_MEM_WAIT)));
@@ -108,7 +108,7 @@ private:
 	void sendComplete(const boost::system::error_code &error)
 	{
 		if (sendInProgress_ != nullptr) {
-			link_.free(sendInProgress_);
+			delete sendInProgress_;
 			sendInProgress_ = nullptr;
 		}
 

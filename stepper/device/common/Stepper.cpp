@@ -30,7 +30,8 @@ Stepper::Stepper() : pause_(false)
 
 void Stepper::runBackgroundOnce()
 {
-	pollForMessages();
+	Communicator &comm = platform::getCommunicator();
+	comm();
 	DeviceMessage *m = platform::getCommunicator().receive();
 	if (m) { handleMessage(*m); }
 	engine_();

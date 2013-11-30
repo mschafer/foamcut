@@ -14,10 +14,9 @@
 
 #include <atomic>
 #include <boost/asio.hpp>
-#include <boost/asio/high_resolution_timer.hpp>
+#include <boost/asio/deadline_timer.hpp>
 #include <boost/utility.hpp>
 #include <Stepper.hpp>
-#include "ASIOImpl.hpp"
 #include "Machine.hpp"
 
 namespace boost {
@@ -29,8 +28,10 @@ namespace stepper { namespace device {
 class Simulator : public Stepper
 {
 public:
-	Simulator(uint16_t port=0);
+	Simulator();
 	virtual ~Simulator();
+
+	virtual void initialize();
 
 	virtual void setStepDirBits(const StepDir &s);
 
@@ -38,39 +39,15 @@ public:
 
 	virtual void startTimer(uint32_t period);
 
-	uint16_t port() const { return port_; }
 
-//protected:
-	virtual void notifySender();
-	virtual void pollForMessages();
-
-
-//private:
-	friend class ASIOImpl<Simulator>;
-	boost::asio::io_service ios_;
-	std::auto_ptr<boost::asio::ip::tcp::acceptor> acceptor_;
-    boost::asio::ip::tcp::socket socket_;
-	boost::asio::deadline_timer backgroundTimer_;
-	boost::asio::deadline_timer stepTimer_;
-	volatile bool running_;
-	std::unique_ptr<boost::thread> thread_;
-	uint16_t port_;
-
-    std::unique_ptr<ASIOImpl<Simulator> > impl_;
-
+private:
+	std::unique_ptr<boost::asio::deadline_timer> backgroundTimer_;
+	std::unique_ptr<boost::asio::deadline_timer> stepTimer_;
+	std::atomic<bool> running_;
     Machine machine_;
 
-	void runComm();
-	void acceptComplete(const boost::system::error_code &error);
-
-	void runBackground();
+    void runBackground();
 	void runTimer();
-
-	//ASIOImpl support
-	boost::asio::ip::tcp::socket &socket() { return socket_; }
-	boost::asio::io_service &ios() { return ios_; }
-	void handler(DeviceMessage *msg, const boost::system::error_code &error);
-	DeviceMessage *popTx();
 };
 
 }}

@@ -21,6 +21,7 @@ class Communicator
 {
 public:
 	typedef Message<DeviceMessageAllocator> DeviceMessage;
+	typedef DeviceMessage Message_type;
 
 	Communicator();
 	virtual ~Communicator();
@@ -42,6 +43,7 @@ public:
 	 */
 	bool send(DeviceMessage *msg) {
 		txQueue_.push(msg);
+		startSending();
 		return true;
 	}
 
@@ -59,9 +61,15 @@ public:
 	virtual bool connected() const = 0;
 
 protected:
+
+	/**
+	 * This routine is called whenever a message is added to the send
+	 * queue. Implementors should use this hook to wake up the transmission
+	 * thread or to start an interrupt driven send.  It could also be used to
+	 * do a blocking send.
+	 */
 	virtual void startSending() = 0;
 
-private:
 	MessageQueue<DeviceMessageAllocator> rxQueue_;
 	MessageQueue<DeviceMessageAllocator> txQueue_;
 };

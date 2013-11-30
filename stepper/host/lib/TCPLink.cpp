@@ -8,7 +8,6 @@ TCPLink::TCPLink(const char *hostName, uint16_t port) :
     std::ostringstream oss;
     oss << port;
     portStr_ = oss.str();
-    pool_.reset(new pool_type(messageBlock_, sizeof(messageBlock_)));
 	impl_.reset(new device::ASIOImpl<TCPLink>(*this));
     thread_.reset(new boost::thread(boost::bind(&TCPLink::run, this)));
 }
@@ -24,7 +23,7 @@ TCPLink::~TCPLink()
 	}
 }
 
-void TCPLink::send(device::MessageBuffer *mb)
+void TCPLink::send(HostMessage *mb)
 {
 	txQueue_.push(mb);
     ios_.post(boost::bind(&device::ASIOImpl<TCPLink>::startSending, impl_.get()));
@@ -64,7 +63,7 @@ void TCPLink::run()
     }
 }
 
-void TCPLink::handler(device::MessageBuffer *msg, const boost::system::error_code &error)
+void TCPLink::handler(HostMessage *msg, const boost::system::error_code &error)
 {
 	if (msg != nullptr) {
 		rxQueue_.push(msg);

@@ -12,10 +12,13 @@
 #ifndef stepper_TCPLink_hpp
 #define stepper_TCPLink_hpp
 
+#include <atomic>
 #include <memory>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
-#include "ASIOImpl.hpp"
+#include "HostMessageAllocator.hpp"
+#include <MessageQueue.hpp>
+#include <ASIOImpl.hpp>
 
 namespace stepper {
 
@@ -25,6 +28,9 @@ namespace stepper {
 class TCPLink
 {
 public:
+	typedef device::Message<HostMessageAllocator> HostMessage;
+	typedef HostMessage Message_type;
+
 	enum {
 		TRY_CONNECT_TIMEOUT = 500
 	};
@@ -32,11 +38,8 @@ public:
 	TCPLink(const char *hostName, uint16_t port);
 	virtual ~TCPLink();
 
-	device::MessageBuffer *alloc(uint16_t payloadSize) { return pool_->alloc(payloadSize); }
-	void free(device::MessageBuffer *mb) { pool_->free(mb); }
-
-	void send(device::MessageBuffer *mb);
-	device::MessageBuffer *receive() { return rxQueue_.pop(); }
+	void send(HostMessage *mb);
+	HostMessage *receive() { return rxQueue_.pop(); }
 
 	bool connected() const { return connected_; }
 
@@ -48,14 +51,12 @@ private:
     boost::asio::io_service ios_;
     boost::asio::ip::tcp::socket socket_;
     std::unique_ptr<boost::thread> thread_;
-    volatile bool running_;
-    volatile bool connected_;
+    std::atomic<bool> running_;
+    std::atomic<bool> connected_;
 
-    typedef device::MessagePool<boost::mutex> pool_type;
-    std::unique_ptr<pool_type> pool_;
     uint8_t messageBlock_[1048576];
-	device::MessageQueue<boost::mutex> rxQueue_;
-	device::MessageQueue<boost::mutex> txQueue_;
+	device::MessageQueue<HostMessageAllocator> rxQueue_;
+	device::MessageQueue<HostMessageAllocator> txQueue_;
 
     std::unique_ptr<device::ASIOImpl<TCPLink> > impl_;
 
@@ -64,8 +65,8 @@ private:
 
 	boost::asio::ip::tcp::socket &socket() { return socket_; }
 	boost::asio::io_service &ios() { return ios_; }
-	void handler(device::MessageBuffer *msg, const boost::system::error_code &error);
-	device::MessageBuffer *popTx() { return txQueue_.pop(); }
+	void handler(HostMessage *msg, const boost::system::error_code &error);
+	HostMessage *popTx() { return txQueue_.pop(); }
 };
 
 }

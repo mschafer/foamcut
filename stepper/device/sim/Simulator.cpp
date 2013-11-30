@@ -16,105 +16,31 @@
 
 namespace stepper { namespace device {
 
-Simulator::Simulator(uint16_t port) : socket_(ios_),
-	backgroundTimer_(ios_), stepTimer_(ios_), running_(true), port_(port)
+Simulator::Simulator() : running_(true)
 {
-    using boost::asio::ip::tcp;
-    if (port_ != 0) {
-        acceptor_.reset(new tcp::acceptor(ios_, tcp::endpoint(tcp::v4(), port_)));
-    } else {
-        acceptor_.reset(new tcp::acceptor(ios_, tcp::endpoint()));
-        port_ = acceptor_->local_endpoint().port();
-    }
-
-	backgroundTimer_.expires_from_now(boost::posix_time::milliseconds(10));
-	backgroundTimer_.async_wait(boost::bind(&Simulator::runBackground, this));
-
-	impl_.reset(new ASIOImpl<Simulator>(*this));
-
-	thread_.reset(new boost::thread(boost::bind(&Simulator::runComm, this)));
 }
+
+void Simulator::initialize()
+{
+//	backgroundTimer_.expires_from_now(boost::posix_time::milliseconds(10));
+//	backgroundTimer_.async_wait(boost::bind(&Simulator::runBackground, this));
+}
+
 
 Simulator::~Simulator()
 {
 	running_ = false;
-	ios_.stop();
-
-	try {
-		thread_->join();
-	} catch(...) {
-	}
+//	backgroundTimer_->cancel();
+//	stepTimer_->cancel();
 }
 
-void Simulator::runComm()
-{
-    using namespace boost::asio::ip;
-    try {
-        while (running_) {
-            acceptor_->async_accept(socket_,
-		    boost::bind(&Simulator::acceptComplete, this,
-		        boost::asio::placeholders::error));
-            ios_.run();
-            ios_.reset();
-        }
-    }
-
-    catch(std::exception &ex) {
-        std::cerr << "Exception caught, tcp/ip server thread dying" << std::endl;
-        std::cerr << ex.what();
-    }
-
-    catch(...) {
-        std::cerr << "Exception caught, tcp/ip server thread dying" << std::endl;
-    }
-
-}
-
-void Simulator::notifySender()
-{
-    ios_.post(boost::bind(&ASIOImpl<Simulator>::startSending, impl_.get()));
-}
-
-void Simulator::pollForMessages()
-{
-	// nothing to do here because asio does it in background
-}
-
-void Simulator::acceptComplete(const boost::system::error_code &error)
-	{
-    if (!error) {
-    	std::cout << "accept complete" << std::endl;
-    	impl_->receiveOne();
-    	impl_->startSending();
-    } else {
-    	///\todo handle error
-    }
-}
-
-void Simulator::handler(DeviceMessage *msg, const boost::system::error_code &error)
-{
-	if (msg != nullptr) {
-		///\todo rxQueue_.push(msg);
-		impl_->receiveOne();
-	}
-
-	if (error) {
-		///\todo handle error
-    	std::cout << "Simulator error " << error << std::endl;
-	}
-}
-
-Stepper::DeviceMessage *Simulator::popTx()
-{
-	return nullptr; ///\todo txQueue_.pop();
-}
 
 void Simulator::runBackground()
 {
 	runBackgroundOnce();
 	if (running_) {
-		backgroundTimer_.expires_from_now(boost::posix_time::milliseconds(10));
-		backgroundTimer_.async_wait(boost::bind(&Simulator::runBackground, this));
+		//backgroundTimer_->expires_from_now(boost::posix_time::milliseconds(10));
+		//backgroundTimer_->async_wait(boost::bind(&Simulator::runBackground, this));
 	}
 }
 
@@ -131,8 +57,8 @@ LimitSwitches Simulator::readLimitSwitches()
 void Simulator::startTimer(uint32_t period)
 {
 	uint32_t delay = period * Stepper::TIMER_PERIOD_USEC;
-	stepTimer_.expires_from_now(boost::posix_time::microseconds(delay));
-	stepTimer_.async_wait(boost::bind(&Stepper::onTimerExpired, this));
+	//stepTimer_->expires_from_now(boost::posix_time::microseconds(delay));
+	//stepTimer_->async_wait(boost::bind(&Stepper::onTimerExpired, this));
 }
 
 }}

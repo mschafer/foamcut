@@ -54,9 +54,6 @@ BOOST_AUTO_TEST_CASE(sim_script_test)
 		script.addLine(dx, dy, 0, 0, segmentTime);
 	}
 
-	boost::scoped_array<uint8_t> buff(new uint8_t[1000]);
-	stepper::device::MessagePool<boost::mutex> pool(buff.get(), 1000);
-
-	stepper::device::Engine engine(pool);
+	stepper::device::Engine engine;
 
 }
