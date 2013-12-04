@@ -9,8 +9,8 @@
  * Contributors:
  *     Marc Schafer
  */
-#ifndef stepper_device_Simulator_hpp
-#define stepper_device_Simulator_hpp
+#ifndef stepper_device_SimStepper_hpp
+#define stepper_device_SimStepper_hpp
 
 #include <atomic>
 #include <boost/asio.hpp>
@@ -25,11 +25,11 @@ class thread;
 
 namespace stepper { namespace device {
 
-class Simulator : public Stepper
+class SimStepper : public Stepper
 {
 public:
-	Simulator();
-	virtual ~Simulator();
+	SimStepper();
+	virtual ~SimStepper();
 
 	virtual void initialize();
 

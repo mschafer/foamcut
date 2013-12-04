@@ -23,8 +23,11 @@ public:
 	typedef Message<DeviceMessageAllocator> DeviceMessage;
 	typedef DeviceMessage Message_type;
 
-	Communicator();
-	virtual ~Communicator();
+	Communicator() {}
+	virtual ~Communicator() {
+		rxQueue_.clear();
+		txQueue_.clear();
+	}
 
 	/** Initialize the Communicator and block until a link with the host is successfully created. */
 	virtual void initialize() = 0;

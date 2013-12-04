@@ -11,18 +11,19 @@
  */
 
 #include "Platform.hpp"
-#include <memory>
 #include "SimComm.hpp"
+#include "SimStepper.hpp"
 #include <MemoryPool.hpp>
 
 
-namespace stepper { namespace device { namespace platform {
+namespace stepper { namespace device {
+
+std::unique_ptr<Platform::MemoryPool_type> Platform::thePool;
+std::unique_ptr<Communicator> Platform::theCommunicator;
+std::unique_ptr<Stepper> Platform::theStepper;
 
 
-std::unique_ptr<MemoryPool_type> thePool;
-std::unique_ptr<Communicator> theCommunicator;
-
-MemoryPool_type &getMemoryPool()
+Platform::MemoryPool_type &Platform::getMemoryPool()
 {
 	static size_t poolSizes[2] = {64, 512};
 	static uint8_t block[10240];
@@ -34,7 +35,7 @@ MemoryPool_type &getMemoryPool()
 }
 
 
-Communicator &getCommunicator()
+Communicator &Platform::getCommunicator()
 {
 	if (theCommunicator.get() == nullptr) {
 		theCommunicator.reset(new SimComm());
@@ -42,4 +43,19 @@ Communicator &getCommunicator()
 	return *(theCommunicator.get());
 }
 
-}}}
+Stepper &Platform::getStepper()
+{
+	if (theStepper.get() == nullptr) {
+		theStepper.reset(new SimStepper());
+	}
+	return *(theStepper.get());
+}
+
+void Platform::reset()
+{
+	theCommunicator.reset(nullptr);
+	thePool.reset(nullptr);
+	theStepper.reset(nullptr);
+}
+
+}}

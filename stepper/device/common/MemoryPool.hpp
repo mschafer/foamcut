@@ -103,12 +103,12 @@ struct DeviceMessageAllocator
 	typedef std::ptrdiff_t difference_type;
 
 	static void *malloc(const size_type bytes) {
-		platform::MemoryPool_type &ma = platform::getMemoryPool();
+		Platform::MemoryPool_type &ma = Platform::getMemoryPool();
 		return ma.alloc(bytes);
 	}
 
 	static void free(void * const block) {
-		platform::MemoryPool_type &ma = platform::getMemoryPool();
+		Platform::MemoryPool_type &ma = Platform::getMemoryPool();
 		ma.free(block);
 	}
 };

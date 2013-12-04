@@ -38,8 +38,8 @@ public:
 		ID1_OFFSET = 3
 	};
 
-	Message();
-	~Message();
+	Message() {}
+	~Message() {}
 
 	void *operator new(size_t size) {
 		void *ret = Allocator::malloc(size);
@@ -67,7 +67,7 @@ public:
 		void *b = Allocator::malloc(payloadSize + sizeof(Message));
 		Message *ret = NULL;
 		if (b != NULL) {
-			ret = reinterpret_cast<Message*>(b);
+			ret = new (b) Message();
 		}
 		return ret;
 	}

@@ -14,31 +14,39 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <memory>
 
 namespace stepper { namespace device {
 
 template<uint8_t NUM_POOLS, typename size_type> class MemoryPool;
 class Communicator;
+class Stepper;
 
 class Platform
 {
+public:
 
-enum {
-	/**
-	 * The number of cached script messages for the engine (minimum 4)
-	 * Uses about 270 bytes each.
-	 */
-	SCRIPT_MSG_POOL = 4
-};
+	enum {
+		/**
+		 * The number of cached script messages for the engine (minimum 4)
+		 * Uses about 270 bytes each.
+		 */
+		SCRIPT_MSG_POOL = 4
+	};
 
-typedef MemoryPool<2, size_t> MemoryPool_type;
-MemoryPool_type &getMemoryPool();
+	typedef MemoryPool<2, size_t> MemoryPool_type;
+	static MemoryPool_type &getMemoryPool();
 
-Communicator &getCommunicator();
+	static Communicator &getCommunicator();
 
-void resetPlatform();
+	static Stepper &getStepper();
 
+	static void reset();
 
+private:
+	static std::unique_ptr<MemoryPool_type> thePool;
+	static std::unique_ptr<Communicator> theCommunicator;
+	static std::unique_ptr<Stepper> theStepper;
 };
 
 }}

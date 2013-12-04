@@ -28,7 +28,7 @@ set (SIM_SRC
   ${DEVICE_COMMON_DIR}/Line.cpp
   ${DEVICE_COMMON_DIR}/Stepper.cpp
   SimComm.cpp
-  Simulator.cpp
+  SimStepper.cpp
   Machine.cpp
   Platform.cpp
 )

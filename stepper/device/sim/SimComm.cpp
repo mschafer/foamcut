@@ -16,6 +16,17 @@ SimComm::SimComm(uint16_t port) : socket_(ios_), port_(port), running_(true)
 	thread_.reset(new boost::thread(boost::bind(&SimComm::run, this)));
 }
 
+SimComm::~SimComm()
+{
+    running_ = false;
+    ios_.stop();
+
+    try {
+    	thread_->join();
+    } catch(...) {
+    }
+}
+
 void SimComm::run()
 {
     using namespace boost::asio::ip;
@@ -69,5 +80,18 @@ void SimComm::acceptComplete(const boost::system::error_code &error)
     }
 }
 
+void SimComm::handler(DeviceMessage *msg, const boost::system::error_code &error)
+{
+
+    if (msg != nullptr) {
+    	rxQueue_.push(msg);
+    	impl_->receiveOne();
+    }
+
+    if (error) {
+    	///\todo handle error
+    	std::cout << "Simulator error " << error << std::endl;
+    }
+}
 
 }}

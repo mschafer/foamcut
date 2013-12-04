@@ -46,6 +46,8 @@ public:
 
 	size_t size() const { return list_.size(); }
 
+	void clear() { list_.clear(); }
+
 private:
 	platform::Lock mtx_;
 	SList<Message_type> list_;

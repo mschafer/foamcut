@@ -32,7 +32,6 @@ public:
 
 
 private:
-	std::unique_ptr<device::Simulator> sim_;
 	std::unique_ptr<TCPLink> link_;
 };
 

@@ -12,22 +12,22 @@
 #include <chrono>
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
-#include "Simulator.hpp"
+#include "SimStepper.hpp"
 
 namespace stepper { namespace device {
 
-Simulator::Simulator() : running_(true)
+SimStepper::SimStepper() : running_(true)
 {
 }
 
-void Simulator::initialize()
+void SimStepper::initialize()
 {
 //	backgroundTimer_.expires_from_now(boost::posix_time::milliseconds(10));
-//	backgroundTimer_.async_wait(boost::bind(&Simulator::runBackground, this));
+//	backgroundTimer_.async_wait(boost::bind(&SimStepper::runBackground, this));
 }
 
 
-Simulator::~Simulator()
+SimStepper::~SimStepper()
 {
 	running_ = false;
 //	backgroundTimer_->cancel();
@@ -35,26 +35,26 @@ Simulator::~Simulator()
 }
 
 
-void Simulator::runBackground()
+void SimStepper::runBackground()
 {
 	runBackgroundOnce();
 	if (running_) {
 		//backgroundTimer_->expires_from_now(boost::posix_time::milliseconds(10));
-		//backgroundTimer_->async_wait(boost::bind(&Simulator::runBackground, this));
+		//backgroundTimer_->async_wait(boost::bind(&SimStepper::runBackground, this));
 	}
 }
 
-void Simulator::setStepDirBits(const StepDir &s)
+void SimStepper::setStepDirBits(const StepDir &s)
 {
 	machine_.setStepDir(s);
 }
 
-LimitSwitches Simulator::readLimitSwitches()
+LimitSwitches SimStepper::readLimitSwitches()
 {
 	return machine_.readLimitSwitches();
 }
 
-void Simulator::startTimer(uint32_t period)
+void SimStepper::startTimer(uint32_t period)
 {
 	uint32_t delay = period * Stepper::TIMER_PERIOD_USEC;
 	//stepTimer_->expires_from_now(boost::posix_time::microseconds(delay));

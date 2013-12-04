@@ -20,7 +20,7 @@ namespace stepper { namespace device {
 Stepper::Stepper() : pause_(false)
 {
 	// alloc and free big blocks for script
-	for (int i=0; i<platform::SCRIPT_MSG_POOL; ++i) {
+	for (int i=0; i<Platform::SCRIPT_MSG_POOL; ++i) {
 		DataScriptMsg<DeviceMessage::allocator_type> *p = new DataScriptMsg<DeviceMessage::allocator_type>();
 		assert(p != NULL);
 		delete p;
@@ -30,9 +30,9 @@ Stepper::Stepper() : pause_(false)
 
 void Stepper::runBackgroundOnce()
 {
-	Communicator &comm = platform::getCommunicator();
+	Communicator &comm = Platform::getCommunicator();
 	comm();
-	DeviceMessage *m = platform::getCommunicator().receive();
+	DeviceMessage *m = Platform::getCommunicator().receive();
 	if (m) { handleMessage(*m); }
 	engine_();
 }
@@ -74,7 +74,7 @@ void Stepper::onTimerExpired()
 
 void Stepper::handleMessage(DeviceMessage &m)
 {
-	Communicator &comm = platform::getCommunicator();
+	Communicator &comm = Platform::getCommunicator();
 
 	switch (m.id0()) {
 	case PING_MSG:
