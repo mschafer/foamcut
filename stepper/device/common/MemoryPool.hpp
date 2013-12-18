@@ -21,7 +21,7 @@ struct Chunk : public SListHook<>
 	uint8_t poolIndex() { return header()[POOL_INDEX_OFFSET]; }
 	void poolIndex(uint8_t v) { header()[POOL_INDEX_OFFSET] = v; }
 
-	bool allocated() { return header()[ALLOCATED_OFFSET == 1]; }
+	bool allocated() { return header()[ALLOCATED_OFFSET] == 1; }
 	void allocated(bool v) { header()[ALLOCATED_OFFSET] = (uint8_t)v; }
 
 	uint8_t *header() {
@@ -49,10 +49,12 @@ public:
     explicit MemoryPool(const size_t poolSizes[NUM_POOLS], uint8_t *block, size_t blockSize) :
     blockStart_(block), blockAvailable_(blockSize)
     {
+        assert((size_t)blockStart_ % sizeof(void*) == 0);
+        blockAvailable_ -= blockAvailable_ % sizeof(void*);
         for (uint8_t i=0; i<NUM_POOLS; ++i) {
             assert(poolSizes[i] % sizeof(void*) == 0);
             if (i>0) assert(poolSizes[i] > poolSizes[i-1]);
-            else assert(poolSizes[i] > sizeof(void*));
+            else assert(poolSizes[i] >= sizeof(void*));
         }
     }
 
@@ -118,9 +120,6 @@ private:
 
 struct DeviceMessageAllocator
 {
-	typedef std::size_t size_t;
-	typedef std::ptrdiff_t difference_type;
-
 	static void *malloc(const size_t bytes) {
 		Platform::MemoryPool_type &ma = Platform::getMemoryPool();
 		return ma.alloc(bytes);
