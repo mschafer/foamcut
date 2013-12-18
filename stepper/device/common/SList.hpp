@@ -29,12 +29,12 @@ class SListHook
 {
 public:
     SListHook() : next_(NULL) {}
-    ~SListHook() { assert(!is_linked()); }
+    ~SListHook() { assert(!isLinked()); }
 
     SListHook(const SListHook &cpy) : next_(NULL) {}
     SListHook &operator=(const SListHook &cpy) { return *this; }
 
-    bool is_linked() const { return next_ != NULL; }
+    bool isLinked() const { return next_ != NULL; }
 
     SListHook<Tag> *nextOf() const { return next_; }
     void nextOf(SListHook<Tag> *next) { next_ = next; }
@@ -62,7 +62,7 @@ public:
     }
 
     void pushFront(hook_type &node) {
-        assert(!node.is_linked());
+        assert(!node.isLinked());
         if (empty()) {
             tail_ = &node;
             node.nextOf(&node);
@@ -73,7 +73,7 @@ public:
     }
 
     void pushBack(hook_type &node) {
-        assert(!node.is_linked());
+        assert(!node.isLinked());
         if (empty()) {
             tail_ = &node;
             node.nextOf(&node);

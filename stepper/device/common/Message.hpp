@@ -48,20 +48,20 @@ public:
 		}
 		return ret;
 	}
-
-	void* operator new (std::size_t size, const std::nothrow_t& nothrow_value) throw() {
-		return Allocator::malloc(size);
-	}
-
-	void* operator new (std::size_t size, void* ptr) throw() { return ptr; }
-
 	void operator delete (void* ptr) throw() {
 		Allocator::free(ptr);
 	}
 
+	void* operator new (std::size_t size, const std::nothrow_t& nothrow_value) throw() {
+		return Allocator::malloc(size);
+	}
 	void operator delete (void* ptr, const std::nothrow_t& nothrow_constant) throw() {
 		Allocator::free(ptr);
 	}
+
+	void* operator new (std::size_t size, void* ptr) throw() { return ptr; }
+	void operator delete (void*, void*) {}
+
 
 	static Message *alloc(uint16_t payloadSize) {
 		void *b = Allocator::malloc(payloadSize + sizeof(Message));
@@ -93,7 +93,12 @@ public:
 		id1(hdr.id1_);
 	}
 
-	uint8_t *payload() { return reinterpret_cast<uint8_t*>(this+1); }
+	uint8_t *payload() {
+		uint8_t *ret = reinterpret_cast<uint8_t*>(this+1);
+		assert((ptrdiff_t)ret % sizeof(void*) == 0);
+		assert((ptrdiff_t)ret - (ptrdiff_t)reserved_ == sizeof(void*));
+		return ret;
+	}
 	const uint8_t *payload() const { return reinterpret_cast<const uint8_t*>(this+1); }
 
 	uint16_t transmitSize() const { return payloadSize() + HEADER_SIZE; }
@@ -102,8 +107,8 @@ public:
 	/** Amount of memory to get from MemoryAllocator for a given payload size. */
 	static uint16_t memoryNeeded(uint16_t payloadSize) { return sizeof(Message) + payloadSize; }
 
-	uint8_t reserved_[sizeof(void*)];
 private:
+	uint8_t reserved_[sizeof(void*)];
 
 	uint8_t headerByte(size_t offset) const { return *(payload() - HEADER_SIZE + offset); }
 	void headerByte(uint8_t val, size_t offset) { *(payload() - HEADER_SIZE + offset) = val; }

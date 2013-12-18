@@ -80,8 +80,7 @@ private:
 	Stepper &operator=(const Stepper &rhs);
 
 #if __cplusplus >= 201103L
-	static_assert(sizeof(DeviceMessage)%sizeof(void*)==0,"Alignment problem with Message");
-	static_assert(offsetof(DeviceMessage, reserved_)+sizeof(void*) == sizeof(DeviceMessage), "Message layout is incorrect");
+	static_assert(sizeof(DeviceMessage) == 3*sizeof(void*)==0,"Message layout is incorrect");
 #endif
 
 };
