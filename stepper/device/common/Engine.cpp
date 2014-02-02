@@ -9,7 +9,6 @@
  * Contributors:
  *     Marc Schafer
  */
-#include <Platform.hpp>
 #include "Engine.hpp"
 
 namespace stepper { namespace device {

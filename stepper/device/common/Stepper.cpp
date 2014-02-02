@@ -13,12 +13,13 @@
 #include "Stepper.hpp"
 #include "DeviceMessages.hpp"
 #include <Communicator.hpp>
-#include <Platform.hpp>
 
 namespace stepper { namespace device {
 
 Stepper::Stepper() : pause_(false)
 {
+///\todo
+#if 0
 	// alloc and free big blocks for script
 	for (int i=0; i<Platform::SCRIPT_MSG_POOL; ++i) {
 		DataScriptMsg *p = new DataScriptMsg();
@@ -26,6 +27,7 @@ Stepper::Stepper() : pause_(false)
 		delete p;
 		///\todo verify size of free list
 	}
+#endif
 }
 
 uint8_t Stepper::id() const
@@ -44,7 +46,7 @@ void Stepper::connected(bool c)
 
 void Stepper::runBackgroundOnce()
 {
-	Communicator &comm = Platform::getCommunicator();
+	Communicator &comm = getCommunicator();
 	comm();
 	engine_();
 }
@@ -86,7 +88,7 @@ void Stepper::onTimerExpired()
 
 void Stepper::handleMessage(Message &m)
 {
-	Communicator &comm = Platform::getCommunicator();
+	Communicator &comm = getCommunicator();
 
 	switch (m.function()) {
 
