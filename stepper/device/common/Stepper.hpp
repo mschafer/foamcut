@@ -15,13 +15,13 @@
 #include "StepDir.hpp"
 #include "LimitSwitches.hpp"
 #include "Engine.hpp"
+#include "Receiver.hpp"
 
 namespace stepper { namespace device {
 
-class Stepper
+class Stepper : public Receiver
 {
 public:
-	typedef Message<DeviceMessageAllocator> DeviceMessage;
 
 	enum {
 		TIMER_PERIOD_USEC = 5,
@@ -29,6 +29,10 @@ public:
 
 	Stepper();
 	virtual ~Stepper() {}
+
+	uint8_t id() const;
+	void receiveMessage(Message *msg);
+	void connected(bool c);
 
 	/**
 	 * This method should be called from main as often as possible.
@@ -71,7 +75,7 @@ private:
 	Engine engine_;
 	volatile bool pause_;
 
-	void handleMessage(DeviceMessage &m);
+	void handleMessage(Message &m);
 
 	/** \return scaled value of the delay. */
 	uint32_t scaleDelay(uint32_t delay);
@@ -80,7 +84,7 @@ private:
 	Stepper &operator=(const Stepper &rhs);
 
 #if __cplusplus >= 201103L
-	static_assert(sizeof(DeviceMessage) == 3*sizeof(void*)==0,"Message layout is incorrect");
+	static_assert(sizeof(Message) == 2*sizeof(void*),"Message layout is incorrect");
 #endif
 
 };

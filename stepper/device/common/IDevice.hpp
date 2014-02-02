@@ -9,15 +9,24 @@
  * Contributors:
  *     Marc Schafer
  */
-#ifndef stepper_device_Lock_hpp
-#define stepper_device_Lock_hpp
+#ifndef stepper_device_IDevice_hpp
+#define stepper_device_IDevice_hpp
 
-#include <boost/thread.hpp>
+/** \file This file defines the interfaces to global statics. */
+
+#include <stdint.h>
+
 namespace stepper { namespace device {
 
-typedef boost::mutex Lock;
+// forward declaration of target specific types
+class MemoryAllocator;
+class Communicator;
+struct StatusFlags;
+
+MemoryAllocator &getMemoryAllocator();
+Communicator &getCommunicator();
+StatusFlags &getStatusFlags();
 
 }}
 
 #endif
-

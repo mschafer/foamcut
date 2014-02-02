@@ -20,7 +20,7 @@ namespace stepper { namespace device {
 class LockGuard
 {
 public:
-    explicit LockGuard(platform::Lock &mtx) : mtx_(mtx) {
+    explicit LockGuard(Lock &mtx) : mtx_(mtx) {
         mtx_.lock();
     }
 
@@ -30,7 +30,7 @@ public:
     }
 
 private:
-    platform::Lock &mtx_;
+    Lock &mtx_;
 };
 
 }}

@@ -11,8 +11,8 @@
  */
 #include <new>
 #include "Stepper.hpp"
-#include "Dictionary.hpp"
-#include "Communicator.hpp"
+#include "DeviceMessages.hpp"
+#include <Communicator.hpp>
 #include <Platform.hpp>
 
 namespace stepper { namespace device {
@@ -21,19 +21,31 @@ Stepper::Stepper() : pause_(false)
 {
 	// alloc and free big blocks for script
 	for (int i=0; i<Platform::SCRIPT_MSG_POOL; ++i) {
-		DataScriptMsg<DeviceMessage::allocator_type> *p = new DataScriptMsg<DeviceMessage::allocator_type>();
+		DataScriptMsg *p = new DataScriptMsg();
 		assert(p != NULL);
 		delete p;
 		///\todo verify size of free list
 	}
 }
 
+uint8_t Stepper::id() const
+{
+	return STEPPER_ID;
+}
+
+void Stepper::receiveMessage(Message *msg)
+{
+	handleMessage(*msg);
+}
+
+void Stepper::connected(bool c)
+{
+}
+
 void Stepper::runBackgroundOnce()
 {
 	Communicator &comm = Platform::getCommunicator();
 	comm();
-	DeviceMessage *m = Platform::getCommunicator().receive();
-	if (m) { handleMessage(*m); }
 	engine_();
 }
 
@@ -72,17 +84,11 @@ void Stepper::onTimerExpired()
 }
 
 
-void Stepper::handleMessage(DeviceMessage &m)
+void Stepper::handleMessage(Message &m)
 {
 	Communicator &comm = Platform::getCommunicator();
 
-	switch (m.id0()) {
-	case PING_MSG:
-	{
-		PongMsg<DeviceMessage::allocator_type> *pm = new(&m)  PongMsg<DeviceMessage::allocator_type>();
-		comm.send(pm);
-	}
-	break;
+	switch (m.function()) {
 
 	case GO_MSG:
 	{
@@ -116,21 +122,20 @@ void Stepper::handleMessage(DeviceMessage &m)
 	case INIT_SCRIPT_MSG:
 	{
 		engine_.init();
-		AckScriptMsg<DeviceMessage::allocator_type> *am = new (&m) AckScriptMsg<DeviceMessage::allocator_type>();
+		AckScriptMsg *am = new (&m) AckScriptMsg();
 		am->window_ = 0;  ///\todo get the real window size!
-		comm.send(am);
+		comm.sendMessage(am);
 	}
 	break;
 
 	case DATA_SCRIPT_MSG:
 	{
-		AckScriptMsg<DeviceMessage::allocator_type> *amb = new AckScriptMsg<DeviceMessage::allocator_type>();
+		AckScriptMsg *amb = new AckScriptMsg();
 		if (amb == NULL) {
 			///\todo error here
 		} else {
 			amb->window_ = 0; ///\todo get real window size!
-			amb->id1(m.id1());
-			comm.send(amb);
+			comm.sendMessage(amb);
 		}
 		engine_.addScriptMessage(&m);
 	}

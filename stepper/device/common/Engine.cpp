@@ -1,6 +1,16 @@
+/*
+ * (C) Copyright 2013 Marc Schafer
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Marc Schafer
+ */
 #include <Platform.hpp>
 #include "Engine.hpp"
-#include "Dictionary.hpp"
 
 namespace stepper { namespace device {
 
@@ -32,9 +42,10 @@ bool Engine::getNextByte(uint8_t &byte)
 		return false;
 	}
 
-	byte = list_.front().payload()[msgOffset_++];
-	if (msgOffset_ == DataScriptMsg<DeviceMessage::allocator_type>::PAYLOAD_SIZE) {
-		DeviceMessage &done = list_.popFront();
+	Message &msg = list_.front();
+	byte = msg.payload()[msgOffset_++];
+	if (msgOffset_ == msg.payloadSize()) {
+		Message &done = list_.popFront();
 		delete &done;
 		msgOffset_ = 0;
 	}

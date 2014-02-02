@@ -9,16 +9,22 @@
  * Contributors:
  *     Marc Schafer
  */
-#ifndef stepper_device_ASIOImpl_hpp
-#define stepper_device_ASIOImpl_hpp
+#ifndef ASIOImpl_hpp
+#define ASIOImpl_hpp
 
-#include <boost/asio.hpp>
-#include <boost/asio/high_resolution_timer.hpp>
-#include <boost/utility.hpp>
-#include <boost/thread.hpp>
-#include "MessageQueue.hpp"
-
-namespace stepper { namespace device {
+/** \file
+ * This file contains a boost::asio based implementation of sending and 
+ * receiving messages that is meant to be shared across host and target.
+ * It should be included only in .cpp file for the Communicator using it
+ * and inside the namespace declaration.  The same .cpp file must include
+ * a header to bring messages into the same namespace and headers listed
+ * below.
+ *
+ * #include <boost/asio.hpp>
+ * #include <boost/asio/deadline_timer.hpp>
+ * #include <boost/utility.hpp>
+ * #include <boost/thread.hpp>
+ */
 
 template <typename link_type>
 class ASIOImpl : public boost::noncopyable
@@ -28,25 +34,27 @@ public:
 		OUT_OF_MEM_WAIT=100
 	};
 
-	ASIOImpl(link_type &link) : link_(link), recvInProgress_(NULL),
-	    sendInProgress_(NULL)
+	ASIOImpl(link_type &link) : link_(link),
+        recvInProgress_(NULL), sendInProgress_(NULL)
 	{
 	}
 
 	~ASIOImpl() {}
 
-	void receiveOne() {
+	void startReceive() {
     	boost::asio::async_read(link_.socket(),
-    		boost::asio::buffer(&recvHeader_, sizeof(device::MessageHeader)),
+    		boost::asio::buffer(&recvHeader_, sizeof(MessageHeader)),
     		boost::bind(&ASIOImpl::headerComplete, this,
     		boost::asio::placeholders::error));
 	}
 
-	void startSending()
+    bool sending() const { return sendInProgress_ != NULL; }
+
+	void startSend()
 	{
-		if (sendInProgress_ == nullptr) {
-			sendInProgress_ = link_.popTx();
-			if (sendInProgress_ != nullptr) {
+		if (sendInProgress_ == NULL) {
+            sendInProgress_ = link_.popSendQueue();
+			if (sendInProgress_ != NULL) {
 				boost::asio::async_write(link_.socket(),
 					boost::asio::buffer(sendInProgress_->transmitStart(), sendInProgress_->transmitSize()),
 					boost::bind(&ASIOImpl::sendComplete, this,
@@ -55,72 +63,84 @@ public:
 		}
 	}
 
+    void reset()
+    {
+        Message *m;
+        while((m = link_.popSendQueue()) != NULL) {
+            delete m;
+        }
+
+        if (sendInProgress_) {
+            delete sendInProgress_;
+            sendInProgress_ = NULL;
+        }
+        if (recvInProgress_) {
+            delete recvInProgress_;
+            recvInProgress_ = NULL;
+        }
+    }
+
 private:
 	link_type &link_;
-	device::MessageHeader recvHeader_;
-	typename link_type::Message_type *recvInProgress_;
-	typename link_type::Message_type *sendInProgress_;
-	std::unique_ptr<boost::asio::deadline_timer> oomTimer;
+
+    Message *recvInProgress_;
+	Message *sendInProgress_;
+	std::auto_ptr<boost::asio::deadline_timer> oomTimer;
+	MessageHeader recvHeader_;
 
 
 	void headerComplete(const boost::system::error_code &error)
 	{
 		if (!error) {
 			uint16_t s = recvHeader_.payloadSize_;
-			recvInProgress_ = link_type::Message_type::alloc(s);
+            recvInProgress_ = Message::alloc(s);
 			if (recvInProgress_ == NULL) {
-				 ///\todo indicate out of memory error
 				oomTimer.reset(new boost::asio::deadline_timer(link_.ios(), boost::posix_time::milliseconds(OUT_OF_MEM_WAIT)));
 		        oomTimer->async_wait(boost::bind(&ASIOImpl::headerComplete, this, error));
 
 			} else {
-				recvInProgress_->header(recvHeader_);
+                recvInProgress_->header(recvHeader_);
 				if (s > 0) {
 					boost::asio::async_read(link_.socket(),
 						boost::asio::buffer(recvInProgress_->payload(), s),
 						boost::bind(&ASIOImpl::bodyComplete, this,
 						boost::asio::placeholders::error));
 				} else {
-					link_.handler(recvInProgress_, error);
-					recvInProgress_ = nullptr;
-					receiveOne();
+					link_.handleMessage(recvInProgress_);
+					recvInProgress_ = NULL;
+					startReceive();
 				}
 			}
 		} else {
-			link_.handler(nullptr, error);
+			link_.handleError(error);
 		}
 	}
 
 	void bodyComplete(const boost::system::error_code &error)
 	{
 		if (!error) {
-			link_.handler(recvInProgress_, error);
-			recvInProgress_ = nullptr;
-	    	boost::asio::async_read(link_.socket(),
-	    		boost::asio::buffer(&recvHeader_, sizeof(device::MessageHeader)),
-	    		boost::bind(&ASIOImpl::headerComplete, this,
-	    		boost::asio::placeholders::error));
+			link_.handleMessage(recvInProgress_);
+			recvInProgress_ = NULL;
+            startReceive();
 		} else {
-			link_.handler(nullptr, error);
+			link_.handleError(error);
 		}
 	}
 
 	void sendComplete(const boost::system::error_code &error)
 	{
-		if (sendInProgress_ != nullptr) {
+		if (sendInProgress_ != NULL) {
 			delete sendInProgress_;
-			sendInProgress_ = nullptr;
+			sendInProgress_ = NULL;
 		}
 
 		if (!error) {
-			startSending();
+			startSend();
 		} else {
-			link_.handler(nullptr, error);
+			link_.handleError(error);
 		}
 	}
 
 };
-
-}}
 
 #endif

@@ -26,11 +26,13 @@ set (DEVICE_SIM_DIR ${CMAKE_SOURCE_DIR}/stepper/device/sim)
 set (SIM_SRC
   ${DEVICE_COMMON_DIR}/Engine.cpp
   ${DEVICE_COMMON_DIR}/Line.cpp
+  ${DEVICE_COMMON_DIR}/Message.cpp
+  ${DEVICE_COMMON_DIR}/Receiver.cpp
   ${DEVICE_COMMON_DIR}/Stepper.cpp
-  SimComm.cpp
+  Communicator.cpp
+  Device.cpp
   SimStepper.cpp
   Machine.cpp
-  Platform.cpp
 )
 
 # headers

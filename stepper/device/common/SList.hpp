@@ -22,25 +22,25 @@ namespace detail {
 }
 
 /**
- * Derive from this publicly to support SList.
+ * Derive from this publicly to support BaseSList.
  */
 template <typename Tag=detail::default_tag>
-class SListHook
+class SListBaseHook
 {
 public:
-    SListHook() : next_(NULL) {}
-    ~SListHook() { assert(!isLinked()); }
+    SListBaseHook() : next_(NULL) {}
+    ~SListBaseHook() { assert(!isLinked()); }
 
-    SListHook(const SListHook &cpy) : next_(NULL) {}
-    SListHook &operator=(const SListHook &cpy) { return *this; }
+    SListBaseHook(const SListBaseHook &cpy) : next_(NULL) {}
+    SListBaseHook &operator=(const SListBaseHook &cpy) { return *this; }
 
     bool isLinked() const { return next_ != NULL; }
 
-    SListHook<Tag> *nextOf() const { return next_; }
-    void nextOf(SListHook<Tag> *next) { next_ = next; }
+    SListBaseHook<Tag> *nextOf() const { return next_; }
+    void nextOf(SListBaseHook<Tag> *next) { next_ = next; }
 
 private:
-    SListHook<Tag> *next_;
+    SListBaseHook<Tag> *next_;
 };
     
 /**
@@ -48,11 +48,11 @@ private:
 * Safe mode linking.
 * See boost::intrusive::slist for details.
 */
-template <class T, class hook_type=SListHook<> >
-class SList {
+template <class T, class hook_type=SListBaseHook<> >
+class BaseSList {
 public:
-    SList() : tail_(NULL), size_(0) {}
-    ~SList() { assert(empty()); }
+    BaseSList() : tail_(NULL), size_(0) {}
+    ~BaseSList() { assert(empty()); }
 
     bool empty() const { return tail_ == NULL; }
     size_t size() const { return size_; }
@@ -126,6 +126,114 @@ private:
         tail_->nextOf(&node);
     }
 };
+
+
+/**
+ * Add this as a public member to support MemberSList.
+ */
+class SListMemberHook
+{
+public:
+    SListMemberHook() : next_(NULL) {}
+    ~SListMemberHook() { assert(!isLinked()); }
+
+    SListMemberHook(const SListMemberHook &cpy) : next_(NULL) {}
+    SListMemberHook &operator=(const SListMemberHook &cpy) { return *this; }
+
+    bool isLinked() const { return next_ != NULL; }
+
+    void *nextOf() { return next_; }
+    void nextOf(void *next) { next_ = next; }
+
+private:
+    void *next_;
+};
+    
+/**
+* Intrusive singly linked list supporting constant time size and push_back.
+* Safe mode linking.
+* See boost::intrusive::slist for details.
+*/
+template <class T, SListMemberHook T::*hook_member_ptr >
+class MemberSList {
+public:
+    MemberSList() : tail_(NULL), size_(0) {}
+    ~MemberSList() { assert(empty()); }
+
+    SListMemberHook &hook(T &node) { return node.*hook_member_ptr; }
+    T *nextOf(T &node) {
+        SListMemberHook &h = hook(node);
+        return reinterpret_cast<T*>(h.nextOf());
+    }
+    void nextOf(T &node, T *nextVal) {
+        SListMemberHook &h = hook(node);
+        h.nextOf(nextVal);
+    }
+    bool isLinked(T &node) { return hook(node).isLinked(); }
+
+    bool empty() const { return tail_ == NULL; }
+    size_t size() const { return size_; }
+
+    void clear() {
+        while (!empty()) { popFront(); }
+    }
+
+    void pushFront(T &node) {
+        assert(!isLinked(node));
+        if (empty()) {
+            tail_ = &node;
+            nextOf(node, &node);
+        } else {
+            pushTail(node);
+        }
+        ++size_;
+    }
+
+    void pushBack(T &node) {
+        assert(!isLinked(node));
+        if (empty()) {
+            tail_ = &node;
+            nextOf(node, &node);
+        } else {
+            pushTail(node);
+            tail_ = nextOf(*tail_);
+        }
+        ++size_;
+    }
+
+    T &popFront() {
+        assert(!empty());
+        T *r = nextOf(*tail_);
+        if (tail_ == r) {
+            tail_ = NULL;
+        } else {
+            nextOf(*tail_, nextOf(*r));
+        }
+        nextOf(*r, NULL);
+        --size_;
+        return *r;
+    }
+
+    T &front() {
+        assert(!empty());
+        return *nextOf(*tail_);
+    }
+
+    T &back() {
+        assert(!empty());
+        return *tail_;
+    }
+
+private:
+    T *tail_;
+    size_t size_;
+
+    void pushTail(T &node) {
+        nextOf(node, nextOf(*tail_));
+        nextOf(*tail_, &node);
+    }
+};
+
 
 }}
 
