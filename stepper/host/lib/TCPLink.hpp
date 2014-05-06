@@ -37,7 +37,16 @@ public:
 	virtual ~TCPLink();
 
 	void send(Message *mb);
-	Message *receive() { return rxQueue_.pop(); }
+
+	Message *receive() {
+		Message *ret = nullptr;
+		if (!rxList_.empty()) {
+			boost::lock_guard<boost::mutex> guard(mtx_);
+			ret = rxList_.front();
+			rxList_.pop_front();
+		}
+		return ret;
+	}
 
 	bool connected() const { return connected_; }
 
@@ -63,15 +72,18 @@ private:
 
 	boost::asio::ip::tcp::socket &socket() { return socket_; }
 	boost::asio::io_service &ios() { return ios_; }
-	void handler(Message *msg, const boost::system::error_code &error);
+	void handleMessage(Message *message);
+	void handleError(const boost::system::error_code &error);
+
 	Message *popTx() {
 		Message *ret = nullptr;
 		if (!txList_.empty()) {
-			boost::lock_guard<mutex> guard(mtx_);
+			boost::lock_guard<boost::mutex> guard(mtx_);
 			ret = txList_.front();
 			txList_.pop_front();
 		}
 		return ret;
+	}
 };
 
 }

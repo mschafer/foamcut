@@ -14,8 +14,7 @@
 
 #include <deque>
 #include <StepDir.hpp>
-#include <Dictionary.hpp>
-#include "HostMessageAllocator.hpp"
+#include "HostMessages.hpp"
 
 namespace stepper {
 
@@ -27,8 +26,6 @@ namespace stepper {
 class Script
 {
 public:
-	typedef device::DataScriptMsg<HostMessageAllocator> DataMsg_type;
-
 	Script();
 	~Script();
 
@@ -50,7 +47,7 @@ public:
 	 */
 	void addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double time);
 
-	void fillNextMessage(DataMsg_type &sm);
+	void fillNextMessage(DataScriptMsg &sm);
 
 private:
 	std::deque<uint8_t> bytes_;

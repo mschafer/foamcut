@@ -11,7 +11,7 @@ TCPLink::TCPLink(const char *hostName, uint16_t port) :
     std::ostringstream oss;
     oss << port;
     portStr_ = oss.str();
-	impl_.reset(new device::ASIOImpl<TCPLink>(*this));
+	impl_.reset(new ASIOImpl<TCPLink>(*this));
     thread_.reset(new boost::thread(boost::bind(&TCPLink::run, this)));
 }
 
@@ -29,10 +29,10 @@ TCPLink::~TCPLink()
 void TCPLink::send(Message *mb)
 {
 	{
-		boost::lock_guard<boost::mutex> guard_;
-		txQueue_.push_back(mb);
+		boost::lock_guard<boost::mutex> guard(mtx_);
+		txList_.push_back(mb);
 	}
-	link_->startSending();
+	impl_->startSend();
 }
 
 void TCPLink::run()
@@ -47,7 +47,7 @@ void TCPLink::run()
             if (error || it == tcp::resolver::iterator()) {
             	throw std::runtime_error("TCPLink : resolve failed");
             } else {
-            	impl_.reset(new device::ASIOImpl<TCPLink>(*this));
+            	impl_.reset(new ASIOImpl<TCPLink>(*this));
                 boost::asio::async_connect(socket_, it,
                 boost::bind(&TCPLink::connectComplete, this,
 	            boost::asio::placeholders::error));
@@ -69,20 +69,24 @@ void TCPLink::run()
     }
 }
 
-void TCPLink::handler(HostMessage *msg, const boost::system::error_code &error)
+void TCPLink::handleError(const boost::system::error_code &error)
 {
-	if (msg != nullptr) {
-		rxQueue_.push(msg);
-		impl_->receiveOne();
-	}
+    connected_ = false;
+    socket_.close();
+    /// \todo Application::connectionChanged(false);
+    impl_->reset();
+}
 
-	if (error) {
-		connected_ = false;
-		socket_.close();
-		ios_.stop();
-		///\todo indicate error
-    	std::cout << "TCPLink error " << error.message() << std::endl;
-	}
+void TCPLink::handleMessage(Message *message)
+{
+    if (message->id() == COMMUNICATOR_ID) {
+    	///\todo
+        message = NULL;
+    } else {
+        /// \todo Application::dispatch(message);
+        message = NULL;
+    }
+    if (message != NULL) delete message;
 }
 
 void TCPLink::connectComplete(const boost::system::error_code &error)
@@ -90,8 +94,7 @@ void TCPLink::connectComplete(const boost::system::error_code &error)
 	if (!error) {
     	std::cout << "connect complete" << std::endl;
 		connected_ = true;
-		impl_->receiveOne();
-        ios_.post(boost::bind(&device::ASIOImpl<TCPLink>::startSending, impl_.get()));
+		impl_->startReceive();
 	} else {
 		// run loop will keep trying
 	}
