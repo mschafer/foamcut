@@ -10,31 +10,33 @@
  *     Marc Schafer
  */
 
-#ifndef stepper_device_DeviceMessages_hpp
-#define stepper_device_DeviceMessages_hpp
+#ifndef stepper_HostMessages_hpp
+#define stepper_HostMessages_hpp
 
 
 /** \file
- * This file defines the Message class and dictionary for the target.
+ * This file defines the Message class and dictionary for the host.
  * Include this file instead of Message.hpp or Dictionary.hpp
  */
 
 #include <new>
+#include <list>
 #include <assert.h>
 #include <stdint.h>
-#include "SList.hpp"
 #include "StatusFlags.hpp"
 
-namespace stepper { namespace device {
+namespace stepper {
 
-typedef SListMemberHook IntrusiveContainerMemberHook;
+struct EmptyHook {};
+
+typedef EmptyHook IntrusiveContainerMemberHook;
 
 #include "Message.hpp"
 #include "CommDictionary.hpp"
 #include "StepperDictionary.hpp"
 
-typedef MemberSList<Message, &Message::ctrMemberHook_> MessageList;
+typedef std::list<Message*> MessageList;
 
-}}
+}
 
 #endif

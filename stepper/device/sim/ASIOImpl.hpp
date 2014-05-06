@@ -37,6 +37,7 @@ public:
 	ASIOImpl(link_type &link) : link_(link),
         recvInProgress_(NULL), sendInProgress_(NULL)
 	{
+		sending_.clear();
 	}
 
 	~ASIOImpl() {}
@@ -48,18 +49,20 @@ public:
     		boost::asio::placeholders::error));
 	}
 
-    bool sending() const { return sendInProgress_ != NULL; }
-
 	void startSend()
 	{
-		if (sendInProgress_ == NULL) {
-            sendInProgress_ = link_.popSendQueue();
-			if (sendInProgress_ != NULL) {
-				boost::asio::async_write(link_.socket(),
+		if (sending_.test_and_set()) {
+			return;
+		}
+		assert(sendInProgress_ == NULL);
+		sendInProgress_ = link_.popSendQueue();
+		if (sendInProgress_ != NULL) {
+			boost::asio::async_write(link_.socket(),
 					boost::asio::buffer(sendInProgress_->transmitStart(), sendInProgress_->transmitSize()),
 					boost::bind(&ASIOImpl::sendComplete, this,
 					boost::asio::placeholders::error));
-			}
+		} else {
+			sending_.clear();
 		}
 	}
 
@@ -83,6 +86,7 @@ public:
 private:
 	link_type &link_;
 
+	std::atomic_flag sending_;
     Message *recvInProgress_;
 	Message *sendInProgress_;
 	std::auto_ptr<boost::asio::deadline_timer> oomTimer;
@@ -133,6 +137,7 @@ private:
 			delete sendInProgress_;
 			sendInProgress_ = NULL;
 		}
+		sending_.clear();
 
 		if (!error) {
 			startSend();

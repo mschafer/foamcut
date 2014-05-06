@@ -28,7 +28,6 @@ BOOST_AUTO_TEST_CASE( sim_ping_test )
 	using namespace stepper;
 	using namespace stepper::device;
 
-
 	Host host;
 
 	BOOST_CHECK(host.connectToSimulator());

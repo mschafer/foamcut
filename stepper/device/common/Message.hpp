@@ -95,7 +95,7 @@ public:
 	/** Amount of memory to get from MemoryAllocator for a given payload size. */
 	static uint16_t memoryNeeded(uint16_t payloadSize) { return sizeof(Message) + payloadSize; }
 
-    SListMemberHook slistMemberHook_;
+    IntrusiveContainerMemberHook ctrMemberHook_;
 
     // reserve memory for header and preserve alignment for payload
     // header_ may not actually contain the header!

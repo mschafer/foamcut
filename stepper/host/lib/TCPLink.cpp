@@ -2,6 +2,9 @@
 
 namespace stepper {
 
+#include <ASIOImpl.hpp>
+
+
 TCPLink::TCPLink(const char *hostName, uint16_t port) :
 	hostName_(hostName), socket_(ios_), running_(true), connected_(false)
 {
@@ -23,10 +26,13 @@ TCPLink::~TCPLink()
 	}
 }
 
-void TCPLink::send(HostMessage *mb)
+void TCPLink::send(Message *mb)
 {
-	txQueue_.push(mb);
-    ios_.post(boost::bind(&device::ASIOImpl<TCPLink>::startSending, impl_.get()));
+	{
+		boost::lock_guard<boost::mutex> guard_;
+		txQueue_.push_back(mb);
+	}
+	link_->startSending();
 }
 
 void TCPLink::run()

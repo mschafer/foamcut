@@ -18,11 +18,13 @@ find_package( Boost REQUIRED COMPONENTS
   system thread date_time chrono
 )
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+IF (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set (QT_PREFIX_PATH "C:/Qt/Qt5.2.0/5.2.0/msvc2012_64_opengl/lib/cmake")
   set (WINSDK_LIB_PATH "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64")
   set (CMAKE_PREFIX_PATH ${QT_PREFIX_PATH} ${WINSDK_LIB_PATH})
-ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows") 
+ELSE (${CMAKE_SYSTEM_NAME} MATCHES "Windows") 
+  set (CMAKE_PREFIX_PATH /Users/mschafer/Qt5.2.1/5.2.1/clang_64/lib/cmake)
+ENDIF (${CMAKE_SYSTEM_NAME} MATCHES "Windows") 
 
 # todo find a better way to do this
 #if (WIN32)

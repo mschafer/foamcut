@@ -16,11 +16,11 @@
 #include <memory>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
-#include "HostMessageAllocator.hpp"
-#include <MessageQueue.hpp>
-#include <ASIOImpl.hpp>
+#include "HostMessages.hpp"
 
 namespace stepper {
+
+template <typename link_type> class ASIOImpl;
 
 /**
  * TCP/IP host link to the device.
@@ -28,8 +28,6 @@ namespace stepper {
 class TCPLink
 {
 public:
-	typedef device::Message<HostMessageAllocator> HostMessage;
-	typedef HostMessage Message_type;
 
 	enum {
 		TRY_CONNECT_TIMEOUT = 500
@@ -38,35 +36,42 @@ public:
 	TCPLink(const char *hostName, uint16_t port);
 	virtual ~TCPLink();
 
-	void send(HostMessage *mb);
-	HostMessage *receive() { return rxQueue_.pop(); }
+	void send(Message *mb);
+	Message *receive() { return rxQueue_.pop(); }
 
 	bool connected() const { return connected_; }
 
 private:
-	friend class device::ASIOImpl<TCPLink>;
+	friend class ASIOImpl<TCPLink>;
     std::string hostName_;
     std::string portStr_;
 
     boost::asio::io_service ios_;
     boost::asio::ip::tcp::socket socket_;
     std::unique_ptr<boost::thread> thread_;
+    boost::mutex mtx_;
     std::atomic<bool> running_;
     std::atomic<bool> connected_;
 
-    uint8_t messageBlock_[1048576];
-	device::MessageQueue<HostMessageAllocator> rxQueue_;
-	device::MessageQueue<HostMessageAllocator> txQueue_;
+    MessageList txList_;
+    MessageList rxList_;
 
-    std::unique_ptr<device::ASIOImpl<TCPLink> > impl_;
+    std::unique_ptr<ASIOImpl<TCPLink> > impl_;
 
     void run();
     void connectComplete(const boost::system::error_code &error);
 
 	boost::asio::ip::tcp::socket &socket() { return socket_; }
 	boost::asio::io_service &ios() { return ios_; }
-	void handler(HostMessage *msg, const boost::system::error_code &error);
-	HostMessage *popTx() { return txQueue_.pop(); }
+	void handler(Message *msg, const boost::system::error_code &error);
+	Message *popTx() {
+		Message *ret = nullptr;
+		if (!txList_.empty()) {
+			boost::lock_guard<mutex> guard(mtx_);
+			ret = txList_.front();
+			txList_.pop_front();
+		}
+		return ret;
 };
 
 }

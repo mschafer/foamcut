@@ -89,9 +89,7 @@ void Communicator::acceptComplete(const boost::system::error_code &error)
 bool Communicator::sendMessage(Message *message, Priority priority)
 {
     bool ret = pushSendQueue(message, priority);
-    if ( ret && !impl_->sending()) {
-        ios_.post(boost::bind(&ASIOImpl<Communicator>::startSend, impl_.get()));
-    }
+    impl_->startSend();
     if (!ret) {
     	getStatusFlags().set(StatusFlags::COMM_SEND_FAILED);
     }
