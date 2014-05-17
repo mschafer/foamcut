@@ -71,11 +71,11 @@ Script::addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double time)
 }
 
 void
-Script::fillNextMessage(DataScriptMsg &sm)
+Script::fillNextMessage(device::DataScriptMsg &sm)
 {
 	auto endIt = msgIt_;
-	if (DataScriptMsg::PAYLOAD_SIZE < bytes_.end() - msgIt_) {
-		endIt += DataScriptMsg::PAYLOAD_SIZE;
+	if (device::DataScriptMsg::PAYLOAD_SIZE < bytes_.end() - msgIt_) {
+		endIt += device::DataScriptMsg::PAYLOAD_SIZE;
 	} else {
 		endIt = bytes_.end();
 	}

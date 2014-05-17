@@ -9,8 +9,8 @@
  * Contributors:
  *     Marc Schafer
  */
-#include "DeviceMessages.hpp"
-#include "MemoryAllocator.hpp"
+#include <Message.hpp>
+#include <MemoryAllocator.hpp>
 #include "IDevice.hpp"
 
 namespace stepper { namespace device {

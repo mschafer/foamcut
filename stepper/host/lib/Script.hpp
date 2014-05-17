@@ -14,7 +14,7 @@
 
 #include <deque>
 #include <StepDir.hpp>
-#include "HostMessages.hpp"
+#include <StepperDictionary.hpp>
 
 namespace stepper {
 
@@ -47,7 +47,7 @@ public:
 	 */
 	void addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double time);
 
-	void fillNextMessage(DataScriptMsg &sm);
+	void fillNextMessage(device::DataScriptMsg &sm);
 
 private:
 	std::deque<uint8_t> bytes_;

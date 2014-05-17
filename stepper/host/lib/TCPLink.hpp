@@ -16,7 +16,7 @@
 #include <memory>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
-#include "HostMessages.hpp"
+#include <Message.hpp>
 
 namespace stepper {
 
@@ -36,10 +36,10 @@ public:
 	TCPLink(const char *hostName, uint16_t port);
 	virtual ~TCPLink();
 
-	void send(Message *mb);
+	void send(device::Message *mb);
 
 	Message *receive() {
-		Message *ret = nullptr;
+		device::Message *ret = nullptr;
 		if (!rxList_.empty()) {
 			boost::lock_guard<boost::mutex> guard(mtx_);
 			ret = rxList_.front();
@@ -72,11 +72,11 @@ private:
 
 	boost::asio::ip::tcp::socket &socket() { return socket_; }
 	boost::asio::io_service &ios() { return ios_; }
-	void handleMessage(Message *message);
+	void handleMessage(device::Message *message);
 	void handleError(const boost::system::error_code &error);
 
-	Message *popTx() {
-		Message *ret = nullptr;
+	device::Message *popTx() {
+		device::Message *ret = nullptr;
 		if (!txList_.empty()) {
 			boost::lock_guard<boost::mutex> guard(mtx_);
 			ret = txList_.front();

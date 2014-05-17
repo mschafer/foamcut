@@ -9,13 +9,9 @@
  * Contributors:
  *     Marc Schafer
  */
+#include <Message.hpp>
 
-/** \file
- * DO NOT DIRECTLY INCLUDE THIS FILE!
- * This file contains definitions for the messages exchanged between host and device.
- * It is meant to be shared between host and device and should be included inside
- * another namespace like \sa Message.hpp.
- */
+namespace stepper { namespace device {
 
 enum {
 	GO_MSG,
@@ -148,3 +144,5 @@ struct DataScriptMsg : Message
 
 	uint8_t scriptData_[PAYLOAD_SIZE];
 };
+
+}}

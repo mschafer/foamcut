@@ -16,7 +16,7 @@
 #include "SList.hpp"
 #include "StepDir.hpp"
 #include "Line.hpp"
-#include "DeviceMessages.hpp"
+#include <StepperDictionary.hpp>
 
 namespace stepper { namespace device {
 

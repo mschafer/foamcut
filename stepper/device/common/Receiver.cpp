@@ -10,7 +10,7 @@
  *     Marc Schafer
  */
 #include "Receiver.hpp"
-#include "DeviceMessages.hpp"
+#include "Message.hpp"
 #include "IDevice.hpp"
 
 namespace stepper { namespace device {

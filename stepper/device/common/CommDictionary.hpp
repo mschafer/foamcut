@@ -10,12 +10,9 @@
  *     Marc Schafer
  */
 
-/** \file
- * DO NOT DIRECTLY INCLUDE THIS FILE!
- * This file contains definitions for the messages exchanged between Communicators.
- * It is meant to be shared between host and device and should be included inside
- * another namespace like \sa Message.hpp.
- */
+#include <Message.hpp>
+
+namespace stepper { namespace device {
  
 enum {
     PING_MSG,
@@ -117,7 +114,7 @@ class HeartbeatResponseMsg : public Message
 public:
     enum {
         FUNCTION = HEARTBEAT_RESPONSE_MSG,
-        PAYLOAD_SIZE = sizeof(stepper::device::StatusFlags)
+        PAYLOAD_SIZE = sizeof(StatusFlags)
     };
 
     HeartbeatResponseMsg() {
@@ -126,7 +123,7 @@ public:
     	function(FUNCTION);
     }
 
-    stepper::device::StatusFlags statusFlags_;
+    StatusFlags statusFlags_;
 };
 
 /**
@@ -233,3 +230,5 @@ public:
     // make this message same size as response for buffer reuse.
     uint8_t pad_;
 };
+
+}}

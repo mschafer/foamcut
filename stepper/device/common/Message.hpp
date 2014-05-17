@@ -9,30 +9,17 @@
  * Contributors:
  *     Marc Schafer
  */
+#ifndef stepper_device_Message_hpp
+#define stepper_device_Message_hpp
 
-/** \file
- * DO NOT DIRECTLY INCLUDE THIS FILE!
- * This file defines the base Message class and MessageHeader in the shared
- * namespace so the interface can be shared between host and device.
- * This file should be included inside another namespace with implementations for
- * non-inlined methods so that the behavior can be different between host and device.
- * Specifically, the host should not use the target MemoryAllocator for allocation when
- * both host and device are running in the same process, i.e. unit tests.
- */
+#include <MessageStorage.hpp>
+#include <stdint.h>
+#include <assert.h>
+#include <new>
 
-struct MessageHeader
-{
-    /** Size of payload in bytes does not include header. */
-	uint16_t payloadSize_;
+namespace stepper { namespace device {
 
-    /** Id of the sending Instrumentation App. */
-	uint8_t id_;
-
-    /** For use by the Instrumentation App. */
-	uint8_t function_;
-};
-
-class Message
+class Message : public MessageStorage
 {
 public:
     Message() {}
@@ -95,16 +82,6 @@ public:
 	/** Amount of memory to get from MemoryAllocator for a given payload size. */
 	static uint16_t memoryNeeded(uint16_t payloadSize) { return sizeof(Message) + payloadSize; }
 
-    IntrusiveContainerMemberHook ctrMemberHook_;
-
-    // reserve memory for header and preserve alignment for payload
-    // header_ may not actually contain the header!
-    // public only for storage layout, do not access directly
-    union {
-	    uint8_t reserved_[sizeof(void*)];
-        MessageHeader fauxHeader_;
-    };
-
 private:
     /** Allocating arrays of Message is not allowed. */
     void* operator new[] (std::size_t size);
@@ -114,3 +91,8 @@ private:
     void* operator new[] (std::size_t size, void* ptr) throw();
     void operator delete[] (void* ptr, void* voidptr2) throw();
 };
+
+
+}}
+
+#endif
