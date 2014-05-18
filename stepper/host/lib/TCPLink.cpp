@@ -26,7 +26,7 @@ TCPLink::~TCPLink()
 	}
 }
 
-void TCPLink::send(Message *mb)
+void TCPLink::send(device::Message *mb)
 {
 	{
 		boost::lock_guard<boost::mutex> guard(mtx_);

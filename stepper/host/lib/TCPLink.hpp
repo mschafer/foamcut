@@ -38,7 +38,7 @@ public:
 
 	void send(device::Message *mb);
 
-	Message *receive() {
+	device::Message *receive() {
 		device::Message *ret = nullptr;
 		if (!rxList_.empty()) {
 			boost::lock_guard<boost::mutex> guard(mtx_);
@@ -62,8 +62,8 @@ private:
     std::atomic<bool> running_;
     std::atomic<bool> connected_;
 
-    MessageList txList_;
-    MessageList rxList_;
+    device::MessageList txList_;
+    device::MessageList rxList_;
 
     std::unique_ptr<ASIOImpl<TCPLink> > impl_;
 

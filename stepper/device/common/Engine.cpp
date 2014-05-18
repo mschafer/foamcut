@@ -37,15 +37,15 @@ Engine::Status Engine::operator()()
 
 bool Engine::getNextByte(uint8_t &byte)
 {
-	if (list_.empty()) {
+	if (messages_.empty()) {
 		return false;
 	}
 
-	Message &msg = list_.front();
-	byte = msg.payload()[msgOffset_++];
-	if (msgOffset_ == msg.payloadSize()) {
-		Message &done = list_.popFront();
-		delete &done;
+	Message *msg = messages_.front();
+	byte = msg->payload()[msgOffset_++];
+	if (msgOffset_ == msg->payloadSize()) {
+		messages_.pop();
+		delete msg;
 		msgOffset_ = 0;
 	}
 	return true;
@@ -127,8 +127,9 @@ Engine::Status Engine::parseNextCommand()
 
 void Engine::init()
 {
-	while (!list_.empty()) {
-		delete (&(list_.popFront()));
+	while (!messages_.empty()) {
+		delete (messages_.front());
+		messages_.pop();
 	}
 
 	steps_.clear();

@@ -91,16 +91,23 @@ public:
 	~Engine() {}
 
 	/** Add a script message to the queue waiting to be processed. */
-	void addScriptMessage(Message *m) { list_.pushBack(*m); }
+	void addScriptMessage(Message *m) {
+		assert(!messages_.full());
+		messages_.push(m);
+	}
 
-	/** \return Number of messages in the queue. */
-	size_t queueSize() const { return list_.size(); }
+	///\todo flow control on messages in buffer
 
 	/**
 	 * Get the next StepDir to be executed.
 	 * \return true on success, false on underflow.
 	 */
-	bool nextStep(Line::NextStep &out) { return steps_.pop(out); }
+	bool nextStep(Line::NextStep &out) {
+		if (steps_.empty()) return false;
+		out = steps_.front();
+		steps_.pop();
+		return true;
+	}
 
 	/**
 	 * Parse enqueued instructions and generates StepDir commands
@@ -114,7 +121,7 @@ public:
 
 
 private:
-	MessageList list_;
+	RingBuffer<Message*, 16> messages_;
 	RingBuffer<Line::NextStep, 8> steps_;
 	Line line_;
 	uint16_t msgOffset_;

@@ -12,14 +12,27 @@
 #ifndef stepper_device_Message_hpp
 #define stepper_device_Message_hpp
 
-#include <MessageStorage.hpp>
 #include <stdint.h>
 #include <assert.h>
 #include <new>
 
 namespace stepper { namespace device {
 
-class Message : public MessageStorage
+struct MessageHeader
+{
+    /**
+     * Size of payload in bytes does not include header.
+     * Always little endian.
+     */
+	uint16_t payloadSize_;
+
+	uint8_t id_;
+
+	uint8_t function_;
+};
+
+
+class Message
 {
 public:
     Message() {}
@@ -82,6 +95,12 @@ public:
 	/** Amount of memory to get from MemoryAllocator for a given payload size. */
 	static uint16_t memoryNeeded(uint16_t payloadSize) { return sizeof(Message) + payloadSize; }
 
+    union {
+    	void *align_;
+	    uint8_t reserved_[sizeof(void*)];
+        MessageHeader fauxHeader_;
+    };
+
 private:
     /** Allocating arrays of Message is not allowed. */
     void* operator new[] (std::size_t size);
@@ -91,7 +110,6 @@ private:
     void* operator new[] (std::size_t size, void* ptr) throw();
     void operator delete[] (void* ptr, void* voidptr2) throw();
 };
-
 
 }}
 

@@ -139,7 +139,7 @@ public:
         PAYLOAD_SIZE = 2 * sizeof(uint16_t)
     };
 
-    InTestStartMsg() {
+    InTestStartMsg() : testMsgCount_(0), testMsgSize_(0) {
     	payloadSize(PAYLOAD_SIZE);
     	id(COMMUNICATOR_ID);
     	function(FUNCTION);
@@ -178,7 +178,7 @@ public:
         PAYLOAD_SIZE = 2 * sizeof(uint16_t)
     };
 
-    OutTestStartMsg() {
+    OutTestStartMsg() : testMsgCount_(0), testMsgSize_(0) {
     	payloadSize(PAYLOAD_SIZE);
     	id(COMMUNICATOR_ID);
     	function(FUNCTION);
@@ -221,7 +221,7 @@ public:
         PAYLOAD_SIZE = 1
     };
 
-    TestConcludedMsg() {
+    TestConcludedMsg() : pad_(0) {
     	payloadSize(PAYLOAD_SIZE);
     	id(COMMUNICATOR_ID);
     	function(FUNCTION);

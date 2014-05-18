@@ -28,8 +28,7 @@ public:
 	}
 
 	bool full() const {
-		return ( head_+1 == tail_ || 
-				(tail_ == 0 && head_ == N-1));
+		return ( head_+1 == tail_ || (tail_ == 0 && head_ == N-1));
 	}
 
 	void clear() {
@@ -48,41 +47,31 @@ public:
 	uint16_t space() const {
 		return N - count() - 1;
 	}
-	
-	bool push(const T &val) {
-		if (full()) return false;
+
+	/**
+	 * Write a new value into the RingBuffer.
+	 * This method will overwrite the oldest data if the RingBuffer is full.
+	 */
+	void push(const T &val) {
 		buff_[head_] = val;
 		increment(head_);
-		return true;
 	}
 	
-	///\todo optimize with contiguous memcpy's
-	bool push(const T *vals, uint16_t count) {
-		if (space() < count) return false;
-		uint16_t i = 0;
-		for (uint16_t i=0; i<count; ++i) {
-			push(vals[i]);
-		}
-		return true;
-	}
-	
-	bool pop(T &out) {
-		if (empty()) return false;
-		out = buff_[tail_];
+	/**
+	 * Removes the oldest element.
+	 * It is an error or bug to call this on an empty RingBuffer.
+	 */
+	void pop() {
 		increment(tail_);
-		return true;
+	}
+	
+	/**
+	 * Returns the oldest element.
+	 */
+	T front() {
+		return buff_[tail_];
 	}
 
-	///\todo optimize with contiguous memcpy's
-	bool pop(T *vals, uint16_t numVals) {
-		if (count() < numVals) return false;
-		uint16_t i = 0;
-		for (uint16_t i=0; i<numVals; ++i) {
-			pop(vals[i]);
-		}
-		return true;
-	}
-	
 private:
 	void increment(uint16_t &idx) {
 		uint16_t i = idx+1;
