@@ -84,7 +84,7 @@ private:
 	Stepper &operator=(const Stepper &rhs);
 
 #if __cplusplus >= 201103L
-	static_assert(sizeof(Message) == 2*sizeof(void*),"Message layout is incorrect");
+	static_assert((sizeof(Message) % sizeof(void*)) == 0,"Message layout is incorrect");
 #endif
 
 };

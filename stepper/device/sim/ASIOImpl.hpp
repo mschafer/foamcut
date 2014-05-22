@@ -44,7 +44,7 @@ public:
 
 	void startReceive() {
     	boost::asio::async_read(link_.socket(),
-    		boost::asio::buffer(&recvHeader_, sizeof(MessageHeader)),
+    		boost::asio::buffer(&recvHeader_, sizeof(device::MessageHeader)),
     		boost::bind(&ASIOImpl::headerComplete, this,
     		boost::asio::placeholders::error));
 	}
@@ -68,7 +68,7 @@ public:
 
     void reset()
     {
-        Message *m;
+        device::Message *m;
         while((m = link_.popSendQueue()) != NULL) {
             delete m;
         }
@@ -87,17 +87,17 @@ private:
 	link_type &link_;
 
 	std::atomic_flag sending_;
-    Message *recvInProgress_;
-	Message *sendInProgress_;
+    device::Message *recvInProgress_;
+	device::Message *sendInProgress_;
 	std::auto_ptr<boost::asio::deadline_timer> oomTimer;
-	MessageHeader recvHeader_;
+	device::MessageHeader recvHeader_;
 
 
 	void headerComplete(const boost::system::error_code &error)
 	{
 		if (!error) {
 			uint16_t s = recvHeader_.payloadSize_;
-            recvInProgress_ = Message::alloc(s);
+            recvInProgress_ = device::Message::alloc(s);
 			if (recvInProgress_ == NULL) {
 				oomTimer.reset(new boost::asio::deadline_timer(link_.ios(), boost::posix_time::milliseconds(OUT_OF_MEM_WAIT)));
 		        oomTimer->async_wait(boost::bind(&ASIOImpl::headerComplete, this, error));

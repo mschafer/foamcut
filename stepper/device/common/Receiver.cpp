@@ -12,6 +12,7 @@
 #include "Receiver.hpp"
 #include "Message.hpp"
 #include "IDevice.hpp"
+#include "StatusFlags.hpp"
 
 namespace stepper { namespace device {
 

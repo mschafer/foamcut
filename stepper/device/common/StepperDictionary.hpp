@@ -9,6 +9,9 @@
  * Contributors:
  *     Marc Schafer
  */
+#ifndef stepper_device_StepperDictionary_hpp
+#define stepper_device_StepperDictionary_hpp
+
 #include <Message.hpp>
 
 namespace stepper { namespace device {
@@ -146,3 +149,5 @@ struct DataScriptMsg : Message
 };
 
 }}
+
+#endif

@@ -9,8 +9,11 @@
  * Contributors:
  *     Marc Schafer
  */
+#ifndef stepper_device_CommDictionary_hpp
+#define stepper_device_CommDictionary_hpp
 
-#include <Message.hpp>
+#include "Message.hpp"
+#include "StatusFlags.hpp"
 
 namespace stepper { namespace device {
  
@@ -232,3 +235,5 @@ public:
 };
 
 }}
+
+#endif

@@ -52,6 +52,8 @@ public:
 
 private:
 	friend class ASIOImpl<TCPLink>;
+	typedef std::list<device::Message*> MessageList;
+
     std::string hostName_;
     std::string portStr_;
 
@@ -62,8 +64,8 @@ private:
     std::atomic<bool> running_;
     std::atomic<bool> connected_;
 
-    device::MessageList txList_;
-    device::MessageList rxList_;
+    MessageList txList_;
+    MessageList rxList_;
 
     std::unique_ptr<ASIOImpl<TCPLink> > impl_;
 
@@ -75,7 +77,7 @@ private:
 	void handleMessage(device::Message *message);
 	void handleError(const boost::system::error_code &error);
 
-	device::Message *popTx() {
+	device::Message *popSendQueue() {
 		device::Message *ret = nullptr;
 		if (!txList_.empty()) {
 			boost::lock_guard<boost::mutex> guard(mtx_);

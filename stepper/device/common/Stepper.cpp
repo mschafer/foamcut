@@ -11,7 +11,7 @@
  */
 #include <new>
 #include "Stepper.hpp"
-#include "DeviceMessages.hpp"
+#include "StepperDictionary.hpp"
 #include <Communicator.hpp>
 
 namespace stepper { namespace device {

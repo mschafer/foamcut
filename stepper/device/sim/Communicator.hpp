@@ -15,7 +15,6 @@
 #include <stddef.h>
 #include <boost/thread.hpp>
 #include <boost/asio.hpp>
-#include <DeviceMessages.hpp>
 #include "Lock.hpp"
 #include "CommunicatorBase.hpp"
 
@@ -58,6 +57,8 @@ public:
 
 private:
     friend class ASIOImpl<Communicator>;
+	typedef std::list<device::Message*> MessageList;
+
     Lock lock_;
     MessageList hiList_;
     MessageList medList_;

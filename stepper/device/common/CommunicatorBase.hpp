@@ -2,7 +2,7 @@
 #define stepper_device_CommunicatorBase_hpp
 
 #include <stddef.h>
-#include "DeviceMessages.hpp"
+#include "CommDictionary.hpp"
 #include "Lock.hpp"
 #include "IDevice.hpp"
 

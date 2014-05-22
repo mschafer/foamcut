@@ -123,17 +123,17 @@ bool Communicator::pushSendQueue(Message *message, Priority priority)
     switch (priority) {
     case HIGH_PRIORITY:
         if (hiList_.size() >= HIGH_QUEUE_SIZE) return false;
-        hiList_.pushBack(*message);
+        hiList_.push_back(message);
         break;
 
     case MEDIUM_PRIORITY:
         if (medList_.size() >= MEDIUM_QUEUE_SIZE) return false;
-        medList_.pushBack(*message);
+        medList_.push_back(message);
         break;
 
     case LOW_PRIORITY:
         if (lowList_.size() >= LOW_QUEUE_SIZE) return false;
-        lowList_.pushBack(*message);
+        lowList_.push_back(message);
         break;
 
     default:
@@ -145,15 +145,18 @@ bool Communicator::pushSendQueue(Message *message, Priority priority)
 Message *Communicator::popSendQueue()
 {
     LockGuard guard(lock_);
+    Message *ret = NULL;
     if (!hiList_.empty()) {
-        return &hiList_.popFront();
+    	ret = hiList_.front();
+        hiList_.pop_front();
     } else if (!medList_.empty()) {
-        return &medList_.popFront();
+    	ret = medList_.front();
+        medList_.pop_front();
     } else if (!lowList_.empty()) {
-        return &lowList_.popFront();
-    } else {
-        return NULL;
+    	ret = lowList_.front();
+        lowList_.pop_front();
     }
+    return ret;
 }
 
 }}
