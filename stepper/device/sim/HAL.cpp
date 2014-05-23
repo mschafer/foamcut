@@ -11,11 +11,25 @@
  */
 
 #include <HAL.hpp>
+#include "MemoryAllocator.hpp"
+#include "SimCommunicator.hpp"
 
-namespace stepper { namespace device { namespace HAL {
+namespace stepper { namespace device {
+
+MemoryAllocator &MemoryAllocator::instance()
+{
+	static MemoryAllocator ma;
+	return ma;
+}
+
+namespace HAL {
+
+static std::unique_ptr<SimCommunicator> communicator_;
 
 void intialize()
 {
+	communicator_.reset(new SimCommunicator());
+	communicator_->initialize();
 }
 
 void setStepDirBits(const StepDir &s)
@@ -27,7 +41,7 @@ LimitSwitches readLimitSwitches()
 	return LimitSwitches();
 }
 
-Status sendMessage(Message *m)
+Status sendMessage(Message *m, HAL::Priority priority)
 {
 	return SUCCESS;
 }
@@ -44,7 +58,7 @@ void startTimer(uint32_t period)
 
 void reset()
 {
-
+	communicator_.reset();
 }
 
 }}}

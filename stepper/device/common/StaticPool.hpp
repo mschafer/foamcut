@@ -9,23 +9,24 @@
  * Contributors:
  *     Marc Schafer
  */
-#ifndef stepper_device_IDevice_hpp
-#define stepper_device_IDevice_hpp
-
-/** \file This file defines the interfaces to global statics. */
-
-#include <stdint.h>
+#ifndef stepper_device_StaticPool_hpp
+#define stepper_device_StaticPool_hpp
 
 namespace stepper { namespace device {
 
-// forward declaration of target specific types
-class MemoryAllocator;
-class Communicator;
-struct StatusFlags;
+template <uint16_t ChunkSize, size_t ChunkCount>
+class StaticPool
+{
+	void *alloc();
+	void free(void *p);
 
-MemoryAllocator &getMemoryAllocator();
-Communicator &getCommunicator();
-StatusFlags &getStatusFlags();
+	bool contains(void *p) const {
+		return (p >= block_ && p < block_ + sizeof(block_));
+	}
+
+private:
+	uint8_t block_[ChunkSize*ChunkCount];
+};
 
 }}
 

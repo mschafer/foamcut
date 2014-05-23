@@ -9,7 +9,6 @@
  * Contributors:
  *     Marc Schafer
  */
-#include <IDevice.hpp>
 #include <MemoryAllocator.hpp>
 #include "Communicator.hpp"
 

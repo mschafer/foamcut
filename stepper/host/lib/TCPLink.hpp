@@ -16,11 +16,15 @@
 #include <memory>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
+#include <HAL.hpp>
 #include <Message.hpp>
 
 namespace stepper {
 
-template <typename link_type> class ASIOImpl;
+namespace device {
+class ASIOReceiver;
+class ASIOSender;
+}
 
 /**
  * TCP/IP host link to the device.
@@ -36,7 +40,7 @@ public:
 	TCPLink(const char *hostName, uint16_t port);
 	virtual ~TCPLink();
 
-	void send(device::Message *mb);
+	device::HAL::Status send(device::Message *mb);
 
 	device::Message *receive() {
 		device::Message *ret = nullptr;
@@ -48,10 +52,7 @@ public:
 		return ret;
 	}
 
-	bool connected() const { return connected_; }
-
 private:
-	friend class ASIOImpl<TCPLink>;
 	typedef std::list<device::Message*> MessageList;
 
     std::string hostName_;
@@ -61,31 +62,16 @@ private:
     boost::asio::ip::tcp::socket socket_;
     std::unique_ptr<boost::thread> thread_;
     boost::mutex mtx_;
-    std::atomic<bool> running_;
-    std::atomic<bool> connected_;
+    std::unique_ptr<device::ASIOSender> sender_;
+    std::unique_ptr<device::ASIOReceiver> receiver_;
 
-    MessageList txList_;
     MessageList rxList_;
-
-    std::unique_ptr<ASIOImpl<TCPLink> > impl_;
 
     void run();
     void connectComplete(const boost::system::error_code &error);
 
-	boost::asio::ip::tcp::socket &socket() { return socket_; }
-	boost::asio::io_service &ios() { return ios_; }
 	void handleMessage(device::Message *message);
 	void handleError(const boost::system::error_code &error);
-
-	device::Message *popSendQueue() {
-		device::Message *ret = nullptr;
-		if (!txList_.empty()) {
-			boost::lock_guard<boost::mutex> guard(mtx_);
-			ret = txList_.front();
-			txList_.pop_front();
-		}
-		return ret;
-	}
 };
 
 }

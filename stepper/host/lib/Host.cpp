@@ -13,9 +13,6 @@
 #include <boost/chrono.hpp>
 #include "Host.hpp"
 #include "TCPLink.hpp"
-#include <Platform.hpp>
-#include <SimComm.hpp>
-#include <Dictionary.hpp>
 
 namespace stepper {
 
@@ -31,6 +28,7 @@ Host::~Host()
 
 bool Host::connectToSimulator()
 {
+#if 0
 	device::Platform::reset();
 	device::SimComm *comm = reinterpret_cast<device::SimComm*>(&device::Platform::getCommunicator());
 	link_.reset(new TCPLink("localhost", comm->port()));
@@ -54,6 +52,8 @@ bool Host::connectToSimulator()
 		}
 		boost::this_thread::yield();
 	}
+#endif
+
 	return false;
 }
 

@@ -16,7 +16,6 @@
 #include <stdlib.h>
 #include "SList.hpp"
 #include "LockGuard.hpp"
-#include "IDevice.hpp"
 
 namespace stepper { namespace device {
     

@@ -11,13 +11,12 @@
  */
 #include <Message.hpp>
 #include <MemoryAllocator.hpp>
-#include "IDevice.hpp"
 
 namespace stepper { namespace device {
 
 void *Message::operator new(size_t size)
 {
-    MemoryAllocator &ms = getMemoryAllocator();
+    MemoryAllocator &ms = MemoryAllocator::instance();
     void *ret = ms.alloc(size);
     if (ret == NULL) throw std::bad_alloc();
     return ret;
@@ -25,38 +24,38 @@ void *Message::operator new(size_t size)
 
 void Message::operator delete(void *ptr) throw ()
 {
-    MemoryAllocator &ms = getMemoryAllocator();
+    MemoryAllocator &ms = MemoryAllocator::instance();
     ms.free(ptr);
 }
 
 void *Message::operator new(size_t size, const std::nothrow_t &nothrow_value) throw()
 {
-    MemoryAllocator &ms = getMemoryAllocator();
+    MemoryAllocator &ms = MemoryAllocator::instance();
     return ms.alloc(size);
 }
 
 void Message::operator delete (void* ptr, const std::nothrow_t& nothrow_constant) throw()
 {
-    MemoryAllocator &ms = getMemoryAllocator();
+    MemoryAllocator &ms = MemoryAllocator::instance();
     ms.free(ptr);
 }
 
 Message *Message::alloc(uint16_t payloadSize)
 {
-    MemoryAllocator &ms = getMemoryAllocator();
+    MemoryAllocator &ms = MemoryAllocator::instance();
     void *p = ms.alloc(payloadSize + sizeof(Message));
     return new (p) Message;
 }
 
 uint16_t Message::payloadCapacity() const
 {
-    MemoryAllocator &ms = getMemoryAllocator();
+    MemoryAllocator &ms = MemoryAllocator::instance();
     return ms.capacity(this) - sizeof(Message);
 }
 
 uint16_t Message::maxPayloadCapacity()
 {
-    MemoryAllocator &ms = getMemoryAllocator();
+    MemoryAllocator &ms = MemoryAllocator::instance();
     return ms.maxCapacity() - sizeof(Message);
 }
 

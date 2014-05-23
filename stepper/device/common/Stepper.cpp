@@ -12,7 +12,8 @@
 #include <new>
 #include "Stepper.hpp"
 #include "StepperDictionary.hpp"
-#include <Communicator.hpp>
+#include "Device.hpp"
+#include "HAL.hpp"
 
 namespace stepper { namespace device {
 
@@ -30,25 +31,23 @@ Stepper::Stepper() : pause_(false)
 #endif
 }
 
-uint8_t Stepper::id() const
-{
-	return STEPPER_ID;
-}
-
-void Stepper::receiveMessage(Message *msg)
-{
-	handleMessage(*msg);
-}
-
-void Stepper::connected(bool c)
-{
-}
-
 void Stepper::runBackgroundOnce()
 {
-	Communicator &comm = getCommunicator();
-	comm();
+	// handle received messages
+	Message *m = NULL;
+	while ((m = HAL::receiveMessage()) != NULL) {
+		switch (m->id()) {
+		case Device::DEVICE_MESSAGE_ID:
+			Device::instance()(m);
+			break;
+		}
+	}
+
+	// run the engine
 	engine_();
+
+	// run the device
+	Device::instance()(NULL);
 }
 
 void Stepper::onTimerExpired()
@@ -88,7 +87,6 @@ void Stepper::onTimerExpired()
 
 void Stepper::handleMessage(Message &m)
 {
-	Communicator &comm = getCommunicator();
 
 	switch (m.function()) {
 
@@ -126,7 +124,7 @@ void Stepper::handleMessage(Message &m)
 		engine_.init();
 		AckScriptMsg *am = new (&m) AckScriptMsg();
 		am->window_ = 0;  ///\todo get the real window size!
-		comm.sendMessage(am);
+		HAL::sendMessage(am);
 	}
 	break;
 
@@ -137,7 +135,7 @@ void Stepper::handleMessage(Message &m)
 			///\todo error here
 		} else {
 			amb->window_ = 0; ///\todo get real window size!
-			comm.sendMessage(amb);
+			HAL::sendMessage(amb);
 		}
 		engine_.addScriptMessage(&m);
 	}

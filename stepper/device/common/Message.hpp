@@ -90,7 +90,8 @@ public:
     uint16_t transmitSize() const { return header().payloadSize_ + (uint16_t)sizeof(MessageHeader); }
 
     /** \return Starting address of bytes to transmit. */
-    uint8_t *transmitStart() { return payload() - sizeof(MessageHeader); }
+    const uint8_t *transmitStart() const { return payload() - sizeof(MessageHeader); }
+    uint8_t *transmitStart() { return const_cast<uint8_t*>(static_cast<const Message*>(this)->transmitStart()); }
 
 	/** Amount of memory to get from MemoryAllocator for a given payload size. */
 	static uint16_t memoryNeeded(uint16_t payloadSize) { return sizeof(Message) + payloadSize; }

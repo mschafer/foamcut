@@ -13,7 +13,9 @@
 #ifndef stepper_device_HAL_hpp
 #define stepper_device_HAL_hpp
 
-#include "DeviceMessages.hpp"
+#include "Message.hpp"
+#include "StepDir.hpp"
+#include "LimitSwitches.hpp"
 
 namespace stepper { namespace device {
 
@@ -27,6 +29,11 @@ enum Status {
 	SUCCESS = 0,
 	ERROR = 1,
 	RESOURCE_UNAVAILABLE = 2
+};
+
+enum Priority {
+	NORMAL_PRIORITY,
+	HIGH_PRIORITY
 };
 
 /**
@@ -53,7 +60,7 @@ LimitSwitches readLimitSwitches();
  * On SUCCESS, the HAL takes ownership of m and should delete it
  * when the send is complete.
  */
-Status sendMessage(Message *m);
+Status sendMessage(Message *m, Priority p = NORMAL_PRIORITY);
 
 /**
  * Get the next message from the receive buffer or nullptr if there are none.

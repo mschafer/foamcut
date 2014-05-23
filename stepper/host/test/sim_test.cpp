@@ -19,7 +19,6 @@
 #include <boost/thread.hpp>
 #include <TCPLink.hpp>
 #include <Host.hpp>
-#include <Dictionary.hpp>
 #include <Script.hpp>
 #include <Engine.hpp>
 
@@ -32,6 +31,8 @@ BOOST_AUTO_TEST_CASE( sim_ping_test )
 
 	BOOST_CHECK(host.connectToSimulator());
 }
+
+#if 0
 
 BOOST_AUTO_TEST_CASE(sim_script_test)
 {
@@ -56,3 +57,5 @@ BOOST_AUTO_TEST_CASE(sim_script_test)
 	stepper::device::Engine engine;
 
 }
+
+#endif

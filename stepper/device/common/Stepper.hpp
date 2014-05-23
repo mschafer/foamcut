@@ -15,11 +15,10 @@
 #include "StepDir.hpp"
 #include "LimitSwitches.hpp"
 #include "Engine.hpp"
-#include "Receiver.hpp"
 
 namespace stepper { namespace device {
 
-class Stepper : public Receiver
+class Stepper
 {
 public:
 
@@ -29,10 +28,6 @@ public:
 
 	Stepper();
 	virtual ~Stepper() {}
-
-	uint8_t id() const;
-	void receiveMessage(Message *msg);
-	void connected(bool c);
 
 	/**
 	 * This method should be called from main as often as possible.

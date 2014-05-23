@@ -17,16 +17,21 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
-#include "MemoryPool.hpp"
+#include "Message.hpp"
+#include "MemoryAllocator.hpp"
 
 
 BOOST_AUTO_TEST_CASE( pool_test )
 {
 	using namespace stepper::device;
-	const size_t poolSizes[2] = {16, 256};
+	MemoryAllocator &ma = MemoryAllocator::instance();
 
-	uint8_t block[1024];
-	MemoryPool<2, size_t> mp(poolSizes, block, sizeof(block));
+	void *p = ma.alloc(ma.maxCapacity());
 
-	void *b = mp.alloc(8);
+	BOOST_CHECK(p != nullptr);
+	BOOST_CHECK_EQUAL(ma.capacity(p), ma.maxCapacity());
+	BOOST_CHECK_LT(Message::maxPayloadCapacity(), ma.maxCapacity());
+
+	Message *m = Message::alloc(Message::maxPayloadCapacity());
+	BOOST_CHECK_EQUAL(m->maxPayloadCapacity(), Message::maxPayloadCapacity());
 }
