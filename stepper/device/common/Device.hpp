@@ -17,8 +17,8 @@
 namespace stepper { namespace device {
 
 /**
- * Base class for a connected device.
- * Implements some basic self-test capabilities like ping response./
+ * Message handling for generic device.
+ * Implements ping, connect, and communications testing.
  */
 class Device
 {
@@ -49,6 +49,9 @@ public:
 	Device();
 	~Device();
 
+	/** Singleton. */
+	static Device &instance();
+
 	/**
 	 * Handle incoming messages for the device and run background processing.
 	 * This needs to be called periodically even if there are no new messages
@@ -57,8 +60,6 @@ public:
 	 * This method is not reentrant and should only be called from a single thread.
 	 */
 	void operator()(Message *m);
-
-	static Device &instance();
 
 private:
     enum TestState {

@@ -27,7 +27,10 @@ public:
 	};
 
 	Stepper();
-	virtual ~Stepper() {}
+	~Stepper() {}
+
+	/** Singleton. */
+	static Stepper &instance();
 
 	/**
 	 * This method should be called from main as often as possible.
@@ -50,18 +53,6 @@ public:
 	 * 0 on the direction pin instead of a 1.
 	 */
 	void invertMask(StepDir invertMask) { invertMask_ = invertMask; }
-
-	virtual void initialize() = 0;
-
-	/**
-	 * Set the output value of the digital I/O lines for each step
-	 * and direction output the value in s.
-	 */
-	virtual void setStepDirBits(const StepDir &s) = 0;
-
-	virtual LimitSwitches readLimitSwitches() = 0;
-
-	virtual void startTimer(uint32_t period) = 0;
 
 protected:
 

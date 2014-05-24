@@ -13,22 +13,18 @@
 #include "Stepper.hpp"
 #include "StepperDictionary.hpp"
 #include "Device.hpp"
-#include "HAL.hpp"
+#include <HAL.hpp>
 
 namespace stepper { namespace device {
 
 Stepper::Stepper() : pause_(false)
 {
-///\todo
-#if 0
-	// alloc and free big blocks for script
-	for (int i=0; i<Platform::SCRIPT_MSG_POOL; ++i) {
-		DataScriptMsg *p = new DataScriptMsg();
-		assert(p != NULL);
-		delete p;
-		///\todo verify size of free list
-	}
-#endif
+}
+
+Stepper &Stepper::instance()
+{
+	static Stepper theStepper;
+	return theStepper;
 }
 
 void Stepper::runBackgroundOnce()
@@ -67,19 +63,19 @@ void Stepper::onTimerExpired()
 		if (ns.delay_ == 0) {
 			///\todo delay == 0 means we are stopping
 		} else {
-			startTimer(scaleDelay(ns.delay_));
+			HAL::startTimer(scaleDelay(ns.delay_));
 
-			LimitSwitches limits = readLimitSwitches();
+			LimitSwitches limits = HAL::readLimitSwitches();
 			StepDir s = limits.apply(ns.step_);
 
 			// set the direction bits with all steps inactive
-			setStepDirBits(s.getDirOnlyBitVals(invertMask_));
+			HAL::setStepDirBits(s.getDirOnlyBitVals(invertMask_));
 
 			// set the direction bits with desired steps active
-			setStepDirBits(s.getStepDirBitVals(invertMask_));
+			HAL::setStepDirBits(s.getStepDirBitVals(invertMask_));
 
 			// steps are edge triggered so return them inactive
-			setStepDirBits(s.getDirOnlyBitVals(invertMask_));
+			HAL::setStepDirBits(s.getDirOnlyBitVals(invertMask_));
 		}
 	}
 }
@@ -93,7 +89,7 @@ void Stepper::handleMessage(Message &m)
 	case GO_MSG:
 	{
 		///\todo error if engine done
-		startTimer(200);
+		HAL::startTimer(200);
 		delete &m;
 	}
 	break;
