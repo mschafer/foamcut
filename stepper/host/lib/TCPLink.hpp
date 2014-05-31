@@ -42,19 +42,9 @@ public:
 
 	device::HAL::Status send(device::Message *mb);
 
-	device::Message *receive() {
-		device::Message *ret = nullptr;
-		if (!rxList_.empty()) {
-			boost::lock_guard<boost::mutex> guard(mtx_);
-			ret = rxList_.front();
-			rxList_.pop_front();
-		}
-		return ret;
-	}
+	device::Message *receive();
 
 private:
-	typedef std::list<device::Message*> MessageList;
-
     std::string hostName_;
     std::string portStr_;
 
@@ -65,12 +55,9 @@ private:
     std::unique_ptr<device::ASIOSender> sender_;
     std::unique_ptr<device::ASIOReceiver> receiver_;
 
-    MessageList rxList_;
-
     void run();
     void connectComplete(const boost::system::error_code &error);
 
-	void handleMessage(device::Message *message);
 	void handleError(const boost::system::error_code &error);
 };
 

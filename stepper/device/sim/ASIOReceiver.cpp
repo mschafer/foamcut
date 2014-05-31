@@ -15,10 +15,9 @@
 namespace stepper { namespace device {
 
 
-ASIOReceiver::ASIOReceiver(boost::asio::ip::tcp::socket &s, Handler h, ErrorCallback ec) : 
-    socket_(s), handler_(h), errorCallback_(ec), msg_(NULL), msgPos_(0), bufferPos_(0), bufferEnd_(0)
+ASIOReceiver::ASIOReceiver(boost::asio::ip::tcp::socket &s, ErrorCallback ec) :
+    socket_(s), errorCallback_(ec), msg_(NULL), msgPos_(0), bufferPos_(0), bufferEnd_(0)
 {
-    thread_.reset(new boost::thread(boost::bind(&ASIOReceiver::operator(), this)));
     socket_.async_read_some(boost::asio::buffer(buffer_, BUFFER_SIZE),
         boost::bind(&ASIOReceiver::readComplete, this,
         boost::asio::placeholders::error,
@@ -27,40 +26,17 @@ ASIOReceiver::ASIOReceiver(boost::asio::ip::tcp::socket &s, Handler h, ErrorCall
 
 ASIOReceiver::~ASIOReceiver()
 {
-    if (thread_->joinable()) {
-        data_.notify_one();
-        thread_->interrupt();
-        thread_->join();
-    }
 }
 
-void ASIOReceiver::operator()()
+Message *ASIOReceiver::getMessage()
 {
-    try {
-        while(1) {
-            boost::this_thread::interruption_point();
-
-            {
-                boost::unique_lock<boost::mutex> lock(mtx_);
-                while (bufferPos_ == 0 && bufferEnd_ == 0) {
-                    // use timed wait b/c notifications seem to get dropped
-                    data_.timed_wait(lock, boost::posix_time::milliseconds(20));
-                    boost::this_thread::interruption_point();
-                }
-            }
-            extract();
-            boost::this_thread::interruption_point();
-            socket_.async_read_some(boost::asio::buffer(buffer_, BUFFER_SIZE),
-                boost::bind(&ASIOReceiver::readComplete, this,
-                boost::asio::placeholders::error,
-                boost::asio::placeholders::bytes_transferred));
-        }
-
-    }
-
-    catch (boost::thread_interrupted &/*intex*/) {
-        if (msg_ != NULL) delete msg_;
-    }
+	boost::lock_guard<boost::mutex> guard(mtx_);
+	if (!rxList_.empty()) {
+		MessageList::auto_type r = rxList_.pop_front();
+		return r.release();
+	} else {
+		return nullptr;
+	}
 }
 
 void ASIOReceiver::readComplete(const boost::system::error_code &error, size_t bytesReceived)
@@ -68,12 +44,14 @@ void ASIOReceiver::readComplete(const boost::system::error_code &error, size_t b
     if (error) {
         errorCallback_(error);
     } else {
-        ///\todo I think this lock can be removed when bufferEnd_ is atomic
-        boost::lock_guard<boost::mutex> guard(mtx_);
         assert(bufferPos_ == 0);
         assert(bytesReceived != 0);
         bufferEnd_ = bytesReceived;
-        data_.notify_one();
+        extract();
+        socket_.async_read_some(boost::asio::buffer(buffer_, BUFFER_SIZE),
+            boost::bind(&ASIOReceiver::readComplete, this,
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred));
     }
 }
 
@@ -105,7 +83,8 @@ void ASIOReceiver::extract()
         }
 
         if (msgPos_ == msg_->transmitSize()) {
-            handler_(msg_);
+        	boost::lock_guard<boost::mutex> guard(mtx_);
+        	rxList_.push_back(msg_);
             msg_ = NULL;
             msgPos_ = 0;
         }

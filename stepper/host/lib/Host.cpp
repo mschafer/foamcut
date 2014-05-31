@@ -11,6 +11,8 @@
  */
 
 #include <boost/chrono.hpp>
+#include <Simulator.hpp>
+#include <Device.hpp>
 #include "Host.hpp"
 #include "TCPLink.hpp"
 
@@ -28,33 +30,33 @@ Host::~Host()
 
 bool Host::connectToSimulator()
 {
-#if 0
-	device::Platform::reset();
-	device::SimComm *comm = reinterpret_cast<device::SimComm*>(&device::Platform::getCommunicator());
-	link_.reset(new TCPLink("localhost", comm->port()));
+	device::Simulator::reset();
+	uint16_t port = device::Simulator::instance().port();
 
-	auto end = boost::chrono::steady_clock::now() + boost::chrono::milliseconds(500);
-	while (boost::chrono::steady_clock::now() < end) {
-		if (link_->connected()) break;
+	link_.reset(new TCPLink("localhost", port));
+	boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
+
+	device::PingMsg *pm = new device::PingMsg();
+	int tries = 10;
+	while (link_->send(pm) != device::HAL::SUCCESS && tries > 0) {
+		--tries;
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
 	}
-	if (!link_->connected()) return false;
+	if (tries == 0) return false;
 
-	TCPLink::HostMessage *mb;
-	mb = TCPLink::HostMessage::alloc(device::PingMsg<HostMessageAllocator>::PAYLOAD_SIZE);
-	link_->send(mb);
-
-	end = boost::chrono::steady_clock::now() + boost::chrono::milliseconds(500);
-	while (boost::chrono::steady_clock::now() < end) {
-		if ((mb = link_->receive()) != NULL) {
-			uint8_t mbid = mb->id0();
-			delete mb;
-			if (mbid == device::PONG_MSG) return true;
-		}
-		boost::this_thread::yield();
+	device::Message *rx;
+	tries = 10;
+	while ((rx = link_->receive()) == NULL && tries > 0) {
+		--tries;
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
 	}
-#endif
+	if (tries == 0) return false;
 
-	return false;
+	if (rx->function() == device::PingResponseMsg::FUNCTION) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 }

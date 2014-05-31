@@ -27,7 +27,7 @@ public:
 	~Simulator();
 
 	// HAL emulation
-	void intialize();
+	void initialize();
 	static void setStepDirBits(const StepDir &s);
 	static LimitSwitches readLimitSwitches();
 	static Status sendMessage(Message *m, Priority priority = NORMAL_PRIORITY);
@@ -36,6 +36,8 @@ public:
 	static void reset();
 
 	static Simulator &instance();
+
+	uint16_t port() const;
 
 private:
 	static std::unique_ptr<Simulator> theSim_;

@@ -52,6 +52,8 @@ public:
     /** \return the tcp/ip port used for connections. */
     uint16_t port() const;
 
+    Message *receiveMessage();
+
 private:
     boost::asio::io_service ios_;
     boost::asio::ip::tcp::socket socket_;

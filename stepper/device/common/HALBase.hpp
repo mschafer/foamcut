@@ -42,7 +42,7 @@ public:
 	/**
 	 * This method will be called before any other HAL method.
 	 */
-	static void intialize() { Derived::initialize(); }
+	static void initialize() { Derived::initialize(); }
 
 	/**
 	 * The Stepper require 8 digital output pins organized in 4 pairs of step and

@@ -38,7 +38,7 @@ Simulator &Simulator::instance()
 	return *theSim_.get();
 }
 
-void Simulator::intialize()
+void Simulator::initialize()
 {
 	Simulator &sim = instance();
 }
@@ -63,7 +63,7 @@ Simulator::Status Simulator::sendMessage(Message *m, Priority priority)
 Message *Simulator::receiveMessage()
 {
 	Simulator &sim = instance();
-	return NULL;
+	return sim.comm_->receiveMessage();
 }
 
 void Simulator::startTimer(uint32_t period)
@@ -78,6 +78,11 @@ void Simulator::reset()
 	Stepper &s = Stepper::instance();
 	s.~Stepper();
 	new (&s) Stepper();
+}
+
+uint16_t Simulator::port() const
+{
+	return comm_->port();
 }
 
 void Simulator::run()
@@ -97,6 +102,5 @@ void Simulator::run()
 		std::cerr << "Simulator thread threw" << std::endl;
 	}
 }
-
 
 }}

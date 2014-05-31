@@ -44,6 +44,14 @@ device::HAL::Status TCPLink::send(device::Message *m)
 	}
 }
 
+device::Message *TCPLink::receive() {
+	if (receiver_) {
+		return receiver_->getMessage();
+	} else {
+		return nullptr;
+	}
+}
+
 void TCPLink::run()
 {
     using namespace boost::asio::ip;
@@ -62,6 +70,8 @@ void TCPLink::run()
 	            boost::asio::placeholders::error));
                 ios_.run();
                 ios_.reset();
+                sender_.reset();
+                receiver_.reset();
             }
         	boost::this_thread::interruption_point();
             boost::posix_time::time_duration d = boost::posix_time::milliseconds(TRY_CONNECT_TIMEOUT);
@@ -86,18 +96,12 @@ void TCPLink::handleError(const boost::system::error_code &error)
     socket_.close();
 }
 
-void TCPLink::handleMessage(device::Message *message)
-{
-	///\todo implement me
-}
-
 void TCPLink::connectComplete(const boost::system::error_code &error)
 {
     if (!error) {
         device::ASIOSender::ErrorCallback ec = boost::bind(&TCPLink::handleError, this, _1);
-        device::ASIOReceiver::Handler hm = boost::bind(&TCPLink::handleMessage, this, _1);
         sender_.reset(new device::ASIOSender(socket_, ec));
-        receiver_.reset(new device::ASIOReceiver(socket_, hm, ec));
+        receiver_.reset(new device::ASIOReceiver(socket_, ec));
     } else {
     	handleError(error);
     }

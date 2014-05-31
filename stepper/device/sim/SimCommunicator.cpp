@@ -52,6 +52,15 @@ uint16_t SimCommunicator::port() const
     return port_;
 }
 
+Message *SimCommunicator::receiveMessage()
+{
+	if (receiver_) {
+    	return receiver_->getMessage();
+	} else {
+		return nullptr;
+	}
+}
+
 void SimCommunicator::run()
 {
     using namespace boost::asio::ip;
@@ -81,9 +90,8 @@ void SimCommunicator::acceptComplete(const boost::system::error_code &error)
 {
     if (!error) {
         ASIOSender::ErrorCallback ec = boost::bind(&SimCommunicator::handleError, this, _1);
-        ASIOReceiver::Handler hm = boost::bind(&SimCommunicator::handleMessage, this, _1);
         sender_.reset(new ASIOSender(socket_, ec));
-        receiver_.reset(new ASIOReceiver(socket_, hm, ec));
+        receiver_.reset(new ASIOReceiver(socket_, ec));
     } else {
     	handleError(error);
     }
