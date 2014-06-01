@@ -111,9 +111,4 @@ void SimCommunicator::handleError(const boost::system::error_code &error)
     socket_.close();
 }
 
-void SimCommunicator::handleMessage(Message *message)
-{
-	///\todo implement me
-}
-
 }}

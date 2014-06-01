@@ -31,7 +31,6 @@ set (SIM_SRC
   ${DEVICE_COMMON_DIR}/Stepper.cpp
   ASIOReceiver.cpp
   ASIOSender.cpp
-  Machine.cpp
   SimCommunicator.cpp
   Simulator.cpp
 )

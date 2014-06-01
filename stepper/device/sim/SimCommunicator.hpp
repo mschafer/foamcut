@@ -64,7 +64,6 @@ private:
     uint16_t port_;
 
     void handleError(const boost::system::error_code &error);
-    void handleMessage(Message *message);
     void run();
     void acceptComplete(const boost::system::error_code &error);
 

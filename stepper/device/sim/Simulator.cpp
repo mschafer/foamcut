@@ -46,12 +46,40 @@ void Simulator::initialize()
 void Simulator::setStepDirBits(const StepDir &s)
 {
 	Simulator &sim = instance();
+	for (int i=0; i<StepDir::AXIS_COUNT; ++i) {
+		StepDir::AxisIdx ai = static_cast<StepDir::AxisIdx>(i);
+
+		// set direction bits
+		sim.currentBits_.dir(ai, s.dir(ai));
+
+		// was there an edge on a step bit?
+		if (s.step(ai) != sim.currentBits_.step(ai)) {
+			sim.currentBits_.step(ai, s.step(ai));
+			// was the edge in the right direction to cause a step?
+			if (sim.currentBits_.step(ai) != sim.invertMask_.step(ai)) {
+				int np = sim.pos_[i] + ((sim.invertMask_.dir(ai) == sim.currentBits_.dir(ai)) ? -1 : 1);
+
+				// apply limits
+				if (np >= sim.limit_[i].first && np <= sim.limit_[i].second) {
+					sim.pos_[i] = np;
+				}
+			}
+		}
+	}
 }
 
 LimitSwitches Simulator::readLimitSwitches()
 {
 	Simulator &sim = instance();
-	return LimitSwitches();
+	LimitSwitches ret;
+	for (int i=0; i<StepDir::AXIS_COUNT; ++i) {
+		StepDir::AxisIdx idx = static_cast<StepDir::AxisIdx>(i);
+		bool test = (sim.pos_[i] <= sim.limit_[i].first);
+		ret.reverseLimit(idx, test);
+		test = (sim.pos_[i] >= sim.limit_[i].second);
+		ret.forwardLimit(idx, test);
+	}
+	return ret;
 }
 
 Simulator::Status Simulator::sendMessage(Message *m, Priority priority)

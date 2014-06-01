@@ -44,6 +44,10 @@ private:
 
 	std::unique_ptr<SimCommunicator> comm_;
 	std::unique_ptr<boost::thread> thread_;
+	StepDir invertMask_;
+	StepDir currentBits_;
+	int pos_[StepDir::AXIS_COUNT];
+	std::array<std::pair<int, int>, StepDir::AXIS_COUNT> limit_;
 
 	void run();
 

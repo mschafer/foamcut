@@ -31,18 +31,25 @@ void Stepper::runBackgroundOnce()
 {
 	// handle received messages
 	Message *m = NULL;
-	while ((m = HAL::receiveMessage()) != NULL) {
+	if ((m = HAL::receiveMessage()) != NULL) {
 		switch (m->id()) {
 		case Device::DEVICE_MESSAGE_ID:
 			Device::instance()(m);
 			break;
+
+		case STEPPER_MESSAGE_ID:
+			handleMessage(m);
+			break;
+
+		default:
+			///\todo error unrecognized message
+			delete m;
+			break;
 		}
 	}
 
-	// run the engine
+	// run the engine and device
 	engine_();
-
-	// run the device
 	Device::instance()(NULL);
 }
 

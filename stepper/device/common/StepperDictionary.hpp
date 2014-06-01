@@ -24,11 +24,18 @@ enum {
 	INIT_SCRIPT_MSG,
 	ACK_SCRIPT_MSG,
 	DATA_SCRIPT_MSG,
-	STEPPER_ID = 1
+	STEPPER_MESSAGE_ID = 1
+};
+
+struct StepperMessage : public Message
+{
+	StepperMessage() {
+		id(STEPPER_MESSAGE_ID);
+	}
 };
 
 /** Starts the engine executing the currently cached script. */
-struct GoMsg : Message
+struct GoMsg : StepperMessage
 {
 	enum {
 		PAYLOAD_SIZE = 0,
@@ -37,13 +44,12 @@ struct GoMsg : Message
 
 	GoMsg() {
 		payloadSize(PAYLOAD_SIZE);
-		id(STEPPER_ID);
 		function(FUNCTION);
 	}
 };
 
 /** Stops the engine executing the currently cached script, resumes on GoMsg. */
-struct PauseMsg : Message
+struct PauseMsg : StepperMessage
 {
 	enum {
 		PAYLOAD_SIZE = 0,
@@ -52,12 +58,11 @@ struct PauseMsg : Message
 
 	PauseMsg() {
 		payloadSize(PAYLOAD_SIZE);
-		id(STEPPER_ID);
 		function(FUNCTION);
 	}
 };
 
-struct ResetMsg : Message
+struct ResetMsg : StepperMessage
 {
 	enum {
 		PAYLOAD_SIZE = 0,
@@ -66,12 +71,11 @@ struct ResetMsg : Message
 
 	ResetMsg() {
 		payloadSize(PAYLOAD_SIZE);
-		id(STEPPER_ID);
 		function(FUNCTION);
 	}
 };
 
-struct SpeedAdjustMsg : Message
+struct SpeedAdjustMsg : StepperMessage
 {
 	enum {
 		PAYLOAD_SIZE = sizeof(uint32_t),
@@ -80,7 +84,6 @@ struct SpeedAdjustMsg : Message
 
 	SpeedAdjustMsg() : speedAdjust_(0) {
 		payloadSize(PAYLOAD_SIZE);
-		id(STEPPER_ID);
 		function(FUNCTION);
 	}
 
@@ -93,7 +96,7 @@ struct SpeedAdjustMsg : Message
  * Initialize the engine in preparation for receiving a script to run.
  * Device responds with ACK_SCRIPT
  */
-struct InitScriptMsg : Message
+struct InitScriptMsg : StepperMessage
 {
 	enum {
 		PAYLOAD_SIZE = 0,
@@ -102,7 +105,6 @@ struct InitScriptMsg : Message
 
 	InitScriptMsg() {
 		payloadSize(PAYLOAD_SIZE);
-		id(STEPPER_ID);
 		function(FUNCTION);
 	}
 };
@@ -112,7 +114,7 @@ struct InitScriptMsg : Message
  * id1_ is the ScriptMsg sequence number being Ack'd.
  * payload byte is number of ScriptMsg buffer available.
  */
-struct AckScriptMsg : Message
+struct AckScriptMsg : StepperMessage
 {
 	enum {
 		PAYLOAD_SIZE = sizeof(uint8_t),
@@ -121,7 +123,6 @@ struct AckScriptMsg : Message
 
 	AckScriptMsg() : window_(0) {
 		payloadSize(PAYLOAD_SIZE);
-		id(STEPPER_ID);
 		function(FUNCTION);
 	}
 
@@ -132,7 +133,7 @@ struct AckScriptMsg : Message
  * Message containing script bytes for the stepper to run.
  * id1_ is sequence number.
  */
-struct DataScriptMsg : Message
+struct DataScriptMsg : StepperMessage
 {
 	enum {
 		PAYLOAD_SIZE = 256,
@@ -141,7 +142,6 @@ struct DataScriptMsg : Message
 
 	DataScriptMsg() {
 		payloadSize(PAYLOAD_SIZE);
-		id(STEPPER_ID);
 		function(FUNCTION);
 	}
 
