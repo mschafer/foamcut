@@ -61,7 +61,7 @@ private:
 	Engine engine_;
 	volatile bool pause_;
 
-	void handleMessage(Message &m);
+	void handleMessage(Message *m);
 
 	/** \return scaled value of the delay. */
 	uint32_t scaleDelay(uint32_t delay);

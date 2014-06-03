@@ -15,24 +15,17 @@
 
 namespace stepper {
 
-TCPLink::TCPLink(const char *hostName, uint16_t port) :
-	hostName_(hostName), socket_(ios_)
+TCPLink::TCPLink(const char *hostName, uint16_t port, boost::asio::io_service &ios) :
+	hostName_(hostName), ios_(ios), socket_(ios)
 {
     std::ostringstream oss;
     oss << port;
     portStr_ = oss.str();
-    thread_.reset(new boost::thread(boost::bind(&TCPLink::run, this)));
+    connect();
 }
 
 TCPLink::~TCPLink()
 {
-	try {
-		thread_->interrupt();
-		ios_.stop();
-		thread_->join();
-	} catch (...) {
-		///\todo ?
-	}
 }
 
 device::HAL::Status TCPLink::send(device::Message *m)
@@ -52,48 +45,31 @@ device::Message *TCPLink::receive() {
 	}
 }
 
-void TCPLink::run()
+void TCPLink::connect()
 {
     using namespace boost::asio::ip;
-    try {
-        while (1) {
-        	boost::this_thread::interruption_point();
-            tcp::resolver resolver(ios_);
-            tcp::resolver::query query(tcp::v4(), hostName_.c_str(), portStr_.c_str());
-            boost::system::error_code error;
-            tcp::resolver::iterator it = resolver.resolve(query, error);
-            if (error || it == tcp::resolver::iterator()) {
-            	throw std::runtime_error("TCPLink : resolve failed");
-            } else {
-                boost::asio::async_connect(socket_, it,
-                boost::bind(&TCPLink::connectComplete, this,
-	            boost::asio::placeholders::error));
-                ios_.run();
-                ios_.reset();
-                sender_.reset();
-                receiver_.reset();
-            }
-        	boost::this_thread::interruption_point();
-            boost::posix_time::time_duration d = boost::posix_time::milliseconds(TRY_CONNECT_TIMEOUT);
-            boost::this_thread::sleep(d);
-        }
-    }
 
-    catch(boost::thread_interrupted &/*intex*/) {
-
-    }
-    catch(std::exception &ex) {
-        std::cerr << "Exception caught, tcp/ip client thread dying" << std::endl;
-        std::cerr << ex.what();
-    }
-    catch(...) {
-        std::cerr << "Exception caught, tcp/ip client thread dying" << std::endl;
+    tcp::resolver resolver(ios_);
+    tcp::resolver::query query(tcp::v4(), hostName_.c_str(), portStr_.c_str());
+    boost::system::error_code error;
+    tcp::resolver::iterator it = resolver.resolve(query, error);
+    if (error || it == tcp::resolver::iterator()) {
+    	throw std::runtime_error("TCPLink : resolve failed");
+    } else {
+        boost::asio::async_connect(socket_, it,
+        		boost::bind(&TCPLink::connectComplete, this,
+        				boost::asio::placeholders::error));
     }
 }
 
 void TCPLink::handleError(const boost::system::error_code &error)
 {
     socket_.close();
+    sender_.reset();
+    receiver_.reset();
+    if (!ios_.stopped()) {
+    	connect();
+    }
 }
 
 void TCPLink::connectComplete(const boost::system::error_code &error)

@@ -88,44 +88,44 @@ void Stepper::onTimerExpired()
 }
 
 
-void Stepper::handleMessage(Message &m)
+void Stepper::handleMessage(Message *m)
 {
 
-	switch (m.function()) {
+	switch (m->function()) {
 
 	case GO_MSG:
 	{
 		///\todo error if engine done
 		HAL::startTimer(200);
-		delete &m;
+		delete m;
 	}
 	break;
 
 	case PAUSE_MSG:
 	{
 		pause_ = true;
-		delete &m;
+		delete m;
 	}
 	break;
 
 	case RESET_MSG:
 	{
 		///\todo implement me
-		delete &m;
+		delete m;
 	}
 	break;
 
 	case SPEED_ADJUST_MSG:
 	{
 		///\todo implement me
-		delete &m;
+		delete m;
 	}
 	break;
 
 	case INIT_SCRIPT_MSG:
 	{
 		engine_.init();
-		AckScriptMsg *am = new (&m) AckScriptMsg();
+		AckScriptMsg *am = new (m) AckScriptMsg();
 		am->window_ = 0;  ///\todo get the real window size!
 		HAL::sendMessage(am);
 	}
@@ -140,13 +140,13 @@ void Stepper::handleMessage(Message &m)
 			amb->window_ = 0; ///\todo get real window size!
 			HAL::sendMessage(amb);
 		}
-		engine_.addScriptMessage(&m);
+		engine_.addScriptMessage(m);
 	}
 	break;
 
 	default:
 		///\todo error unrecognized message here
-		delete (&m);
+		delete (m);
 		break;
 	}
 }

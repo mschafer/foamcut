@@ -15,6 +15,7 @@
 #include <deque>
 #include <StepDir.hpp>
 #include <StepperDictionary.hpp>
+#include <boost/ptr_container/ptr_deque.hpp>
 
 namespace stepper {
 
@@ -26,6 +27,8 @@ namespace stepper {
 class Script
 {
 public:
+	typedef boost::ptr_deque<device::Message> MessageCollection;
+
 	Script();
 	~Script();
 
@@ -47,11 +50,15 @@ public:
 	 */
 	void addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double time);
 
-	void fillNextMessage(device::DataScriptMsg &sm);
+	/**
+	 * Converts the script to a collection of Messages that can be sent to the device.
+	 */
+	std::unique_ptr<MessageCollection> generateMessages() const;
+
 
 private:
 	std::deque<uint8_t> bytes_;
-	std::deque<uint8_t>::const_iterator msgIt_;
+
 };
 
 }

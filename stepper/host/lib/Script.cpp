@@ -70,16 +70,20 @@ Script::addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double time)
 	bytes_.push_back(device::Script::DONE_CMD);
 }
 
-void
-Script::fillNextMessage(device::DataScriptMsg &sm)
+std::unique_ptr<Script::MessageCollection>
+Script::generateMessages() const
 {
-	auto endIt = msgIt_;
-	if (device::DataScriptMsg::PAYLOAD_SIZE < bytes_.end() - msgIt_) {
-		endIt += device::DataScriptMsg::PAYLOAD_SIZE;
-	} else {
-		endIt = bytes_.end();
+	std::unique_ptr<MessageCollection> ret(new MessageCollection());
+	auto bit = bytes_.begin();
+	while (bit < bytes_.end()) {
+		size_t avail = bytes_.end() - bit;
+		size_t take = std::min(avail, static_cast<size_t>(device::Message::maxPayloadCapacity()));
+		device::Message *m = device::Message::alloc(take);
+		device::DataScriptMsg *dsm = new (m) device::DataScriptMsg(take);
+		std::copy(bit, bit+take, dsm->payload());
+		ret->push_back(m);
 	}
-	std::copy(msgIt_, endIt, sm.scriptData_);
+	return ret;
 }
 
 }

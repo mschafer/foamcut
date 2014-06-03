@@ -24,7 +24,7 @@ enum {
 	INIT_SCRIPT_MSG,
 	ACK_SCRIPT_MSG,
 	DATA_SCRIPT_MSG,
-	STEPPER_MESSAGE_ID = 1
+	STEPPER_MESSAGE_ID = 2
 };
 
 struct StepperMessage : public Message
@@ -48,7 +48,7 @@ struct GoMsg : StepperMessage
 	}
 };
 
-/** Stops the engine executing the currently cached script, resumes on GoMsg. */
+/** Pauses the engine executing the currently cached script, resumes on GoMsg. */
 struct PauseMsg : StepperMessage
 {
 	enum {
@@ -62,6 +62,7 @@ struct PauseMsg : StepperMessage
 	}
 };
 
+/** Stops engine execution and empties the script buffer. */
 struct ResetMsg : StepperMessage
 {
 	enum {
@@ -75,6 +76,7 @@ struct ResetMsg : StepperMessage
 	}
 };
 
+/** Sets the speed scaling. */
 struct SpeedAdjustMsg : StepperMessage
 {
 	enum {
@@ -131,21 +133,22 @@ struct AckScriptMsg : StepperMessage
 
 /**
  * Message containing script bytes for the stepper to run.
- * id1_ is sequence number.
+ * The size of this message is up to the maximum as set by the device.
  */
 struct DataScriptMsg : StepperMessage
 {
 	enum {
-		PAYLOAD_SIZE = 256,
 		FUNCTION = DATA_SCRIPT_MSG
 	};
 
-	DataScriptMsg() {
-		payloadSize(PAYLOAD_SIZE);
+	explicit DataScriptMsg(uint16_t size) {
 		function(FUNCTION);
+		payloadSize(size);
 	}
 
-	uint8_t scriptData_[PAYLOAD_SIZE];
+	DataScriptMsg() {
+		function(FUNCTION);
+	}
 };
 
 }}
