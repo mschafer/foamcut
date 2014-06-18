@@ -119,16 +119,14 @@ struct InitScriptMsg : StepperMessage
 struct AckScriptMsg : StepperMessage
 {
 	enum {
-		PAYLOAD_SIZE = sizeof(uint8_t),
+		PAYLOAD_SIZE = 0,
 		FUNCTION = ACK_SCRIPT_MSG
 	};
 
-	AckScriptMsg() : window_(0) {
+	AckScriptMsg() {
 		payloadSize(PAYLOAD_SIZE);
 		function(FUNCTION);
 	}
-
-	uint8_t window_;
 };
 
 /**
@@ -138,7 +136,8 @@ struct AckScriptMsg : StepperMessage
 struct DataScriptMsg : StepperMessage
 {
 	enum {
-		FUNCTION = DATA_SCRIPT_MSG
+		FUNCTION = DATA_SCRIPT_MSG,
+		IN_FLIGHT_COUNT = 10 ///\< Number of unacknowledged messages that host can send before waiting
 	};
 
 	explicit DataScriptMsg(uint16_t size) {

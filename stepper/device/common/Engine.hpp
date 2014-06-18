@@ -68,13 +68,6 @@ struct DelayCmd
 
 }
 
-
-struct NoOpLock
-{
-	void lock() {}
-	void unlock() {}
-};
-
 class Engine
 {
 public:
@@ -120,8 +113,8 @@ public:
 
 
 private:
-	RingBuffer<Message*, 16> messages_;
-	RingBuffer<Line::NextStep, 8> steps_;
+	RingBuffer<Message*, DataScriptMsg::IN_FLIGHT_COUNT> messages_;
+	RingBuffer<Line::NextStep, 16> steps_;
 	Line line_;
 	uint16_t msgOffset_;
 	uint8_t cmdId_;

@@ -10,6 +10,7 @@
  *     Marc Schafer
  */
 #include "Engine.hpp"
+#include <HAL.hpp>
 
 namespace stepper { namespace device {
 
@@ -46,6 +47,14 @@ bool Engine::getNextByte(uint8_t &byte)
 	if (msgOffset_ == msg->payloadSize()) {
 		messages_.pop();
 		delete msg;
+
+		// send an ack for the DataScriptMsg that we just finished processing
+		AckScriptMsg *ack = new (msg) AckScriptMsg();
+		HAL::Status status;
+		do {
+			status = HAL::sendMessage(ack);
+		} while (status != HAL::SUCCESS);
+
 		msgOffset_ = 0;
 	}
 	return true;
