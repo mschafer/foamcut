@@ -32,6 +32,25 @@ struct StatusFlags
     uint32_t bits_;
 };
 
+enum ErrorCode {
+	SCRIPT_BUFFER_OVERFLOW_ERROR = 1,
+	SCRIPT_QUEUE_UNDERFLOW_ERROR = 2,
+	MEMORY_ALLOCATION_ERROR = 3,
+	ILLEGAL_SCRIPT_DATA = 4
+};
+
+
+/**
+ * This function is called whenever a fatal error occurs.
+ * The stepper is stopped and all state is cleared.
+ * A message is sent back to the host with the error code if possible.
+ */
+void error(ErrorCode ec);
+
+void warning();
+
+void info();
+
 }}
 
 #endif

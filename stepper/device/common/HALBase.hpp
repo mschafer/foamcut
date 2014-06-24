@@ -78,6 +78,11 @@ public:
 	static void startTimer(uint32_t period) { Derived::startTimer(period); }
 
 	/**
+	 * Stop the timer if it is running.
+	 */
+	static void stopTimer();
+
+	/**
 	 * Causes a hard reset of the device.
 	 */
 	static void reset() { Derived::reset(); }

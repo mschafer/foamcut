@@ -13,6 +13,7 @@
 #include "Stepper.hpp"
 #include "StepperDictionary.hpp"
 #include "Device.hpp"
+#include "StatusFlags.hpp"
 #include <HAL.hpp>
 
 namespace stepper { namespace device {
@@ -124,22 +125,16 @@ void Stepper::handleMessage(Message *m)
 
 	case INIT_SCRIPT_MSG:
 	{
-		engine_.init();
-		AckScriptMsg *am = new (m) AckScriptMsg();
-		am->window_ = 0;  ///\todo get the real window size!
-		HAL::sendMessage(am);
+		if (engine_.status() != Engine::IDLE) {
+			///\todo error here
+		} else {
+			engine_.init();
+		}
 	}
 	break;
 
 	case DATA_SCRIPT_MSG:
 	{
-		AckScriptMsg *amb = new AckScriptMsg();
-		if (amb == NULL) {
-			///\todo error here
-		} else {
-			amb->window_ = 0; ///\todo get real window size!
-			HAL::sendMessage(amb);
-		}
 		engine_.addScriptMessage(m);
 	}
 	break;

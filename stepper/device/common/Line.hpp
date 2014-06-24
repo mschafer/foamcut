@@ -30,6 +30,7 @@ public:
     Line();
 	Line(int dx, int dy, int dz, int du, uint32_t delay);
 
+	void reset();
 	void reset(int dx, int dy, int dz, int du, uint32_t delay);
 	NextStep nextStep();
 	bool done() const { return count_ == maxd_; }

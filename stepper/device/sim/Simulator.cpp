@@ -97,6 +97,13 @@ Message *Simulator::receiveMessage()
 void Simulator::startTimer(uint32_t period)
 {
 	Simulator &sim = instance();
+	///\todo implement me
+}
+
+void Simulator::stopTimer()
+{
+	Simulator &sim = instance();
+	///\todo implement me
 
 }
 

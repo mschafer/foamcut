@@ -33,6 +33,7 @@ public:
 	static Status sendMessage(Message *m, Priority priority = NORMAL_PRIORITY);
 	static Message *receiveMessage();
 	static void startTimer(uint32_t period);
+	static void stopTimer();
 	static void reset();
 
 	static Simulator &instance();

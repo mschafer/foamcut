@@ -74,21 +74,15 @@ public:
 
 	enum Status {
 		RUNNING,
-		DONE,
-		QUEUE_UNDERFLOW,
-		FATAL_ERROR
+		FINISHING,
+		IDLE,
 	};
 
-	explicit Engine();
+	Engine();
 	~Engine() {}
 
 	/** Add a script message to the queue waiting to be processed. */
-	void addScriptMessage(Message *m) {
-		assert(!messages_.full());
-		messages_.push(m);
-	}
-
-	///\todo flow control on messages in buffer
+	void addScriptMessage(Message *m);
 
 	/**
 	 * Get the next StepDir to be executed.
@@ -101,12 +95,14 @@ public:
 		return true;
 	}
 
+	Status status() const { return status_; }
+
 	/**
 	 * Parse enqueued instructions and generates StepDir commands
 	 * from them.  The StepDir commands are placed in a FIFO for use
 	 * by \sa Stepper::onTimerExpired.
 	 */
-	Status operator()();
+	void operator()();
 
 	void init();
 	bool done() const { return cmdId_ == Script::DONE_CMD; }
@@ -117,12 +113,13 @@ private:
 	RingBuffer<Line::NextStep, 16> steps_;
 	Line line_;
 	uint16_t msgOffset_;
-	uint8_t cmdId_;
-	int8_t cmdOffset_;
+	uint8_t cmdOffset_;
 	uint8_t cmd_[sizeof(Script::LongLineCmd)];
+	Status status_;
 
-	bool getNextByte(uint8_t &out);
-	Status parseNextCommand();
+	bool getNextCommand(uint8_t offset);
+	bool extractCommandData(uint8_t cmdSize);
+	void parseNextCommand();
 
 	Engine(const Engine &cpy);
 	Engine &operator=(const Engine &assign);

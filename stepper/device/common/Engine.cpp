@@ -10,46 +10,60 @@
  *     Marc Schafer
  */
 #include "Engine.hpp"
+#include "StatusFlags.hpp"
 #include <HAL.hpp>
 
 namespace stepper { namespace device {
 
 using namespace stepper::device::Script;
 
-Engine::Engine() : msgOffset_(0), cmdId_(0), cmdOffset_(-1)
+Engine::Engine() : msgOffset_(0), cmdId_(0), cmdOffset_(0), status_(IDLE)
 {
 }
 
-Engine::Status Engine::operator()()
+void Engine::addScriptMessage(Message *m)
 {
-	Status r = RUNNING;
-	while (!steps_.full()  && cmdId_ != DONE_CMD) {
+	if (messages_.full()) {
+		error(SCRIPT_BUFFER_OVERFLOW_ERROR);
+	} else {
+		messages_.push(m);
+		status_ = RUNNING;
+	}
+}
+
+void Engine::operator()()
+{
+	while (!steps_full()) {
 		if (!line_.done()) {
 			steps_.push(line_.nextStep());
 		} else {
-			r = parseNextCommand();
-			if (r != RUNNING) {
+			if (!parseNextCommand())
 				break;
-			}
 		}
 	}
-	return r;
 }
 
-bool Engine::getNextByte(uint8_t &byte)
+bool Engine::extractNextByte(uint8_t offset)
 {
 	if (messages_.empty()) {
+		error(SCRIPT_QUEUE_UNDERFLOW_ERROR);
 		return false;
 	}
 
 	Message *msg = messages_.front();
-	byte = msg->payload()[msgOffset_++];
+	cmd_[offset] = msg->payload()[msgOffset_++];
+
+	// is that the end of data in this message?
 	if (msgOffset_ == msg->payloadSize()) {
 		messages_.pop();
 		delete msg;
 
 		// send an ack for the DataScriptMsg that we just finished processing
 		AckScriptMsg *ack = new (msg) AckScriptMsg();
+		if (ack == NULL) {
+			error(MEMORY_ALLOCATION_ERROR);
+			return false;
+		}
 		HAL::Status status;
 		do {
 			status = HAL::sendMessage(ack);
@@ -60,25 +74,30 @@ bool Engine::getNextByte(uint8_t &byte)
 	return true;
 }
 
-Engine::Status Engine::parseNextCommand()
+bool Engine::extractCommandData(uint8_t cmdSize)
 {
-	if (cmdOffset_ == -1) {
-		bool r = getNextByte(cmdId_);
-		if (!r) return QUEUE_UNDERFLOW;
-		cmdOffset_ = 0;
+	// start at 1 because id is already extracted
+	for (int i=1; i<size; ++i) {
+		if (!extractNextByte(i)) return false;
 	}
+	return true;
+}
 
-	switch (cmdId_) {
+void Engine::parseNextCommand()
+{
+	// get the id of the command
+	if (msgOffset_ > 0)
+
+
+	if (!extractNextByte(0)) return;
+
+	switch (cmd_[0]) {
 	case NO_OP_CMD:
 		break;
 
 	case SINGLE_STEP_CMD:
 	{
-		while (cmdOffset_ < SingleStepCmd::SIZE) {
-			bool r = getNextByte(cmd_[cmdOffset_]);
-			if (!r) return QUEUE_UNDERFLOW;
-			++cmdOffset_;
-		}
+		if (!extractCommandData(SingleStepCmd::SIZE)) return;
 		SingleStepCmd *ss = reinterpret_cast<SingleStepCmd*>(cmd_);
 		steps_.push(Line::NextStep(ss->delay_, ss->stepDir_));
 	}
@@ -86,11 +105,7 @@ Engine::Status Engine::parseNextCommand()
 
 	case LINE_CMD:
 	{
-		while (cmdOffset_ < LineCmd::SIZE) {
-			bool r = getNextByte(cmd_[cmdOffset_]);
-			if (!r) return QUEUE_UNDERFLOW;
-			++cmdOffset_;
-		}
+		if (!extractCommandData(LineCmd::SIZE)) return;
 		LineCmd *l = reinterpret_cast<LineCmd*>(cmd_);
 		line_.reset(l->dx_, l->dy_, l->dz_, l->du_, l->time_);
 	}
@@ -98,11 +113,7 @@ Engine::Status Engine::parseNextCommand()
 
 	case LONG_LINE_CMD:
 	{
-		while (cmdOffset_ < LongLineCmd::SIZE) {
-			bool r = getNextByte(cmd_[cmdOffset_]);
-			if (!r) return QUEUE_UNDERFLOW;
-			++cmdOffset_;
-		}
+		if (!extractCommandData(LongLineCmd::SIZE)) return;
 		LongLineCmd *l = reinterpret_cast<LongLineCmd*>(cmd_);
 		line_.reset(l->dx_, l->dy_, l->dz_, l->du_, l->time_);
 	}
@@ -110,11 +121,7 @@ Engine::Status Engine::parseNextCommand()
 
 	case DELAY_CMD:
 	{
-		while (cmdOffset_ < DelayCmd::SIZE) {
-			bool r = getNextByte(cmd_[cmdOffset_]);
-			if (!r) return QUEUE_UNDERFLOW;
-			++cmdOffset_;
-		}
+		if (!extractCommandData(DelayCmd::SIZE)) return;
 		DelayCmd *d = reinterpret_cast<DelayCmd*>(cmd_);
 		steps_.push(Line::NextStep(d->delay_, StepDir()));
 	}
@@ -122,30 +129,31 @@ Engine::Status Engine::parseNextCommand()
 
 	case DONE_CMD:
 		init();
-		return DONE;
+		if (steps_.empty())
+			status_ = IDLE;
+		else
+			status_ = FINISHING;
+		break;
 
 	default:
-		init();
-		return FATAL_ERROR;
+		error(ILLEGAL_SCRIPT_DATA);
 		break;
 	}
-
-	cmdOffset_ = -1;
-	return RUNNING;
 }
 
 void Engine::init()
 {
+	HAL::stopTimer();
 	while (!messages_.empty()) {
 		delete (messages_.front());
 		messages_.pop();
 	}
-
+	line_.reset();
 	steps_.clear();
 
 	msgOffset_ = 0;
-	cmdOffset_ = -1;
-	cmdId_ = 0;
+	cmdOffset_ = 0;
+	status_ = IDLE;
 }
 
 }}
