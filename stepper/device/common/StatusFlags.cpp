@@ -19,7 +19,7 @@ void error(ErrorCode ec)
 
 }
 
-void warning()
+void warning(WarningCode wc)
 {
 
 }

@@ -18,7 +18,7 @@
 
 namespace stepper { namespace device {
 
-Stepper::Stepper() : pause_(false)
+Stepper::Stepper() : pause_(false), timerRunning_(false)
 {
 }
 
@@ -56,36 +56,32 @@ void Stepper::runBackgroundOnce()
 
 void Stepper::onTimerExpired()
 {
-	if (engine_.done()) return;
-
 	if (pause_) {
 		pause_ = false;
+		timerRunning_ = false;
 		return;
 	}
 
 	Line::NextStep ns;
 	bool r = engine_.nextStep(ns);
-	if (!r) {
-		///\todo underflow error here
+	if (r) {
+		HAL::startTimer(scaleDelay(ns.delay_));
+
+		LimitSwitches limits = HAL::readLimitSwitches();
+		StepDir s = limits.apply(ns.step_);
+
+		// set the direction bits with all steps inactive
+		HAL::setStepDirBits(s.getDirOnlyBitVals(invertMask_));
+
+		// set the direction bits with desired steps active
+		HAL::setStepDirBits(s.getStepDirBitVals(invertMask_));
+
+		// steps are edge triggered so return them inactive
+		HAL::setStepDirBits(s.getDirOnlyBitVals(invertMask_));
 	} else {
-		if (ns.delay_ == 0) {
-			///\todo delay == 0 means we are stopping
-		} else {
-			HAL::startTimer(scaleDelay(ns.delay_));
-
-			LimitSwitches limits = HAL::readLimitSwitches();
-			StepDir s = limits.apply(ns.step_);
-
-			// set the direction bits with all steps inactive
-			HAL::setStepDirBits(s.getDirOnlyBitVals(invertMask_));
-
-			// set the direction bits with desired steps active
-			HAL::setStepDirBits(s.getStepDirBitVals(invertMask_));
-
-			// steps are edge triggered so return them inactive
-			HAL::setStepDirBits(s.getDirOnlyBitVals(invertMask_));
-		}
+		timerRunning_ = false;
 	}
+
 }
 
 
@@ -96,8 +92,12 @@ void Stepper::handleMessage(Message *m)
 
 	case GO_MSG:
 	{
-		///\todo error if engine done
-		HAL::startTimer(200);
+		if (!timerRunning_) {
+			timerRunning_ = true;
+			HAL::startTimer(200);
+		} else {
+			warning(TIMER_ALREADY_RUNNING);
+		}
 		delete m;
 	}
 	break;
@@ -111,25 +111,15 @@ void Stepper::handleMessage(Message *m)
 
 	case RESET_MSG:
 	{
-		///\todo implement me
-		delete m;
+		HAL::reset();
 	}
 	break;
 
 	case SPEED_ADJUST_MSG:
 	{
-		///\todo implement me
+		SpeedAdjustMsg *sam = static_cast<SpeedAdjustMsg*>(m);
+		speedAdjust_ = sam->speedAdjust_;
 		delete m;
-	}
-	break;
-
-	case INIT_SCRIPT_MSG:
-	{
-		if (engine_.status() != Engine::IDLE) {
-			///\todo error here
-		} else {
-			engine_.init();
-		}
 	}
 	break;
 
@@ -140,7 +130,7 @@ void Stepper::handleMessage(Message *m)
 	break;
 
 	default:
-		///\todo error unrecognized message here
+		error(UNRECOGNIZED_MESSAGE);
 		delete (m);
 		break;
 	}

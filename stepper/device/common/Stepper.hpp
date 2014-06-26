@@ -59,7 +59,9 @@ protected:
 private:
 	StepDir invertMask_;
 	Engine engine_;
+	uint32_t speedAdjust_;
 	volatile bool pause_;
+	volatile bool timerRunning_;
 
 	void handleMessage(Message *m);
 

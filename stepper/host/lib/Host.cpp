@@ -58,9 +58,7 @@ void Host::executeScript(const Script &s)
 
 	std::unique_ptr<Script::MessageCollection> msgs(s.generateMessages());
 
-	// send an init script message and wait for ack
-	device::InitScriptMsg *ism = new device::InitScriptMsg();
-	link_->send(ism);
+	///\todo finish implementation
 
 }
 

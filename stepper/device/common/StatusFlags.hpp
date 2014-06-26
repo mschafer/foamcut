@@ -34,11 +34,15 @@ struct StatusFlags
 
 enum ErrorCode {
 	SCRIPT_BUFFER_OVERFLOW_ERROR = 1,
-	SCRIPT_QUEUE_UNDERFLOW_ERROR = 2,
+	STEP_QUEUE_UNDERFLOW_ERROR = 2,
 	MEMORY_ALLOCATION_ERROR = 3,
-	ILLEGAL_SCRIPT_DATA = 4
+	ILLEGAL_SCRIPT_DATA = 4,
+	UNRECOGNIZED_MESSAGE = 5
 };
 
+enum WarningCode {
+	TIMER_ALREADY_RUNNING = 1
+};
 
 /**
  * This function is called whenever a fatal error occurs.
@@ -47,7 +51,7 @@ enum ErrorCode {
  */
 void error(ErrorCode ec);
 
-void warning();
+void warning(WarningCode wc);
 
 void info();
 

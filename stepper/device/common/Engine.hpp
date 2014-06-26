@@ -88,12 +88,7 @@ public:
 	 * Get the next StepDir to be executed.
 	 * \return true on success, false on underflow.
 	 */
-	bool nextStep(Line::NextStep &out) {
-		if (steps_.empty()) return false;
-		out = steps_.front();
-		steps_.pop();
-		return true;
-	}
+	bool nextStep(Line::NextStep &out);
 
 	Status status() const { return status_; }
 
@@ -105,8 +100,6 @@ public:
 	void operator()();
 
 	void init();
-	bool done() const { return cmdId_ == Script::DONE_CMD; }
-
 
 private:
 	RingBuffer<Message*, DataScriptMsg::IN_FLIGHT_COUNT> messages_;
@@ -117,9 +110,8 @@ private:
 	uint8_t cmd_[sizeof(Script::LongLineCmd)];
 	Status status_;
 
-	bool getNextCommand(uint8_t offset);
-	bool extractCommandData(uint8_t cmdSize);
-	void parseNextCommand();
+	bool extractBytes(uint8_t count);
+	bool parseNextCommand();
 
 	Engine(const Engine &cpy);
 	Engine &operator=(const Engine &assign);

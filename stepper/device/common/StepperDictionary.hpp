@@ -95,26 +95,7 @@ struct SpeedAdjustMsg : StepperMessage
 
 
 /**
- * Initialize the engine in preparation for receiving a script to run.
- * Device responds with ACK_SCRIPT
- */
-struct InitScriptMsg : StepperMessage
-{
-	enum {
-		PAYLOAD_SIZE = 0,
-		FUNCTION = INIT_SCRIPT_MSG
-	};
-
-	InitScriptMsg() {
-		payloadSize(PAYLOAD_SIZE);
-		function(FUNCTION);
-	}
-};
-
-/**
- * Response to InitScriptMsg or a sequence of ScriptMsg
- * id1_ is the ScriptMsg sequence number being Ack'd.
- * payload byte is number of ScriptMsg buffer available.
+ * Sent when the engine is done processing a DataScriptMsg.
  */
 struct AckScriptMsg : StepperMessage
 {
