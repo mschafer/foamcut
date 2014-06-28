@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <boost/thread.hpp>
+#include <boost/asio.hpp>
 #include <HALBase.hpp>
 
 namespace stepper { namespace device {
@@ -45,12 +46,16 @@ private:
 
 	std::unique_ptr<SimCommunicator> comm_;
 	std::unique_ptr<boost::thread> thread_;
+	boost::asio::io_service ios_;
+	boost::asio::deadline_timer backgroundTimer_;
+	boost::asio::deadline_timer stepTimer_;
 	StepDir invertMask_;
 	StepDir currentBits_;
 	int pos_[StepDir::AXIS_COUNT];
 	std::array<std::pair<int, int>, StepDir::AXIS_COUNT> limit_;
 
-	void run();
+	void runOnce(const boost::system::error_code &ec);
+	void stepTimerExpired(const boost::system::error_code &ec);
 
 
 };

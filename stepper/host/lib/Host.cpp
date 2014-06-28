@@ -21,11 +21,12 @@ namespace stepper {
 
 Host::Host() : work_(ios_), timer_(ios_), state_(Host::NO_DEVICE), pongCount_(0)
 {
-	boost::function<void ()> f = boost::bind(&boost::asio::io_service::run, &ios_);
-    thread_.reset(new boost::thread(f));
-
     timer_.expires_from_now(boost::posix_time::milliseconds(20));
     timer_.async_wait(boost::bind(&Host::runOnce, this, boost::asio::placeholders::error));
+
+    boost::function<void ()> f = boost::bind(&boost::asio::io_service::run, &ios_);
+    thread_.reset(new boost::thread(f));
+
 }
 
 Host::~Host()

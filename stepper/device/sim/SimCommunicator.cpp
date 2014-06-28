@@ -21,17 +21,13 @@
 namespace stepper { namespace device {
 
 
-SimCommunicator::SimCommunicator(uint16_t port) : socket_(ios_), port_(port)
+SimCommunicator::SimCommunicator(boost::asio::io_service &ios, uint16_t port) :
+		ios_(ios), socket_(ios_), port_(port)
 {
 }
 
 SimCommunicator::~SimCommunicator()
 {
-	if (thread_->joinable()) {
-		thread_->interrupt();
-	}
-    ios_.stop();
-    thread_->join();
 }
 
 void SimCommunicator::initialize()
@@ -44,7 +40,9 @@ void SimCommunicator::initialize()
         port_ = acceptor_->local_endpoint().port();
     }
 
-    thread_.reset(new boost::thread(boost::bind(&SimCommunicator::run, this)));
+    acceptor_->async_accept(socket_,
+    boost::bind(&SimCommunicator::acceptComplete, this,
+        boost::asio::placeholders::error));
 }
 
 uint16_t SimCommunicator::port() const
@@ -59,31 +57,6 @@ Message *SimCommunicator::receiveMessage()
 	} else {
 		return nullptr;
 	}
-}
-
-void SimCommunicator::run()
-{
-    using namespace boost::asio::ip;
-    try {
-        while (1) {
-            boost::this_thread::interruption_point();
-            acceptor_->async_accept(socket_,
-            boost::bind(&SimCommunicator::acceptComplete, this,
-                boost::asio::placeholders::error));
-            ios_.run();
-            ios_.reset();
-        }
-    }
-
-    catch (boost::thread_interrupted &/*intex*/) {
-    }
-    catch(std::exception &ex) {
-        std::cerr << "Exception caught, tcp/ip server thread dying" << std::endl;
-        std::cerr << ex.what();
-    }
-    catch(...) {
-        std::cerr << "Exception caught, tcp/ip server thread dying" << std::endl;
-    }
 }
 
 void SimCommunicator::acceptComplete(const boost::system::error_code &error)
@@ -109,6 +82,9 @@ HAL::Status SimCommunicator::sendMessage(Message *message, HAL::Priority priorit
 void SimCommunicator::handleError(const boost::system::error_code &error)
 {
     socket_.close();
+    acceptor_->async_accept(socket_,
+    boost::bind(&SimCommunicator::acceptComplete, this,
+        boost::asio::placeholders::error));
 }
 
 }}

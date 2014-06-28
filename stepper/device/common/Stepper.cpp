@@ -10,6 +10,7 @@
  *     Marc Schafer
  */
 #include <new>
+#include <algorithm>
 #include "Stepper.hpp"
 #include "StepperDictionary.hpp"
 #include "Device.hpp"
@@ -18,7 +19,7 @@
 
 namespace stepper { namespace device {
 
-Stepper::Stepper() : pause_(false), timerRunning_(false)
+Stepper::Stepper() : pause_(false), timerRunning_(false), speedAdjust_(1<<SpeedAdjustMsg::UNITY_SPEED_ADJUST_SHIFT)
 {
 }
 
@@ -43,8 +44,9 @@ void Stepper::runBackgroundOnce()
 			break;
 
 		default:
-			///\todo error unrecognized message
 			delete m;
+			error(UNRECOGNIZED_MESSAGE);
+			HAL::reset();
 			break;
 		}
 	}
@@ -123,6 +125,16 @@ void Stepper::handleMessage(Message *m)
 	}
 	break;
 
+	case CONNECT_MSG:
+	{
+		ConnectResponseMsg *crm = static_cast<ConnectResponseMsg*>(m);
+		HAL::Status status;
+		do {
+			HAL::Status status = HAL::sendMessage(m);
+		} while (status != HAL::SUCCESS && status != HAL::ERROR);
+	}
+	break;
+
 	case DATA_SCRIPT_MSG:
 	{
 		engine_.addScriptMessage(m);
@@ -138,7 +150,12 @@ void Stepper::handleMessage(Message *m)
 
 uint32_t Stepper::scaleDelay(uint32_t delay)
 {
-	return delay;
+	delay = std::min(delay, 0xFFFFu);
+	static const uint32_t minDelay = 1000000 / (TIMER_PERIOD_USEC * MAX_STEPS_PER_SEC);
+	uint32_t sdelay = (delay * speedAdjust_) >> SpeedAdjustMsg::UNITY_SPEED_ADJUST_SHIFT;
+	sdelay = std::min(sdelay, 0xFFFFu);
+	sdelay = std::max(sdelay, minDelay);
+	return sdelay;
 }
 
 }}

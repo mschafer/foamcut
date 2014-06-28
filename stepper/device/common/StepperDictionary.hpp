@@ -21,7 +21,8 @@ enum {
 	PAUSE_MSG,
 	RESET_MSG,
 	SPEED_ADJUST_MSG,
-	INIT_SCRIPT_MSG,
+	CONNECT_MSG,
+	CONNECT_RESPONSE_MSG,
 	ACK_SCRIPT_MSG,
 	DATA_SCRIPT_MSG,
 	STEPPER_MESSAGE_ID = 2
@@ -81,7 +82,8 @@ struct SpeedAdjustMsg : StepperMessage
 {
 	enum {
 		PAYLOAD_SIZE = sizeof(uint32_t),
-		FUNCTION = SPEED_ADJUST_MSG
+		FUNCTION = SPEED_ADJUST_MSG,
+		UNITY_SPEED_ADJUST_SHIFT = 15
 	};
 
 	SpeedAdjustMsg() : speedAdjust_(0) {
@@ -92,7 +94,33 @@ struct SpeedAdjustMsg : StepperMessage
 	uint32_t speedAdjust_;
 };
 
+/** Initiates a connection. */
+struct ConnectMsg : StepperMessage
+{
+	enum {
+		PAYLOAD_SIZE = 0,
+		FUNCTION = CONNECT_MSG
+	};
 
+	ConnectMsg() {
+		payloadSize(PAYLOAD_SIZE);
+		function(FUNCTION);
+	}
+};
+
+/** Device Response to a ConnectMsg. */
+struct ConnectResponseMsg : StepperMessage
+{
+	enum {
+		PAYLOAD_SIZE = 0,
+		FUNCTION = CONNECT_RESPONSE_MSG
+	};
+
+	ConnectResponseMsg() {
+		payloadSize(PAYLOAD_SIZE);
+		function(FUNCTION);
+	}
+};
 
 /**
  * Sent when the engine is done processing a DataScriptMsg.

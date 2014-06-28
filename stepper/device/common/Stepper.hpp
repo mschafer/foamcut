@@ -24,6 +24,7 @@ public:
 
 	enum {
 		TIMER_PERIOD_USEC = 5,
+		MAX_STEPS_PER_SEC = 2000
 	};
 
 	Stepper();

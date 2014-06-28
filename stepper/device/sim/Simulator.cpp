@@ -13,19 +13,21 @@ MemoryAllocator &MemoryAllocator::instance()
 	return ma;
 }
 
-Simulator::Simulator(uint16_t port)
+Simulator::Simulator(uint16_t port) : backgroundTimer_(ios_), stepTimer_(ios_)
 {
-	comm_.reset(new SimCommunicator(port));
+	comm_.reset(new SimCommunicator(ios_, port));
 	comm_->initialize();
 
-	boost::function<void ()> f = boost::bind(&Simulator::run, this);
+	ios_.post(boost::bind(&Simulator::runOnce, this, boost::system::error_code()));
+
+	boost::function<void ()> f = boost::bind(&boost::asio::io_service::run, &ios_);
 	thread_.reset(new boost::thread(f));
 }
 
 Simulator::~Simulator()
 {
+	ios_.stop();
 	if (thread_->joinable()) {
-		thread_->interrupt();
 		thread_->join();
 	}
 }
@@ -97,13 +99,15 @@ Message *Simulator::receiveMessage()
 void Simulator::startTimer(uint32_t period)
 {
 	Simulator &sim = instance();
-	///\todo implement me
+	Stepper &s = Stepper::instance();
+	sim.stepTimer_.expires_from_now(boost::posix_time::microseconds(period*5));
+	sim.stepTimer_.async_wait(boost::bind(&Simulator::stepTimerExpired, &sim, boost::asio::placeholders::error));
 }
 
 void Simulator::stopTimer()
 {
 	Simulator &sim = instance();
-	///\todo implement me
+	sim.stepTimer_.cancel();
 
 }
 
@@ -120,21 +124,29 @@ uint16_t Simulator::port() const
 	return comm_->port();
 }
 
-void Simulator::run()
+void Simulator::runOnce(const boost::system::error_code &ec)
 {
-	Stepper &s = Stepper::instance();
-	try {
-		while(1) {
-			boost::this_thread::interruption_point();
-			s.runBackgroundOnce();
-			boost::this_thread::yield();
-		}
+	if (!ec) {
+		Stepper &s = Stepper::instance();
+		s.runBackgroundOnce();
+		backgroundTimer_.expires_from_now(boost::posix_time::milliseconds(10));
+		backgroundTimer_.async_wait(boost::bind(&Simulator::runOnce, this, boost::asio::placeholders::error));
+	} else {
+		std::string em("Simulator::runOnce error: ");
+		em += ec.message();
+		throw std::runtime_error(em);
 	}
+}
 
-	catch(boost::thread_interrupted &/*intex*/) {
-	}
-	catch(...) {
-		std::cerr << "Simulator thread threw" << std::endl;
+void Simulator::stepTimerExpired(const boost::system::error_code &ec)
+{
+	if (!ec) {
+		Stepper &s = Stepper::instance();
+		s.onTimerExpired();
+	} else {
+		std::string em("Simulator::stepTimerExpired error: ");
+		em += ec.message();
+		throw std::runtime_error(em);
 	}
 }
 

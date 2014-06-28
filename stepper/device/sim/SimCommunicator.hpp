@@ -34,7 +34,7 @@ public:
         QUEUE_SIZE = 1000
     };
 
-    SimCommunicator(uint16_t port=0);
+    SimCommunicator(boost::asio::io_service &ios, uint16_t port=0);
     ~SimCommunicator();
 
     /**
@@ -55,12 +55,11 @@ public:
     Message *receiveMessage();
 
 private:
-    boost::asio::io_service ios_;
+    boost::asio::io_service &ios_;
     boost::asio::ip::tcp::socket socket_;
 	std::unique_ptr<boost::asio::ip::tcp::acceptor> acceptor_;
     std::unique_ptr<ASIOSender> sender_;
     std::unique_ptr<ASIOReceiver> receiver_;
-    std::unique_ptr<boost::thread> thread_;
     uint16_t port_;
 
     void handleError(const boost::system::error_code &error);
