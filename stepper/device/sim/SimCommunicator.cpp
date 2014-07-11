@@ -45,6 +45,12 @@ void SimCommunicator::initialize()
         boost::asio::placeholders::error));
 }
 
+void SimCommunicator::shutdown()
+{
+	sender_.reset();
+	receiver_.reset();
+}
+
 uint16_t SimCommunicator::port() const
 {
     return port_;

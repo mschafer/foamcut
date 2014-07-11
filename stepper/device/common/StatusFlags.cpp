@@ -14,19 +14,20 @@
 
 namespace stepper { namespace device {
 
-void error(ErrorCode ec)
+StatusFlags::StatusFlags() : flags_(0)
 {
 
 }
 
-void warning(WarningCode wc)
+StatusFlags &StatusFlags::instance()
 {
-
+	static StatusFlags theFlags;
+	return theFlags;
 }
 
-void info()
+void error(FatalError ec)
 {
-
+	StatusFlags::instance().reset();
 }
 
 }}

@@ -11,7 +11,7 @@ const double MAX_LINE_TIME = std::numeric_limits<uint32_t>::max() * device::Step
 
 Script::Script()
 {
-	bytes_.push_back(device::Script::DONE_CMD);
+	bytes_.push_back(device::Engine::DONE_CMD);
 }
 
 Script::~Script()
@@ -24,14 +24,13 @@ Script::addStep(device::StepDir sd, double delaySec)
 	if (delaySec > MAX_STEP_DELAY) {
 		throw std::out_of_range("delaySec too large for uint16_t");
 	}
-	device::Script::SingleStepCmd ssc;
+	device::Engine::SingleStepCmd ssc;
 	ssc.delay_ = (uint16_t)(delaySec * 1.e6 / device::Stepper::TIMER_PERIOD_USEC);
-	ssc.delay_ = (uint16_t)(delaySec * 1.e6) / device::Stepper::TIMER_PERIOD_USEC;
 	ssc.stepDir_ = sd;
-	bytes_.back() = device::Script::SINGLE_STEP_CMD;
+	bytes_.back() = device::Engine::SINGLE_STEP_CMD;
 	uint8_t *p = (uint8_t*)&ssc;
-	bytes_.insert(bytes_.end(), p, p+device::Script::SingleStepCmd::SIZE);
-	bytes_.push_back(device::Script::DONE_CMD);
+	bytes_.insert(bytes_.end(), p, p+device::Engine::SingleStepCmd::SIZE);
+	bytes_.push_back(device::Engine::DONE_CMD);
 }
 
 void
@@ -47,27 +46,27 @@ Script::addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double time)
 	amaxd = std::max(amaxd, abs(dz));
 	amaxd = std::max(amaxd, abs(du));
 	if (-amaxd < std::numeric_limits<int8_t>::min()) {
-		device::Script::LongLineCmd llc;
+		device::Engine::LongLineCmd llc;
 		llc.time_ = dtime;
 		llc.dx_ = dx;
 		llc.dy_ = dy;
 		llc.dz_ = dz;
 		llc.du_ = du;
-		bytes_.back() = device::Script::LONG_LINE_CMD;
+		bytes_.back() = device::Engine::LONG_LINE_CMD;
 		uint8_t *p = (uint8_t*)&llc;
-		bytes_.insert(bytes_.end(), p, p+device::Script::LongLineCmd::SIZE);
+		bytes_.insert(bytes_.end(), p, p+device::Engine::LongLineCmd::SIZE);
 	} else {
-		device::Script::LineCmd lc;
+		device::Engine::LineCmd lc;
 		lc.time_ = dtime;
 		lc.dx_ = dx;
 		lc.dy_ = dy;
 		lc.dz_ = dz;
 		lc.du_ = du;
-		bytes_.back() = device::Script::LINE_CMD;
+		bytes_.back() = device::Engine::LINE_CMD;
 		uint8_t *p = (uint8_t*)&lc;
-		bytes_.insert(bytes_.end(), p, p+device::Script::LineCmd::SIZE);
+		bytes_.insert(bytes_.end(), p, p+device::Engine::LineCmd::SIZE);
 	}
-	bytes_.push_back(device::Script::DONE_CMD);
+	bytes_.push_back(device::Engine::DONE_CMD);
 }
 
 std::unique_ptr<Script::MessageCollection>
@@ -82,6 +81,7 @@ Script::generateMessages() const
 		device::DataScriptMsg *dsm = new (m) device::DataScriptMsg(take);
 		std::copy(bit, bit+take, dsm->payload());
 		ret->push_back(m);
+		bit += take;
 	}
 	return ret;
 }

@@ -12,14 +12,15 @@
 
 #include <boost/chrono.hpp>
 #include <Simulator.hpp>
-#include <Device.hpp>
+#include <StepperDictionary.hpp>
 #include "Host.hpp"
 #include "TCPLink.hpp"
 #include "Script.hpp"
 
 namespace stepper {
 
-Host::Host() : work_(ios_), timer_(ios_), state_(Host::NO_DEVICE), pongCount_(0)
+Host::Host() : work_(ios_), timer_(ios_),  pongCount_(0),
+		heartbeatCount_(0), connected_(false)
 {
     timer_.expires_from_now(boost::posix_time::milliseconds(20));
     timer_.async_wait(boost::bind(&Host::runOnce, this, boost::asio::placeholders::error));
@@ -39,28 +40,61 @@ Host::~Host()
 
 bool Host::connectToSimulator()
 {
+	connected_ = false;
+	connectResponse_.reset();
 	link_.reset();
-	state_ = NO_DEVICE;
 
 	device::Simulator::reset();
 	uint16_t port = device::Simulator::instance().port();
 
+	heartbeatTime_ = std::chrono::steady_clock::now();
 	link_.reset(new TCPLink("localhost", port, ios_));
 	boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
 
-	return ping();
+	device::ConnectMsg *cm = new device::ConnectMsg();
+	link_->send(cm);
+	device::HeartbeatMsg *hm = new device::HeartbeatMsg();
+	link_->send(hm);
+
+	int iter = 10;
+	for (int iter=0; iter<10; ++iter) {
+		if (connected() && heartbeatResponse_) return true;
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+	}
+	return false;
 }
 
 void Host::executeScript(const Script &s)
 {
-	if (state_ != IDLE_DEVICE) {
+	if (scriptRunning()) {
 		throw std::logic_error("Host::executeScript failed, device is not idle");
 	}
 
-	std::unique_ptr<Script::MessageCollection> msgs(s.generateMessages());
+	scriptMsgs_ = s.generateMessages();
 
-	///\todo finish implementation
+	// fill up the device window with script messages and then send a
+	// GoMsg to start the device running.  The remainder of the
+	// messages will be sent in response to Acks coming back.
+	int i = 0;
+	device::HAL::Status status;
+	while (i<device::DataScriptMsg::IN_FLIGHT_COUNT && !scriptMsgs_->empty()) {
+		Script::MessageCollection::auto_type dsm = scriptMsgs_->pop_front();
+		device::HAL::Status status = link_->send(dsm.release());
+		if (status != device::HAL::SUCCESS) {
+			throw std::runtime_error("Host::executeScript Unexpected send failure");
+		}
+	}
+	device::GoMsg *gm = new device::GoMsg();
+	status = link_->send(gm);
+	if (status != device::HAL::SUCCESS) {
+		throw std::runtime_error("Host::executeScript Unexpected send failure");
+	}
+}
 
+bool Host::scriptRunning()
+{
+	boost::lock_guard<boost::mutex> guard(mtx_);
+	return heartbeatResponse_->statusFlags_.get(device::StatusFlags::ENGINE_RUNNING);
 }
 
 void Host::runOnce(const boost::system::error_code& error)
@@ -68,24 +102,88 @@ void Host::runOnce(const boost::system::error_code& error)
 	if (link_) {
 		device::Message *m;
 		while ((m = link_->receive()) != nullptr) {
-			switch (m->function()) {
-
-			case device::PingResponseMsg::FUNCTION:
-				++pongCount_;
-				delete m;
-				break;
-
-			default:
-				///\todo unrecognized message error
-				delete m;
-				break;
-			}
+			handleMessage(m);
 		}
 	}
 
 	if (!ios_.stopped()) {
-		timer_.expires_from_now(boost::posix_time::milliseconds(20));
+		timer_.expires_from_now(boost::posix_time::milliseconds(BACKGROUND_PERIOD_MSEC));
 		timer_.async_wait(boost::bind(&Host::runOnce, this, boost::asio::placeholders::error));
+	}
+}
+
+void Host::handleMessage(device::Message *m)
+{
+	switch (m->id()) {
+	case device::PING_RESPONSE_MSG:
+		++pongCount_;
+		delete m;
+		break;
+
+	case device::ACK_SCRIPT_MSG:
+	{
+		if (!scriptMsgs_->empty()) {
+			Script::MessageCollection::auto_type dsm = scriptMsgs_->pop_front();
+			device::HAL::Status status = link_->send(dsm.release());
+			if (status != device::HAL::SUCCESS) {
+				throw std::runtime_error("Host::runOnce Unexpected send failure");
+			}
+		}
+		delete m;
+	}
+	break;
+
+	case device::HEARTBEAT_RESPONSE_MSG:
+	{
+		///\todo notify if status changes
+		boost::lock_guard<boost::mutex> guard(mtx_);
+		device::HeartbeatResponseMsg *hrm = static_cast<device::HeartbeatResponseMsg*>(m);
+		heartbeatResponse_.reset(hrm);
+		heartbeatCount_ = 0;
+	}
+	break;
+
+	case device::CONNECT_RESPONSE_MSG:
+	{
+		boost::lock_guard<boost::mutex> guard(mtx_);
+		device::ConnectResponseMsg *crm = static_cast<device::ConnectResponseMsg*>(m);
+		connectResponse_.reset(crm);
+		connected_ = true;
+	}
+	break;
+
+	default:
+		delete m;
+		throw std::runtime_error("Host::runOnce Unrecognized message");
+		break;
+	}
+}
+
+/**
+ * Periodically send a heartbeat message to the device and
+ * keep track of responses.  If more than a certain number
+ * in a row go missing, then break the connection.
+ */
+void Host::heartbeat()
+{
+	// is it time to do a heartbeat?
+	auto d = std::chrono::steady_clock::now() - heartbeatTime_;
+	if (d >= std::chrono::milliseconds(HEARTBEAT_PERIOD_MSEC)) {
+
+		// are we disconnected?
+		if (heartbeatCount_ > HEARTBEAT_DISCONNECT_COUNT) {
+			connected_ = false;
+			throw std::runtime_error("Host::heartbeat Disconnect threshold exceeded");
+		}
+
+		heartbeatTime_ = std::chrono::steady_clock::now();
+		device::HeartbeatMsg *hm = new device::HeartbeatMsg();
+		device::HAL::Status s = link_->send(hm);
+		if (s == device::HAL::SUCCESS) {
+			++heartbeatCount_;
+		} else {
+			delete hm;
+		}
 	}
 }
 

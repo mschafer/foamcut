@@ -3,6 +3,20 @@
 #include "MemoryAllocator.hpp"
 #include <Stepper.hpp>
 
+std::ostream& operator<<(std::ostream& os, const stepper::device::StepDir& sd)
+{
+	for (int i=0; i<stepper::device::StepDir::AXIS_COUNT; ++i) {
+		stepper::device::StepDir::AxisIdx ai = static_cast<stepper::device::StepDir::AxisIdx>(i);
+		if (sd.dir(ai)) os << "+";
+		else os << "-";
+		if (sd.step(ai)) os << "1";
+		else os << "0";
+		os << "\t";
+	}
+	os << std::endl;
+	return os;
+}
+
 namespace stepper { namespace device {
 
 std::unique_ptr<Simulator> Simulator::theSim_;
@@ -15,6 +29,13 @@ MemoryAllocator &MemoryAllocator::instance()
 
 Simulator::Simulator(uint16_t port) : backgroundTimer_(ios_), stepTimer_(ios_)
 {
+
+	for (int i=0; i<StepDir::AXIS_COUNT; ++i) {
+		limit_[i].first = std::numeric_limits<int>::min();
+		limit_[i].second = std::numeric_limits<int>::max();
+		pos_[i] = 0;
+	}
+
 	comm_.reset(new SimCommunicator(ios_, port));
 	comm_->initialize();
 
@@ -27,6 +48,7 @@ Simulator::Simulator(uint16_t port) : backgroundTimer_(ios_), stepTimer_(ios_)
 Simulator::~Simulator()
 {
 	ios_.stop();
+	comm_->shutdown();
 	if (thread_->joinable()) {
 		thread_->join();
 	}
@@ -47,6 +69,7 @@ void Simulator::initialize()
 
 void Simulator::setStepDirBits(const StepDir &s)
 {
+	std::cout << "set bits: " << s;
 	Simulator &sim = instance();
 	for (int i=0; i<StepDir::AXIS_COUNT; ++i) {
 		StepDir::AxisIdx ai = static_cast<StepDir::AxisIdx>(i);
@@ -128,7 +151,7 @@ void Simulator::runOnce(const boost::system::error_code &ec)
 {
 	if (!ec) {
 		Stepper &s = Stepper::instance();
-		s.runBackgroundOnce();
+		s.runOnce();
 		backgroundTimer_.expires_from_now(boost::posix_time::milliseconds(10));
 		backgroundTimer_.async_wait(boost::bind(&Simulator::runOnce, this, boost::asio::placeholders::error));
 	} else {

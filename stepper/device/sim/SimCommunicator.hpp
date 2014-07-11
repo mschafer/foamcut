@@ -49,6 +49,9 @@ public:
     /** Call to start the connection process. */
     void initialize();
 
+    /** Call to prepare for destruction.  Releases waiting threads. */
+    void shutdown();
+
     /** \return the tcp/ip port used for connections. */
     uint16_t port() const;
 

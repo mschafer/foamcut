@@ -16,6 +16,12 @@
 #include "Message.hpp"
 #include "StepDir.hpp"
 #include "LimitSwitches.hpp"
+#include "StatusFlags.hpp"
+
+/** \todo
+ * Convert HALBase from class to HAL namespace and use free functions.
+ * Make Status return type a class w/ overloaded bool conversion.
+ */
 
 namespace stepper { namespace device {
 
@@ -62,6 +68,7 @@ public:
 	 * Send a Message back to the host.
 	 * On SUCCESS, the HAL takes ownership of m and should delete it
 	 * when the send is complete.
+	 * \todo should be calling this instead of HAL::Send?
 	 */
 	static Status sendMessage(Message *m, Priority p = NORMAL_PRIORITY) { return Derived::sendMessage(m, p); }
 

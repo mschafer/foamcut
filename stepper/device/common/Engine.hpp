@@ -21,56 +21,50 @@ namespace stepper { namespace device {
 
 class Stepper;
 
-/** namespace for Engine instructions. */
-namespace Script {
-
-enum {
-	NO_OP_CMD        = 0,
-	SINGLE_STEP_CMD  = 1,
-	LINE_CMD         = 2,
-	LONG_LINE_CMD    = 3,
-	DELAY_CMD        = 4,
-	DONE_CMD         = 5
-};
-
-struct SingleStepCmd
-{
-	enum { SIZE=3 };
-	uint16_t delay_;
-	StepDir stepDir_;
-};
-
-struct LineCmd
-{
-	enum { SIZE=8 };
-	uint32_t time_;
-	int8_t dx_;
-	int8_t dy_;
-	int8_t dz_;
-	int8_t du_;
-};
-
-struct LongLineCmd
-{
-	enum { SIZE=12 };
-	uint32_t time_;
-	int16_t dx_;
-	int16_t dy_;
-	int16_t dz_;
-	int16_t du_;
-};
-
-struct DelayCmd
-{
-	enum { SIZE=4 };
-	uint32_t delay_;
-};
-
-}
-
 class Engine
 {
 public:
+	enum {
+		NO_OP_CMD        = 0,
+		SINGLE_STEP_CMD  = 1,
+		LINE_CMD         = 2,
+		LONG_LINE_CMD    = 3,
+		DELAY_CMD        = 4,
+		DONE_CMD         = 5
+	};
+
+	struct SingleStepCmd
+	{
+		enum { SIZE=3 };
+		uint16_t delay_;
+		StepDir stepDir_;
+	};
+
+	struct LineCmd
+	{
+		enum { SIZE=8 };
+		uint32_t time_;
+		int8_t dx_;
+		int8_t dy_;
+		int8_t dz_;
+		int8_t du_;
+	};
+
+	struct LongLineCmd
+	{
+		enum { SIZE=12 };
+		uint32_t time_;
+		int16_t dx_;
+		int16_t dy_;
+		int16_t dz_;
+		int16_t du_;
+	};
+
+	struct DelayCmd
+	{
+		enum { SIZE=4 };
+		uint32_t delay_;
+	};
 
 	enum Status {
 		RUNNING,
@@ -99,7 +93,7 @@ public:
 	 */
 	void operator()();
 
-	void init();
+	void setupConnection();
 
 private:
 	RingBuffer<Message*, DataScriptMsg::IN_FLIGHT_COUNT> messages_;
@@ -107,7 +101,7 @@ private:
 	Line line_;
 	uint16_t msgOffset_;
 	uint8_t cmdOffset_;
-	uint8_t cmd_[sizeof(Script::LongLineCmd)];
+	uint8_t cmd_[sizeof(Engine::LongLineCmd)];
 	Status status_;
 
 	bool extractBytes(uint8_t count);

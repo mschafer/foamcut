@@ -15,24 +15,42 @@
 
 namespace stepper { namespace device {
 
-struct StatusFlags
-{
-    enum Bit {
-        MEMORY_ALLOCATION_FAILED = 0x01,
-        COMM_SEND_FAILED         = 0x02,
-        UNRECOGNIZED_MSG         = 0x04,
-        MSG_ID_OUT_OF_RANGE      = 0x08
-    };
-
-    void set(Bit b) { bits_ |= (uint32_t)b; }
-    bool get(Bit b) const { return (bits_ & (uint32_t)b) != 0; }
-
-    void clear() { bits_ = 0; }
-
-    uint32_t bits_;
+enum ErrorCode {
+	SUCCESS = 0,
+	FATAL_ERROR = 1,
+	RESOURCE_UNAVAILABLE = 2
 };
 
-enum ErrorCode {
+struct StatusFlags
+{
+    enum Flag {
+        MEMORY_ALLOCATION_FAILED = 0x01,
+        COMM_SEND_FAILED         = 0x02,
+        CONNECTED                = 0x04,
+        ENGINE_RUNNING           = 0x08,
+        STICKY_FLAGS =  CONNECTED | ENGINE_RUNNING
+    };
+
+    StatusFlags();
+
+    void set(Flag b) { flags_ |= (uint32_t)b; }
+    void clear(Flag b) { flags_ &= ~b; }
+    bool get(Flag b) const { return (flags_ & (uint32_t)b) != 0; }
+
+    /** Clears transient flags but leaves sticky ones. */
+    void clear() { flags_ &= ~STICKY_FLAGS; }
+
+    /** Clears all flags. */
+    void reset() { flags_ = 0; }
+
+    static StatusFlags &instance();
+
+private:
+    volatile uint32_t flags_;
+};
+
+/** Fatal error codes. */
+enum FatalError {
 	SCRIPT_BUFFER_OVERFLOW_ERROR = 1,
 	STEP_QUEUE_UNDERFLOW_ERROR = 2,
 	MEMORY_ALLOCATION_ERROR = 3,
@@ -40,20 +58,12 @@ enum ErrorCode {
 	UNRECOGNIZED_MESSAGE = 5
 };
 
-enum WarningCode {
-	TIMER_ALREADY_RUNNING = 1
-};
-
 /**
  * This function is called whenever a fatal error occurs.
  * The stepper is stopped and all state is cleared.
  * A message is sent back to the host with the error code if possible.
  */
-void error(ErrorCode ec);
-
-void warning(WarningCode wc);
-
-void info();
+void error(FatalError ec);
 
 }}
 

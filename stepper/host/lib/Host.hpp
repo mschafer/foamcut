@@ -14,14 +14,12 @@
 
 #include <memory>
 #include <atomic>
+#include <chrono>
 #include <boost/asio.hpp>
 #include "Link.hpp"
+#include "Script.hpp"
 
 namespace stepper {
-
-class Script;
-
-class TCPLink;
 
 namespace device {
 class Simulator;
@@ -31,11 +29,10 @@ class Host
 {
 public:
 
-	enum State {
-		NO_DEVICE,
-		IDLE_DEVICE,
-		ENGINE_RUNNING,
-		ENGINE_PAUSED
+	enum {
+		BACKGROUND_PERIOD_MSEC = 20,
+		HEARTBEAT_PERIOD_MSEC = 500,
+		HEARTBEAT_DISCONNECT_COUNT = 5
 	};
 
 	Host();
@@ -44,7 +41,8 @@ public:
 	bool connectToSimulator();
 
 	void executeScript(const Script &s);
-
+	bool connected() { return connected_; }
+	bool scriptRunning();
 
 private:
 	std::unique_ptr<Link> link_;
@@ -53,10 +51,17 @@ private:
     boost::mutex mtx_;
     boost::asio::io_service::work work_;
     boost::asio::deadline_timer timer_;
-    State state_;
     std::atomic<size_t> pongCount_;
+    std::unique_ptr<Script::MessageCollection> scriptMsgs_;
+    std::chrono::time_point<std::chrono::steady_clock> heartbeatTime_;
+    std::atomic<size_t> heartbeatCount_;
+    std::unique_ptr<device::ConnectResponseMsg> connectResponse_;
+    std::unique_ptr<device::HeartbeatResponseMsg> heartbeatResponse_;
+    std::atomic<bool> connected_;
 
     void runOnce(const boost::system::error_code& error);
+    void handleMessage(device::Message *m);
+    void heartbeat();
     bool ping();
 };
 

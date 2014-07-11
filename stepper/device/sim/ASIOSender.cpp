@@ -68,6 +68,7 @@ ASIOSender::~ASIOSender()
     clearQueues();
 }
 
+///\todo senders can get stuck here when Simulator is trying to shut down
 HAL::Status ASIOSender::enqueue(Message *msg)
 {
     boost::unique_lock<boost::mutex> lock(mtx_);

@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <boost/pool/singleton_pool.hpp>
+#include <StatusFlags.hpp>
 
 namespace stepper { namespace device {
     
@@ -31,6 +32,7 @@ public:
         if (request <= MaxPool::requested_size) {
             return MaxPool::malloc();
         } else {
+        	StatusFlags::instance().set(StatusFlags::MEMORY_ALLOCATION_FAILED);
             return NULL;
         }
     }

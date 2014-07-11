@@ -15,8 +15,6 @@
 
 namespace stepper { namespace device {
 
-using namespace stepper::device::Script;
-
 Engine::Engine() : msgOffset_(0), cmdOffset_(0), status_(IDLE)
 {
 }
@@ -92,13 +90,16 @@ bool Engine::parseNextCommand()
 		if (!extractBytes(1)) return false;
 	}
 
+	///\todo bug cmdID can't be in cmd_
+
+
 	switch (cmd_[0]) {
 	case NO_OP_CMD:
 		break;
 
 	case SINGLE_STEP_CMD:
 	{
-		if (!extractBytes(SingleStepCmd::SIZE-cmdOffset_)) return false;
+		if (!extractBytes(SingleStepCmd::SIZE+1-cmdOffset_)) return false;
 		SingleStepCmd *ss = reinterpret_cast<SingleStepCmd*>(cmd_);
 		steps_.push(Line::NextStep(ss->delay_, ss->stepDir_));
 	}
@@ -143,7 +144,7 @@ bool Engine::parseNextCommand()
 	return true;
 }
 
-void Engine::init()
+void Engine::setupConnection()
 {
 	HAL::stopTimer();
 	while (!messages_.empty()) {

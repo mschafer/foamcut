@@ -24,6 +24,8 @@ class SimCommunicator;
 class Simulator : public HALBase<Simulator>
 {
 public:
+	typedef std::array<int, StepDir::AXIS_COUNT> Position;
+
 	Simulator(uint16_t port=0);
 	~Simulator();
 
@@ -40,6 +42,9 @@ public:
 	static Simulator &instance();
 
 	uint16_t port() const;
+	const std::array<int, StepDir::AXIS_COUNT> &position() {
+		return pos_;
+	}
 
 private:
 	static std::unique_ptr<Simulator> theSim_;
@@ -51,12 +56,11 @@ private:
 	boost::asio::deadline_timer stepTimer_;
 	StepDir invertMask_;
 	StepDir currentBits_;
-	int pos_[StepDir::AXIS_COUNT];
+	Position pos_;
 	std::array<std::pair<int, int>, StepDir::AXIS_COUNT> limit_;
 
 	void runOnce(const boost::system::error_code &ec);
 	void stepTimerExpired(const boost::system::error_code &ec);
-
 
 };
 

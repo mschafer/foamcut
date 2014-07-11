@@ -38,7 +38,7 @@ public:
 	 * It is responsible for processing incoming data from the host,
 	 * sending telemetry back, and scheduling the timer to produce steps.
 	 */
-	void runBackgroundOnce();
+	void runOnce();
 
 	/**
 	 * This method drives the steps onto the digital outputs.
@@ -46,6 +46,9 @@ public:
 	 */
 	void onTimerExpired();
 
+protected:
+
+private:
 	/**
 	 * Specify bits in \sa StepDir that need to be inverted.
 	 * Inverting a step bit will result in the generation of a falling edge
@@ -53,17 +56,13 @@ public:
 	 * Inverting a direction bit will cause forward steps to output a logical
 	 * 0 on the direction pin instead of a 1.
 	 */
-	void invertMask(StepDir invertMask) { invertMask_ = invertMask; }
-
-protected:
-
-private:
 	StepDir invertMask_;
 	Engine engine_;
 	uint32_t speedAdjust_;
 	volatile bool pause_;
-	volatile bool timerRunning_;
 
+	/** Sets the Stepper to an idle state for a new connection. */
+	void setupConnection(ConnectMsg *cm);
 	void handleMessage(Message *m);
 
 	/** \return scaled value of the delay. */

@@ -30,7 +30,6 @@ public:
 
     HAL::Status enqueue(Message *msg);
 
-
 private:
     enum {
         QUEUE_SIZE = 1<<10

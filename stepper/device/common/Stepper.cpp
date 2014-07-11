@@ -13,13 +13,12 @@
 #include <algorithm>
 #include "Stepper.hpp"
 #include "StepperDictionary.hpp"
-#include "Device.hpp"
 #include "StatusFlags.hpp"
 #include <HAL.hpp>
 
 namespace stepper { namespace device {
 
-Stepper::Stepper() : pause_(false), timerRunning_(false), speedAdjust_(1<<SpeedAdjustMsg::UNITY_SPEED_ADJUST_SHIFT)
+Stepper::Stepper() : pause_(false), speedAdjust_(1<<SpeedAdjustMsg::UNITY_SPEED_ADJUST_SHIFT)
 {
 }
 
@@ -29,38 +28,23 @@ Stepper &Stepper::instance()
 	return theStepper;
 }
 
-void Stepper::runBackgroundOnce()
+void Stepper::runOnce()
 {
 	// handle received messages
 	Message *m = NULL;
 	if ((m = HAL::receiveMessage()) != NULL) {
-		switch (m->id()) {
-		case Device::DEVICE_MESSAGE_ID:
-			Device::instance()(m);
-			break;
-
-		case STEPPER_MESSAGE_ID:
-			handleMessage(m);
-			break;
-
-		default:
-			delete m;
-			error(UNRECOGNIZED_MESSAGE);
-			HAL::reset();
-			break;
-		}
+		handleMessage(m);
 	}
 
-	// run the engine and device
+	// run the engine
 	engine_();
-	Device::instance()(NULL);
 }
 
 void Stepper::onTimerExpired()
 {
 	if (pause_) {
 		pause_ = false;
-		timerRunning_ = false;
+		StatusFlags::instance().clear(StatusFlags::ENGINE_RUNNING);
 		return;
 	}
 
@@ -81,7 +65,7 @@ void Stepper::onTimerExpired()
 		// steps are edge triggered so return them inactive
 		HAL::setStepDirBits(s.getDirOnlyBitVals(invertMask_));
 	} else {
-		timerRunning_ = false;
+		StatusFlags::instance().clear(StatusFlags::ENGINE_RUNNING);
 	}
 
 }
@@ -90,15 +74,13 @@ void Stepper::onTimerExpired()
 void Stepper::handleMessage(Message *m)
 {
 
-	switch (m->function()) {
+	switch (m->id()) {
 
 	case GO_MSG:
 	{
-		if (!timerRunning_) {
-			timerRunning_ = true;
+		if(!StatusFlags::instance().get(StatusFlags::ENGINE_RUNNING)) {
+			StatusFlags::instance().set(StatusFlags::ENGINE_RUNNING);
 			HAL::startTimer(200);
-		} else {
-			warning(TIMER_ALREADY_RUNNING);
 		}
 		delete m;
 	}
@@ -127,11 +109,19 @@ void Stepper::handleMessage(Message *m)
 
 	case CONNECT_MSG:
 	{
-		ConnectResponseMsg *crm = static_cast<ConnectResponseMsg*>(m);
-		HAL::Status status;
-		do {
-			HAL::Status status = HAL::sendMessage(m);
-		} while (status != HAL::SUCCESS && status != HAL::ERROR);
+		ConnectMsg *cm  = static_cast<ConnectMsg*>(m);
+		setupConnection(cm);
+		ConnectResponseMsg *crm = new (m) ConnectResponseMsg();
+		HAL::sendMessage(crm);
+	}
+	break;
+
+	case HEARTBEAT_MSG:
+	{
+		HeartbeatResponseMsg *hrm = new (m) HeartbeatResponseMsg();
+		hrm->statusFlags_ = StatusFlags::instance();
+		StatusFlags::instance().clear();
+		HAL::sendMessage(hrm);
 	}
 	break;
 
@@ -146,6 +136,18 @@ void Stepper::handleMessage(Message *m)
 		delete (m);
 		break;
 	}
+}
+
+void Stepper::setupConnection(ConnectMsg *cm)
+{
+	HAL::stopTimer();
+	StatusFlags::instance().reset();
+	pause_ = false;
+	invertMask_ = cm->invertMask_;
+	speedAdjust_ = 1 << SpeedAdjustMsg::UNITY_SPEED_ADJUST_SHIFT;
+	StatusFlags::instance().clear(StatusFlags::CONNECTED);
+	StatusFlags::instance().clear(StatusFlags::ENGINE_RUNNING);
+	engine_.setupConnection();
 }
 
 uint32_t Stepper::scaleDelay(uint32_t delay)
