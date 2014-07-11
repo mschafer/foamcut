@@ -15,7 +15,7 @@
 
 namespace stepper { namespace device {
 
-Engine::Engine() : msgOffset_(0), cmdOffset_(0), status_(IDLE)
+Engine::Engine() : msgOffset_(0), cmdOffset_(0), currentCmdId_(NONE_CMD), status_(IDLE)
 {
 }
 
@@ -56,15 +56,16 @@ void Engine::operator()()
 	}
 }
 
-bool Engine::extractBytes(uint8_t count)
+uint8_t Engine::extractBytes(uint8_t *buff, uint8_t count)
 {
+	uint8_t ret = 0;
 	while (count > 0 ) {
 		if (messages_.empty()) {
-			return false;
+			return ret;
 		}
 
 		Message *msg = messages_.front();
-		cmd_[cmdOffset_++] = msg->payload()[msgOffset_++];
+		buff[ret++] = msg->payload()[msgOffset_++];
 		--count;
 
 		// is that the end of data in this message?
@@ -80,26 +81,25 @@ bool Engine::extractBytes(uint8_t count)
 			} while (status != HAL::SUCCESS);
 		}
 	}
-	return true;
+	return ret;
 }
 
 bool Engine::parseNextCommand()
 {
 	// get the id of the command
-	if (cmdOffset_ == 0) {
-		if (!extractBytes(1)) return false;
+	if (currentCmdId_ == NONE_CMD) {
+		if (extractBytes(&currentCmdId_, 1) == 0) return false;
+		cmdOffset_ = 0;
 	}
 
-	///\todo bug cmdID can't be in cmd_
-
-
-	switch (cmd_[0]) {
+	switch (currentCmdId_) {
 	case NO_OP_CMD:
 		break;
 
 	case SINGLE_STEP_CMD:
 	{
-		if (!extractBytes(SingleStepCmd::SIZE+1-cmdOffset_)) return false;
+		cmdOffset_ += extractBytes(cmd_+cmdOffset_, SingleStepCmd::SIZE-cmdOffset_);
+		if (cmdOffset_ < SingleStepCmd::SIZE) return false;
 		SingleStepCmd *ss = reinterpret_cast<SingleStepCmd*>(cmd_);
 		steps_.push(Line::NextStep(ss->delay_, ss->stepDir_));
 	}
@@ -107,7 +107,8 @@ bool Engine::parseNextCommand()
 
 	case LINE_CMD:
 	{
-		if (!extractBytes(LineCmd::SIZE-cmdOffset_)) return false;
+		cmdOffset_ += extractBytes(cmd_+cmdOffset_, LineCmd::SIZE-cmdOffset_);
+		if (cmdOffset_ < LineCmd::SIZE) return false;
 		LineCmd *l = reinterpret_cast<LineCmd*>(cmd_);
 		line_.reset(l->dx_, l->dy_, l->dz_, l->du_, l->time_);
 	}
@@ -115,7 +116,8 @@ bool Engine::parseNextCommand()
 
 	case LONG_LINE_CMD:
 	{
-		if (!extractBytes(LongLineCmd::SIZE-cmdOffset_)) return false;
+		cmdOffset_ += extractBytes(cmd_+cmdOffset_, LongLineCmd::SIZE-cmdOffset_);
+		if (cmdOffset_ < LongLineCmd::SIZE) return false;
 		LongLineCmd *l = reinterpret_cast<LongLineCmd*>(cmd_);
 		line_.reset(l->dx_, l->dy_, l->dz_, l->du_, l->time_);
 	}
@@ -123,7 +125,8 @@ bool Engine::parseNextCommand()
 
 	case DELAY_CMD:
 	{
-		if (!extractBytes(DelayCmd::SIZE-cmdOffset_)) return false;
+		cmdOffset_ += extractBytes(cmd_+cmdOffset_, DelayCmd::SIZE-cmdOffset_);
+		if (cmdOffset_ < DelayCmd::SIZE) return false;
 		DelayCmd *d = reinterpret_cast<DelayCmd*>(cmd_);
 		steps_.push(Line::NextStep(d->delay_, StepDir()));
 	}
@@ -141,6 +144,7 @@ bool Engine::parseNextCommand()
 		break;
 	}
 	cmdOffset_ = 0;
+	currentCmdId_ = NONE_CMD;
 	return true;
 }
 

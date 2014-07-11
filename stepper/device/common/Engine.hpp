@@ -30,7 +30,8 @@ public:
 		LINE_CMD         = 2,
 		LONG_LINE_CMD    = 3,
 		DELAY_CMD        = 4,
-		DONE_CMD         = 5
+		DONE_CMD         = 5,
+		NONE_CMD         = 0xFF
 	};
 
 	struct SingleStepCmd
@@ -101,10 +102,11 @@ private:
 	Line line_;
 	uint16_t msgOffset_;
 	uint8_t cmdOffset_;
+	uint8_t currentCmdId_;
 	uint8_t cmd_[sizeof(Engine::LongLineCmd)];
 	Status status_;
 
-	bool extractBytes(uint8_t count);
+	uint8_t extractBytes(uint8_t *buff, uint8_t count);
 	bool parseNextCommand();
 
 	Engine(const Engine &cpy);

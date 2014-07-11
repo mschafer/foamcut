@@ -10,6 +10,7 @@
  */
 
 #include "StatusFlags.hpp"
+#include "StepperDictionary.hpp"
 #include <HAL.hpp>
 
 namespace stepper { namespace device {
@@ -27,7 +28,10 @@ StatusFlags &StatusFlags::instance()
 
 void error(FatalError ec)
 {
-	StatusFlags::instance().reset();
+	FatalErrorMsg *fem = new FatalErrorMsg((uint8_t)ec);
+	HAL::sendMessage(fem);
+
+	while(1) {}
 }
 
 }}

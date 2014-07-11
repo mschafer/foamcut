@@ -152,6 +152,16 @@ void Host::handleMessage(device::Message *m)
 	}
 	break;
 
+	case device::FATAL_ERROR_MSG:
+	{
+		device::FatalErrorMsg *fem = static_cast<device::FatalErrorMsg*>(m);
+		std::ostringstream oss;
+		oss << "Host::runOnce Fatal error from device: " << (int)fem->fatalErrorCode_;
+		throw std::runtime_error(oss.str());
+		delete m;
+	}
+	break;
+
 	default:
 		delete m;
 		throw std::runtime_error("Host::runOnce Unrecognized message");
