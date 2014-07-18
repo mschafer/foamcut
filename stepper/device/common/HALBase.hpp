@@ -20,7 +20,7 @@
 
 /** \todo
  * Convert HALBase from class to HAL namespace and use free functions.
- * Make Status return type a class w/ overloaded bool conversion.
+ * Move status return to StatusFlags.
  */
 
 namespace stepper { namespace device {
