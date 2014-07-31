@@ -62,78 +62,6 @@ Simulator &Simulator::instance()
 	return *theSim_.get();
 }
 
-void Simulator::initialize()
-{
-	Simulator &sim = instance();
-}
-
-void Simulator::setStepDirBits(const StepDir &s)
-{
-	std::cout << "set bits: " << s;
-	Simulator &sim = instance();
-	for (int i=0; i<StepDir::AXIS_COUNT; ++i) {
-		StepDir::AxisIdx ai = static_cast<StepDir::AxisIdx>(i);
-
-		// set direction bits
-		sim.currentBits_.dir(ai, s.dir(ai));
-
-		// was there an edge on a step bit?
-		if (s.step(ai) != sim.currentBits_.step(ai)) {
-			sim.currentBits_.step(ai, s.step(ai));
-			// was the edge in the right direction to cause a step?
-			if (sim.currentBits_.step(ai) != sim.invertMask_.step(ai)) {
-				int np = sim.pos_[i] + ((sim.invertMask_.dir(ai) == sim.currentBits_.dir(ai)) ? -1 : 1);
-
-				// apply limits
-				if (np >= sim.limit_[i].first && np <= sim.limit_[i].second) {
-					sim.pos_[i] = np;
-				}
-			}
-		}
-	}
-}
-
-LimitSwitches Simulator::readLimitSwitches()
-{
-	Simulator &sim = instance();
-	LimitSwitches ret;
-	for (int i=0; i<StepDir::AXIS_COUNT; ++i) {
-		StepDir::AxisIdx idx = static_cast<StepDir::AxisIdx>(i);
-		bool test = (sim.pos_[i] <= sim.limit_[i].first);
-		ret.reverseLimit(idx, test);
-		test = (sim.pos_[i] >= sim.limit_[i].second);
-		ret.forwardLimit(idx, test);
-	}
-	return ret;
-}
-
-Simulator::Status Simulator::sendMessage(Message *m, Priority priority)
-{
-	Simulator &sim = instance();
-	return Simulator::instance().comm_->sendMessage(m, priority);
-}
-
-Message *Simulator::receiveMessage()
-{
-	Simulator &sim = instance();
-	return sim.comm_->receiveMessage();
-}
-
-void Simulator::startTimer(uint32_t period)
-{
-	Simulator &sim = instance();
-	Stepper &s = Stepper::instance();
-	sim.stepTimer_.expires_from_now(boost::posix_time::microseconds(period*5));
-	sim.stepTimer_.async_wait(boost::bind(&Simulator::stepTimerExpired, &sim, boost::asio::placeholders::error));
-}
-
-void Simulator::stopTimer()
-{
-	Simulator &sim = instance();
-	sim.stepTimer_.cancel();
-
-}
-
 void Simulator::reset()
 {
 	theSim_.reset();
@@ -171,6 +99,78 @@ void Simulator::stepTimerExpired(const boost::system::error_code &ec)
 		em += ec.message();
 		throw std::runtime_error(em);
 	}
+}
+
+void HAL::initialize()
+{
+	Simulator &sim = Simulator::instance();
+}
+
+void HAL::setStepDirBits(const StepDir &s)
+{
+	std::cout << "set bits: " << s;
+	Simulator &sim = Simulator::instance();
+	for (int i=0; i<StepDir::AXIS_COUNT; ++i) {
+		StepDir::AxisIdx ai = static_cast<StepDir::AxisIdx>(i);
+
+		// set direction bits
+		sim.currentBits_.dir(ai, s.dir(ai));
+
+		// was there an edge on a step bit?
+		if (s.step(ai) != sim.currentBits_.step(ai)) {
+			sim.currentBits_.step(ai, s.step(ai));
+			// was the edge in the right direction to cause a step?
+			if (sim.currentBits_.step(ai) != sim.invertMask_.step(ai)) {
+				int np = sim.pos_[i] + ((sim.invertMask_.dir(ai) == sim.currentBits_.dir(ai)) ? -1 : 1);
+
+				// apply limits
+				if (np >= sim.limit_[i].first && np <= sim.limit_[i].second) {
+					sim.pos_[i] = np;
+				}
+			}
+		}
+	}
+}
+
+LimitSwitches HAL::readLimitSwitches()
+{
+	Simulator &sim = Simulator::instance();
+	LimitSwitches ret;
+	for (int i=0; i<StepDir::AXIS_COUNT; ++i) {
+		StepDir::AxisIdx idx = static_cast<StepDir::AxisIdx>(i);
+		bool test = (sim.pos_[i] <= sim.limit_[i].first);
+		ret.reverseLimit(idx, test);
+		test = (sim.pos_[i] >= sim.limit_[i].second);
+		ret.forwardLimit(idx, test);
+	}
+	return ret;
+}
+
+ErrorCode HAL::sendMessage(Message *m, Message::Priority priority)
+{
+	Simulator &sim = Simulator::instance();
+	return Simulator::instance().comm_->sendMessage(m, priority);
+}
+
+Message *HAL::receiveMessage()
+{
+	Simulator &sim = Simulator::instance();
+	return sim.comm_->receiveMessage();
+}
+
+void HAL::startTimer(uint32_t period)
+{
+	Simulator &sim = Simulator::instance();
+	Stepper &s = Stepper::instance();
+	sim.stepTimer_.expires_from_now(boost::posix_time::microseconds(period*5));
+	sim.stepTimer_.async_wait(boost::bind(&Simulator::stepTimerExpired, &sim, boost::asio::placeholders::error));
+}
+
+void HAL::stopTimer()
+{
+	Simulator &sim = Simulator::instance();
+	sim.stepTimer_.cancel();
+
 }
 
 }}

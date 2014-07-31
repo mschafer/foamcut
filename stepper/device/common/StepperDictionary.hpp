@@ -21,17 +21,16 @@ namespace stepper { namespace device {
 enum MessageId {
 	GO_MSG 					= 1,
 	PAUSE_MSG				= 2,
-	RESET_MSG				= 3,
-	SPEED_ADJUST_MSG		= 4,
-	CONNECT_MSG				= 5,
-	CONNECT_RESPONSE_MSG	= 6,
-	ACK_SCRIPT_MSG			= 7,
-	DATA_SCRIPT_MSG			= 8,
-    PING_MSG                = 9,
-    PING_RESPONSE_MSG       = 10,
-    HEARTBEAT_MSG           = 11,
-    HEARTBEAT_RESPONSE_MSG  = 12,
-    FATAL_ERROR_MSG			= 13
+	SPEED_ADJUST_MSG		= 3,
+	CONNECT_MSG				= 4,
+	CONNECT_RESPONSE_MSG	= 5,
+	ACK_SCRIPT_MSG			= 6,
+	DATA_SCRIPT_MSG			= 7,
+    PING_MSG                = 8,
+    PING_RESPONSE_MSG       = 9,
+    HEARTBEAT_MSG           = 10,
+    HEARTBEAT_RESPONSE_MSG  = 11,
+    FATAL_ERROR_MSG			= 12
 };
 
 /** Starts the engine executing the currently cached script. */
@@ -57,20 +56,6 @@ struct PauseMsg : Message
 	};
 
 	PauseMsg() {
-		payloadSize(PAYLOAD_SIZE);
-		id(ID);
-	}
-};
-
-/** Stops engine execution and empties the script buffer. */
-struct ResetMsg : Message
-{
-	enum {
-		PAYLOAD_SIZE = 0,
-		ID = RESET_MSG
-	};
-
-	ResetMsg() {
 		payloadSize(PAYLOAD_SIZE);
 		id(ID);
 	}

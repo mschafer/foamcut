@@ -75,10 +75,10 @@ uint8_t Engine::extractBytes(uint8_t *buff, uint8_t count)
 
 			// send an ack for the DataScriptMsg that we just finished processing
 			AckScriptMsg *ack = new (msg) AckScriptMsg();
-			HAL::Status status;
+			ErrorCode ec;
 			do {
-				status = HAL::sendMessage(ack);
-			} while (status != HAL::SUCCESS);
+				ec = HAL::sendMessage(ack);
+			} while (ec != SUCCESS);
 		}
 	}
 	return ret;

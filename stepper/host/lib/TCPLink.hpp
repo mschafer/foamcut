@@ -34,7 +34,7 @@ public:
 	explicit TCPLink(const char *hostName, uint16_t port, boost::asio::io_service &ios);
 	virtual ~TCPLink();
 
-	virtual device::HAL::Status send(device::Message *mb);
+	virtual device::ErrorCode send(device::Message *mb);
 
 	virtual device::Message *receive();
 

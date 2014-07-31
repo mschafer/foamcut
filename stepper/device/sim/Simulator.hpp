@@ -15,29 +15,20 @@
 #include <memory>
 #include <boost/thread.hpp>
 #include <boost/asio.hpp>
-#include <HALBase.hpp>
+#include <StepDir.hpp>
+#include <HAL.hpp>
 
 namespace stepper { namespace device {
 
 class SimCommunicator;
 
-class Simulator : public HALBase<Simulator>
+class Simulator
 {
 public:
 	typedef std::array<int, StepDir::AXIS_COUNT> Position;
 
 	Simulator(uint16_t port=0);
 	~Simulator();
-
-	// HAL emulation
-	void initialize();
-	static void setStepDirBits(const StepDir &s);
-	static LimitSwitches readLimitSwitches();
-	static Status sendMessage(Message *m, Priority priority = NORMAL_PRIORITY);
-	static Message *receiveMessage();
-	static void startTimer(uint32_t period);
-	static void stopTimer();
-	static void reset();
 
 	static Simulator &instance();
 
@@ -46,7 +37,16 @@ public:
 		return pos_;
 	}
 
+	void reset();
+
 private:
+	friend void HAL::setStepDirBits(const StepDir &);
+	friend LimitSwitches HAL::readLimitSwitches();
+	friend ErrorCode HAL::sendMessage(Message *, Message::Priority);
+	friend Message *HAL::receiveMessage();
+	friend void HAL::startTimer(uint32_t);
+	friend void HAL::stopTimer();
+
 	static std::unique_ptr<Simulator> theSim_;
 
 	std::unique_ptr<SimCommunicator> comm_;

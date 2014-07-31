@@ -35,6 +35,11 @@ struct MessageHeader
 class Message
 {
 public:
+	enum Priority {
+		NORMAL_PRIORITY,
+		HIGH_PRIORITY
+	};
+
     Message() {}
 	~Message() {}
 

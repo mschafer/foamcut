@@ -28,7 +28,7 @@ public:
     ASIOSender(boost::asio::ip::tcp::socket &s, ErrorCallback ec);
     ~ASIOSender();
 
-    HAL::Status enqueue(Message *msg);
+    ErrorCode enqueue(Message *msg);
 
 private:
     enum {
@@ -43,7 +43,7 @@ private:
     ErrorCallback errorCallback_;
     MessageQueue toSend_;
     MessageQueue beingSent_;
-    std::atomic<HAL::Status> status_;
+    std::atomic<ErrorCode> status_;
     std::atomic<int> waitingSenders_;
     std::atomic<bool> inProgress_;
 

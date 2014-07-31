@@ -76,12 +76,12 @@ void SimCommunicator::acceptComplete(const boost::system::error_code &error)
     }
 }
 
-HAL::Status SimCommunicator::sendMessage(Message *message, HAL::Priority priority)
+ErrorCode SimCommunicator::sendMessage(Message *message, Message::Priority priority)
 {
 	if (sender_.get() != nullptr) {
 		return sender_->enqueue(message);
 	} else {
-		return HAL::RESOURCE_UNAVAILABLE;
+		return RESOURCE_UNAVAILABLE;
 	}
 }
 

@@ -44,7 +44,7 @@ bool Host::connectToSimulator()
 	connectResponse_.reset();
 	link_.reset();
 
-	device::Simulator::reset();
+	device::Simulator::instance().reset();
 	uint16_t port = device::Simulator::instance().port();
 
 	heartbeatTime_ = std::chrono::steady_clock::now();
@@ -76,17 +76,17 @@ void Host::executeScript(const Script &s)
 	// GoMsg to start the device running.  The remainder of the
 	// messages will be sent in response to Acks coming back.
 	int i = 0;
-	device::HAL::Status status;
+	device::ErrorCode ec;
 	while (i<device::DataScriptMsg::IN_FLIGHT_COUNT && !scriptMsgs_->empty()) {
 		Script::MessageCollection::auto_type dsm = scriptMsgs_->pop_front();
-		device::HAL::Status status = link_->send(dsm.release());
-		if (status != device::HAL::SUCCESS) {
+		ec = link_->send(dsm.release());
+		if (ec != device::SUCCESS) {
 			throw std::runtime_error("Host::executeScript Unexpected send failure");
 		}
 	}
 	device::GoMsg *gm = new device::GoMsg();
-	status = link_->send(gm);
-	if (status != device::HAL::SUCCESS) {
+	ec = link_->send(gm);
+	if (ec != device::SUCCESS) {
 		throw std::runtime_error("Host::executeScript Unexpected send failure");
 	}
 }
@@ -124,8 +124,8 @@ void Host::handleMessage(device::Message *m)
 	{
 		if (!scriptMsgs_->empty()) {
 			Script::MessageCollection::auto_type dsm = scriptMsgs_->pop_front();
-			device::HAL::Status status = link_->send(dsm.release());
-			if (status != device::HAL::SUCCESS) {
+			device::ErrorCode ec = link_->send(dsm.release());
+			if (ec != device::SUCCESS) {
 				throw std::runtime_error("Host::runOnce Unexpected send failure");
 			}
 		}
@@ -188,8 +188,8 @@ void Host::heartbeat()
 
 		heartbeatTime_ = std::chrono::steady_clock::now();
 		device::HeartbeatMsg *hm = new device::HeartbeatMsg();
-		device::HAL::Status s = link_->send(hm);
-		if (s == device::HAL::SUCCESS) {
+		device::ErrorCode ec = link_->send(hm);
+		if (ec == device::SUCCESS) {
 			++heartbeatCount_;
 		} else {
 			delete hm;
@@ -202,7 +202,7 @@ bool Host::ping()
 	size_t currentCount = pongCount_.load();
 	device::PingMsg *pm = new device::PingMsg();
 	int tries = 10;
-	while (link_->send(pm) != device::HAL::SUCCESS && tries > 0) {
+	while (link_->send(pm) != device::SUCCESS && tries > 0) {
 		--tries;
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
 	}

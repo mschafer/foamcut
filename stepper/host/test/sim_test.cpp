@@ -21,6 +21,7 @@
 #include <Host.hpp>
 #include <Script.hpp>
 #include <Engine.hpp>
+#include <Simulator.hpp>
 
 using namespace stepper;
 using namespace stepper::device;

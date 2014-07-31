@@ -44,7 +44,7 @@ public:
      * If false is returned, then ownership of the message reverts to the callee.
      * The CommService will not delete the message.
      */
-    HAL::Status sendMessage(Message *message, HAL::Priority priority=HAL::NORMAL_PRIORITY);
+    ErrorCode sendMessage(Message *message, Message::Priority priority=Message::NORMAL_PRIORITY);
 
     /** Call to start the connection process. */
     void initialize();

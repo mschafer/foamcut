@@ -48,7 +48,7 @@ struct ConstBufferSequence {
 };
 
 ASIOSender::ASIOSender(boost::asio::ip::tcp::socket &s, ErrorCallback ec) : socket_(s), 
-    errorCallback_(ec), toSend_(QUEUE_SIZE, NULL), beingSent_(QUEUE_SIZE, NULL), status_(HAL::SUCCESS),
+    errorCallback_(ec), toSend_(QUEUE_SIZE, NULL), beingSent_(QUEUE_SIZE, NULL), status_(SUCCESS),
     waitingSenders_(0), inProgress_(false)
 {
     toSend_.clear();
@@ -58,7 +58,7 @@ ASIOSender::ASIOSender(boost::asio::ip::tcp::socket &s, ErrorCallback ec) : sock
 ASIOSender::~ASIOSender()
 {
     boost::unique_lock<boost::mutex> lock(mtx_);
-    status_ = HAL::ERROR;
+    status_ = FATAL_ERROR;
     while (waitingSenders_ > 0) {
         lock.unlock();
         full_.notify_all();
@@ -69,23 +69,23 @@ ASIOSender::~ASIOSender()
 }
 
 ///\todo senders can get stuck here when Simulator is trying to shut down
-HAL::Status ASIOSender::enqueue(Message *msg)
+ErrorCode ASIOSender::enqueue(Message *msg)
 {
     boost::unique_lock<boost::mutex> lock(mtx_);
-    while (toSend_.size() >= QUEUE_SIZE && status_ == HAL::SUCCESS) {
+    while (toSend_.size() >= QUEUE_SIZE && status_ == SUCCESS) {
         ++waitingSenders_;
         full_.wait(lock);
         --waitingSenders_;
     }
 
-    if (status_ == HAL::SUCCESS) {
+    if (status_ == SUCCESS) {
         toSend_.push_back(msg);
         if (!inProgress_) {
             startSending();
         }
-        return HAL::SUCCESS;
+        return SUCCESS;
     } else {
-        return HAL::ERROR;
+        return FATAL_ERROR;
     }
 }
 
@@ -122,7 +122,7 @@ void ASIOSender::sendComplete(const boost::system::error_code &error)
 
     if (error) {
         boost::lock_guard<boost::mutex> guard(mtx_);
-        status_ = HAL::ERROR;
+        status_ = FATAL_ERROR;
         clearQueues();
         errorCallback_(error);
     } else {

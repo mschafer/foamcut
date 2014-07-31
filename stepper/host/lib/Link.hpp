@@ -25,7 +25,7 @@ public:
 	Link() {}
 	virtual ~Link() {}
 
-	virtual device::HAL::Status send(device::Message *mb) = 0;
+	virtual device::ErrorCode send(device::Message *mb) = 0;
 
 	virtual device::Message *receive() = 0;
 

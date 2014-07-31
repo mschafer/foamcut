@@ -28,12 +28,12 @@ TCPLink::~TCPLink()
 {
 }
 
-device::HAL::Status TCPLink::send(device::Message *m)
+device::ErrorCode TCPLink::send(device::Message *m)
 {
 	if (sender_.get() != nullptr) {
 		return sender_->enqueue(m);
 	} else {
-		return device::HAL::RESOURCE_UNAVAILABLE;
+		return device::RESOURCE_UNAVAILABLE;
 	}
 }
 

@@ -93,12 +93,6 @@ void Stepper::handleMessage(Message *m)
 	}
 	break;
 
-	case RESET_MSG:
-	{
-		HAL::reset();
-	}
-	break;
-
 	case SPEED_ADJUST_MSG:
 	{
 		SpeedAdjustMsg *sam = static_cast<SpeedAdjustMsg*>(m);
