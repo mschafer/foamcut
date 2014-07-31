@@ -14,7 +14,7 @@
 
 #include <memory>
 #include <atomic>
-#include <chrono>
+#include <boost/chrono.hpp>
 #include <boost/asio.hpp>
 #include "Link.hpp"
 #include "Script.hpp"
@@ -45,15 +45,15 @@ public:
 	bool scriptRunning();
 
 private:
-	std::unique_ptr<Link> link_;
 	boost::asio::io_service ios_;
     std::unique_ptr<boost::thread> thread_;
+	std::unique_ptr<Link> link_;
     boost::mutex mtx_;
     boost::asio::io_service::work work_;
     boost::asio::deadline_timer timer_;
     std::atomic<size_t> pongCount_;
     std::unique_ptr<Script::MessageCollection> scriptMsgs_;
-    std::chrono::time_point<std::chrono::steady_clock> heartbeatTime_;
+    boost::chrono::time_point<boost::chrono::steady_clock> heartbeatTime_;
     std::atomic<size_t> heartbeatCount_;
     std::unique_ptr<device::ConnectResponseMsg> connectResponse_;
     std::unique_ptr<device::HeartbeatResponseMsg> heartbeatResponse_;

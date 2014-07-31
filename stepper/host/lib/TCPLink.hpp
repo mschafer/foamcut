@@ -46,8 +46,8 @@ private:
 	std::string hostName_;
     std::string portStr_;
     boost::asio::io_service &ios_;
-    boost::asio::ip::tcp::socket socket_;
     boost::mutex mtx_;
+    boost::asio::ip::tcp::socket socket_;
     std::unique_ptr<device::ASIOSender> sender_;
     std::unique_ptr<device::ASIOReceiver> receiver_;
 

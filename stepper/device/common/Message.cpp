@@ -50,13 +50,13 @@ Message *Message::alloc(uint16_t payloadSize)
 uint16_t Message::payloadCapacity() const
 {
     MemoryAllocator &ms = MemoryAllocator::instance();
-    return ms.capacity(this) - sizeof(Message);
+    return static_cast<uint16_t>(ms.capacity(this) - sizeof(Message));
 }
 
 uint16_t Message::maxPayloadCapacity()
 {
     MemoryAllocator &ms = MemoryAllocator::instance();
-    return ms.maxCapacity() - sizeof(Message);
+    return static_cast<uint16_t>(ms.maxCapacity() - sizeof(Message));
 }
 
 }}

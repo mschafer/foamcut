@@ -37,7 +37,7 @@ public:
 		return pos_;
 	}
 
-	void reset();
+	static void reset();
 
 private:
 	friend void HAL::setStepDirBits(const StepDir &);
@@ -49,11 +49,11 @@ private:
 
 	static std::unique_ptr<Simulator> theSim_;
 
-	std::unique_ptr<SimCommunicator> comm_;
-	std::unique_ptr<boost::thread> thread_;
 	boost::asio::io_service ios_;
+	std::unique_ptr<boost::thread> thread_;
 	boost::asio::deadline_timer backgroundTimer_;
 	boost::asio::deadline_timer stepTimer_;
+	std::unique_ptr<SimCommunicator> comm_;
 	StepDir invertMask_;
 	StepDir currentBits_;
 	Position pos_;

@@ -160,7 +160,7 @@ int Spline::insertControlPoint(double xi) {
 		nd[i] = y_x_[i];
 		++i;
 	}
-	int iret = i;
+	int iret = static_cast<int>(i);
 	nx[i] = xi;
 	ny[i] = px.y;
 	nd[i] = px.y_x;

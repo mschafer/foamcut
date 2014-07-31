@@ -10,7 +10,6 @@
  *     Marc Schafer
  */
 
-#include <boost/chrono.hpp>
 #include <Simulator.hpp>
 #include <StepperDictionary.hpp>
 #include "Host.hpp"
@@ -47,7 +46,7 @@ bool Host::connectToSimulator()
 	device::Simulator::instance().reset();
 	uint16_t port = device::Simulator::instance().port();
 
-	heartbeatTime_ = std::chrono::steady_clock::now();
+	heartbeatTime_ = boost::chrono::steady_clock::now();
 	link_.reset(new TCPLink("localhost", port, ios_));
 	boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
 
@@ -177,8 +176,8 @@ void Host::handleMessage(device::Message *m)
 void Host::heartbeat()
 {
 	// is it time to do a heartbeat?
-	auto d = std::chrono::steady_clock::now() - heartbeatTime_;
-	if (d >= std::chrono::milliseconds(HEARTBEAT_PERIOD_MSEC)) {
+	auto d = boost::chrono::steady_clock::now() - heartbeatTime_;
+	if (d >= boost::chrono::milliseconds(HEARTBEAT_PERIOD_MSEC)) {
 
 		// are we disconnected?
 		if (heartbeatCount_ > HEARTBEAT_DISCONNECT_COUNT) {
@@ -186,7 +185,7 @@ void Host::heartbeat()
 			throw std::runtime_error("Host::heartbeat Disconnect threshold exceeded");
 		}
 
-		heartbeatTime_ = std::chrono::steady_clock::now();
+		heartbeatTime_ = boost::chrono::steady_clock::now();
 		device::HeartbeatMsg *hm = new device::HeartbeatMsg();
 		device::ErrorCode ec = link_->send(hm);
 		if (ec == device::SUCCESS) {

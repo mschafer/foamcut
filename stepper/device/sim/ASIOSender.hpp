@@ -12,6 +12,7 @@
 #ifndef stepper_device_ASIOSender_hpp
 #define stepper_device_ASIOSender_hpp
 
+#include <atomic>
 #include <deque>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
