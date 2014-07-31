@@ -9,7 +9,7 @@ namespace stepper {
 const double MAX_STEP_DELAY = std::numeric_limits<uint16_t>::max() * device::Stepper::TIMER_PERIOD_USEC * 1.e-6;
 const double MAX_LINE_TIME = std::numeric_limits<uint32_t>::max() * device::Stepper::TIMER_PERIOD_USEC * 1.e-6;
 
-Script::Script()
+Script::Script() : duration_(0.)
 {
 	bytes_.push_back(device::Engine::DONE_CMD);
 }
@@ -31,15 +31,16 @@ Script::addStep(device::StepDir sd, double delaySec)
 	uint8_t *p = (uint8_t*)&ssc;
 	bytes_.insert(bytes_.end(), p, p+device::Engine::SingleStepCmd::SIZE);
 	bytes_.push_back(device::Engine::DONE_CMD);
+	duration_ += delaySec;
 }
 
 void
-Script::addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double time)
+Script::addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double duration)
 {
-	if (time > MAX_LINE_TIME) {
+	if (duration > MAX_LINE_TIME) {
 		throw std::out_of_range("time too large for uint32_t");
 	}
-	uint32_t dtime = (uint32_t)(time * 1.e6 / device::Stepper::TIMER_PERIOD_USEC);
+	uint32_t dtime = (uint32_t)(duration * 1.e6 / device::Stepper::TIMER_PERIOD_USEC);
 
 	int amaxd = abs(dx);
 	amaxd = std::max(amaxd, abs(dy));
@@ -67,6 +68,20 @@ Script::addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double time)
 		bytes_.insert(bytes_.end(), p, p+device::Engine::LineCmd::SIZE);
 	}
 	bytes_.push_back(device::Engine::DONE_CMD);
+	duration_ += duration;
+}
+
+void Script::addDelay(double duration)
+{
+	if (duration > MAX_LINE_TIME) {
+		throw std::out_of_range("time too large for uint32_t");
+	}
+	uint32_t dtime = (uint32_t)(duration * 1.e6 / device::Stepper::TIMER_PERIOD_USEC);
+	bytes_.back() = device::Engine::DELAY_CMD;
+	device::Engine::DelayCmd dc;
+	dc.delay_ = dtime;
+	uint8_t *p = (uint8_t*)&dc;
+	bytes_.insert(bytes_.end(), p, p+device::Engine::DelayCmd::SIZE);
 }
 
 std::unique_ptr<Script::MessageCollection>

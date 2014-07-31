@@ -45,19 +45,30 @@ public:
 	 * \param dy The number of y axis steps.
 	 * \param dz The number of z axis steps.
 	 * \param du The number of u axis steps.
-	 * \param time The time in seconds to take making this linear move.  It will be
+	 * \param duration The time in seconds to spend making this linear move.  It will be
 	 * divided equally across all the individual steps.
 	 */
-	void addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double time);
+	void addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double duration);
+
+	/**
+	 * Add a delay to the script.
+	 * \param duration The time in seconds to pause execution.
+	 */
+	void addDelay(double duration);
 
 	/**
 	 * Converts the script to a collection of Messages that can be sent to the device.
 	 */
 	std::unique_ptr<MessageCollection> generateMessages() const;
 
+	/**
+	 * \return The expected time it will take this script to run in seconds.
+	 */
+	double duration() const;
 
 private:
 	std::deque<uint8_t> bytes_;
+	double duration_;
 
 };
 
