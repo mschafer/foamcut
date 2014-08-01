@@ -54,17 +54,17 @@ Script::addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double duration)
 		llc.dz_ = dz;
 		llc.du_ = du;
 		bytes_.back() = device::Engine::LONG_LINE_CMD;
-		uint8_t *p = (uint8_t*)&llc;
+		uint8_t *p = reinterpret_cast<uint8_t*>(&llc);
 		bytes_.insert(bytes_.end(), p, p+device::Engine::LongLineCmd::SIZE);
 	} else {
 		device::Engine::LineCmd lc;
 		lc.time_ = dtime;
-		lc.dx_ = dx;
-		lc.dy_ = dy;
-		lc.dz_ = dz;
-		lc.du_ = du;
+		lc.dx_ = static_cast<uint8_t>(dx);
+		lc.dy_ = static_cast<uint8_t>(dy);
+		lc.dz_ = static_cast<uint8_t>(dz);
+		lc.du_ = static_cast<uint8_t>(du);
 		bytes_.back() = device::Engine::LINE_CMD;
-		uint8_t *p = (uint8_t*)&lc;
+		uint8_t *p = reinterpret_cast<uint8_t*>(&lc);
 		bytes_.insert(bytes_.end(), p, p+device::Engine::LineCmd::SIZE);
 	}
 	bytes_.push_back(device::Engine::DONE_CMD);
@@ -90,8 +90,8 @@ Script::generateMessages() const
 	std::unique_ptr<MessageCollection> ret(new MessageCollection());
 	auto bit = bytes_.begin();
 	while (bit < bytes_.end()) {
-		size_t avail = bytes_.end() - bit;
-		size_t take = std::min(avail, static_cast<size_t>(device::Message::maxPayloadCapacity()));
+		uint16_t avail = static_cast<uint16_t>(bytes_.end() - bit);
+		uint16_t take = std::min(avail, device::Message::maxPayloadCapacity());
 		device::Message *m = device::Message::alloc(take);
 		device::DataScriptMsg *dsm = new (m) device::DataScriptMsg(take);
 		std::copy(bit, bit+take, dsm->payload());
