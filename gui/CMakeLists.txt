@@ -23,7 +23,7 @@ IF (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 #  set (WINSDK_LIB_PATH "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64")
   set (CMAKE_PREFIX_PATH ${QT_PREFIX_PATH} ${WINSDK_LIB_PATH})
 ELSE (${CMAKE_SYSTEM_NAME} MATCHES "Windows") 
-  set (CMAKE_PREFIX_PATH /Users/mschafer/Qt5.2.1/5.2.1/clang_64/lib/cmake)
+  set (CMAKE_PREFIX_PATH /Users/mschafer/Qt5.3.1/5.3/clang_64/lib/cmake)
 ENDIF (${CMAKE_SYSTEM_NAME} MATCHES "Windows") 
 
 # todo find a better way to do this
