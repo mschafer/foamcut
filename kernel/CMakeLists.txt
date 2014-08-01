@@ -40,15 +40,15 @@ include_directories (
     ${Boost_INCLUDE_DIRS} 
 )
 
-add_library (foamcut_kernel SHARED
+add_library (foamcut_kernel OBJECT
 	${KERNEL_SRC}
 	${KERNEL_HDR}
 )
 
-install (TARGETS foamcut_kernel 
-  RUNTIME DESTINATION ${PROJECT_BINARY_DIR}/bin
-  LIBRARY DESTINATION ${PROJECT_BINARY_DIR}/bin
-)
+#install (TARGETS foamcut_kernel 
+#  RUNTIME DESTINATION ${PROJECT_BINARY_DIR}/bin
+#  LIBRARY DESTINATION ${PROJECT_BINARY_DIR}/bin
+#)
 
 #add_custom_command(TARGET foamcut_kernel POST_BUILD
 #    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/bin

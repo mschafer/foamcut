@@ -12,14 +12,13 @@
 #ifndef foamcut_ruled_surface_hpp
 #define foamcut_ruled_surface_hpp
 
-#include "foamcut_kernel_dll.h"
 #include <memory>
 #include <boost/shared_ptr.hpp>
 #include "shape.hpp"
 
 namespace foamcut {
 
-class foamcut_kernel_API RuledSurface
+class RuledSurface
 {
 public:
 	typedef boost::shared_ptr<RuledSurface> handle;

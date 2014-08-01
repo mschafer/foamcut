@@ -33,9 +33,9 @@ add_executable(test_foamcut_kernel
   ruled_surface_test.cpp
   shape_test.cpp
   spline_test.cpp
+  $<TARGET_OBJECTS:foamcut_kernel>
 )
 
 target_link_libraries(test_foamcut_kernel 
   ${Boost_LIBRARIES}
-  foamcut_kernel
 )

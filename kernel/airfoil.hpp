@@ -12,7 +12,6 @@
 #ifndef foamcut_airfoil_hpp
 #define foamcut_airfoil_hpp
 
-#include "foamcut_kernel_dll.h"
 #include <istream>
 #include <vector>
 #include <boost/shared_ptr.hpp>
@@ -28,7 +27,7 @@ namespace foamcut {
  * Rotates to desired alfa (degrees).
  * Adds a sync point at the leading edge.
  */
-class foamcut_kernel_API Airfoil {
+class Airfoil {
 public:
     typedef boost::shared_ptr<Airfoil> handle;
 

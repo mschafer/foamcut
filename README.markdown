@@ -12,8 +12,10 @@ embedded microcontroller.
 * Qt 5.2.0 for Windows 64-bit (VS 2012, OpenGL)
 * Windows SDK 8.1 because Qt has a dependency on it
 * boost 1.55 built from sources for static libraries
-** b2 --toolset=msvc address-model=64 link=static threading=multi runtime-link=shared -j N install
-* Select Visual Studio 11 Win64 generator for the CMake project.
+** bootstrap.bat
+** b2 --prefix="C:\Program Files\boost\boost_1_55_vc12"   --toolset=msvc address-model=64 link=static threading=multi runtime-link=shared -j N install
+** set BOOST_ROOT in CMake for configuration
+* Select Visual Studio 12 Win64 generator for the CMake project.
 
 # Mac
 * CMake 2.8.11

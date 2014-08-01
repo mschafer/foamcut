@@ -19,8 +19,8 @@ find_package( Boost REQUIRED COMPONENTS
 )
 
 IF (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  set (QT_PREFIX_PATH "C:/Qt/Qt5.2.0/5.2.0/msvc2012_64_opengl/lib/cmake")
-  set (WINSDK_LIB_PATH "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64")
+  set (QT_PREFIX_PATH "C:/Qt/5.3/msvc2013_64_opengl/lib/cmake")
+#  set (WINSDK_LIB_PATH "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64")
   set (CMAKE_PREFIX_PATH ${QT_PREFIX_PATH} ${WINSDK_LIB_PATH})
 ELSE (${CMAKE_SYSTEM_NAME} MATCHES "Windows") 
   set (CMAKE_PREFIX_PATH /Users/mschafer/Qt5.2.1/5.2.1/clang_64/lib/cmake)
@@ -60,10 +60,13 @@ add_executable(foamcut_gui
   movedialog.cpp
   qcustomplot.cpp
   shapeplotmgr.cpp
+  $<TARGET_OBJECTS:foamcut_kernel>
 )
 
 qt5_use_modules(foamcut_gui Widgets PrintSupport)
-target_link_libraries( foamcut_gui foamcut_kernel )
+target_link_libraries( foamcut_gui
+  ${Boost_LIBRARIES}
+)
 
 get_target_property(QtCore_location_Release Qt5::Core LOCATION_Release)
 #get_target_property(QtWidgets_location_Release Qt5::Widgets LOCATION_Release)
