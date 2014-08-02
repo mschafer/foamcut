@@ -64,7 +64,7 @@ public:
 	/**
 	 * \return The expected time it will take this script to run in seconds.
 	 */
-	double duration() const;
+	double duration() const { return duration_;  }
 
 private:
 	std::deque<uint8_t> bytes_;

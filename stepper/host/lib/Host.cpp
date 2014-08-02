@@ -88,12 +88,20 @@ void Host::executeScript(const Script &s)
 	if (ec != device::SUCCESS) {
 		throw std::runtime_error("Host::executeScript Unexpected send failure");
 	}
+	scriptDoneTime_ = boost::chrono::steady_clock::now();
+	boost::chrono::steady_clock::duration d = boost::chrono::duration_cast<boost::chrono::nanoseconds>(boost::chrono::duration<double>(s.duration()));
+	scriptDoneTime_ += d;
 }
 
 bool Host::scriptRunning()
 {
+	auto d = boost::chrono::steady_clock::now() - scriptDoneTime_;
 	boost::lock_guard<boost::mutex> guard(mtx_);
-	return heartbeatResponse_->statusFlags_.get(device::StatusFlags::ENGINE_RUNNING);
+	if (boost::chrono::steady_clock::now() >= scriptDoneTime_) {
+		return heartbeatResponse_->statusFlags_.get(device::StatusFlags::ENGINE_RUNNING);
+	} else {
+		return false;
+	}
 }
 
 void Host::runOnce(const boost::system::error_code& error)
