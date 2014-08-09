@@ -74,6 +74,8 @@ public:
 	bool uRev() const { return getBit(U_REV); }
 	void uRev(bool v) { setBit(U_REV, v); }
 
+	bool operator !=(const LimitSwitches &rhs) { return b_ != rhs.b_; }
+	bool operator ==(const LimitSwitches &rhs) { return b_ == rhs.b_; }
 
 private:
 	uint8_t b_;

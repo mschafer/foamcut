@@ -16,6 +16,7 @@
 #include <StepDir.hpp>
 #include <StepperDictionary.hpp>
 #include <boost/ptr_container/ptr_deque.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace stepper {
 
@@ -28,6 +29,7 @@ class Script
 {
 public:
 	typedef boost::ptr_deque<device::Message> MessageCollection;
+	typedef std::shared_ptr<Script> handle;
 
 	Script();
 	~Script();

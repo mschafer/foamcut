@@ -15,6 +15,11 @@
 #include <memory>
 #include <boost/shared_ptr.hpp>
 #include "shape.hpp"
+#include "Machine.hpp"
+
+namespace stepper {
+	class Script;
+}
 
 namespace foamcut {
 
@@ -40,14 +45,19 @@ public:
 	handle translateZ(double zOffset) const;
 
 	/**
-	* Calculate the intersection points for this ruled surface with the
-	* two planes defined by z = lZ and z = rZ.
-	*
-	* When cutting foam, the face of the foam block is offset from the plane in which the
-	* wire is moved.  This function calculates the points for the wire to move through in
-	* order to cut the correct shape at the block of foam.
-	*/
+	 * Calculate the intersection points for this ruled surface with the
+	 * two planes defined by z = lZ and z = rZ.
+	 *
+	 * When cutting foam, the face of the foam block is offset from the plane in which the
+	 * wire is moved.  This function calculates the points for the wire to move through in
+	 * order to cut the correct shape at the block of foam.
+	 */
 	handle interpolateZ(double lZ, double rZ) const;
+
+	/**
+	 * Generate a set of instructions for the stepper to cut this RuledSurface.
+	 */
+	std::shared_ptr<stepper::Script> generateScript(const Machine &machine);
 
 	/** \todo Add a method for sweep rotation */
 
@@ -57,7 +67,7 @@ public:
 	const std::vector<double> &rightY() const { return ry_; }
 
 private:
-	RuledSurface() {}
+	RuledSurface() : lZ_(0.), span_(0.) {}
 
 	std::vector<double> lx_;
 	std::vector<double> ly_;

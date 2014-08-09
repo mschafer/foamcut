@@ -21,6 +21,14 @@ find_package( Boost REQUIRED COMPONENTS
 # directory for unit tests
 add_subdirectory(test)
 
+set (STEPPER_HOST_DIR ${CMAKE_SOURCE_DIR}/stepper/host/lib)
+set (DEVICE_COMMON_DIR ${CMAKE_SOURCE_DIR}/stepper/device/common)
+
+include_directories (
+  ${STEPPER_HOST_DIR}
+  ${DEVICE_COMMON_DIR}
+)
+
 # source files
 set (KERNEL_SRC
   airfoil.cpp

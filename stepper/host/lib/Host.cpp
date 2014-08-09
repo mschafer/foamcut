@@ -159,6 +159,12 @@ void Host::handleMessage(device::Message *m)
 	}
 	break;
 
+	case device::LIMIT_SWITCHES_MSG:
+	{
+		///\todo handle limit switches notification
+	}
+	break;
+
 	case device::FATAL_ERROR_MSG:
 	{
 		device::FatalErrorMsg *fem = static_cast<device::FatalErrorMsg*>(m);

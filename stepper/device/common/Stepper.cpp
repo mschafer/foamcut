@@ -36,8 +36,19 @@ void Stepper::runOnce()
 		handleMessage(m);
 	}
 
-	// run the engine
+	// run the engine which parses the script buffer
 	engine_();
+
+	// check for limit switch activations
+	LimitSwitches limits = HAL::readLimitSwitches();
+	if (limits != lastLimits_) {
+		LimitSwitchesMsg *lsm = new LimitSwitchesMsg();
+		lsm->limits_ = limits;
+		if (HAL::sendMessage(lsm) == SUCCESS) {
+			lastLimits_ = limits;
+		}
+	}
+
 }
 
 void Stepper::onTimerExpired()

@@ -53,6 +53,8 @@ add_executable(foamcut_gui
   qcustomplot.cpp
   shapeplotmgr.cpp
   $<TARGET_OBJECTS:foamcut_kernel>
+  $<TARGET_OBJECTS:stepper_host>
+  $<TARGET_OBJECTS:stepper_sim>
 )
 
 qt5_use_modules(foamcut_gui Widgets PrintSupport)

@@ -15,6 +15,7 @@
 #include "Message.hpp"
 #include "StatusFlags.hpp"
 #include "StepDir.hpp"
+#include "LimitSwitches.hpp"
 
 namespace stepper { namespace device {
 
@@ -30,7 +31,8 @@ enum MessageId {
     PING_RESPONSE_MSG       = 9,
     HEARTBEAT_MSG           = 10,
     HEARTBEAT_RESPONSE_MSG  = 11,
-    FATAL_ERROR_MSG			= 12
+    LIMIT_SWITCHES_MSG      = 12,
+    FATAL_ERROR_MSG			= 13
 };
 
 /** Starts the engine executing the currently cached script. */
@@ -197,6 +199,21 @@ struct HeartbeatResponseMsg : Message
 	}
 
 	StatusFlags statusFlags_;
+};
+
+struct LimitSwitchesMsg : Message
+{
+	enum {
+		PAYLOAD_SIZE = sizeof(LimitSwitches),
+		ID = LIMIT_SWITCHES_MSG
+	};
+
+	LimitSwitchesMsg() {
+		id(ID);
+		payloadSize(PAYLOAD_SIZE);
+	}
+
+	LimitSwitches limits_;
 };
 
 struct FatalErrorMsg : Message

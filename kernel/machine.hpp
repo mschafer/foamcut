@@ -23,12 +23,12 @@ namespace foamcut {
 struct Machine {
 	Machine();
 
-	double xStepSize_;
-	double yStepSize_;
-	double maxXSteps_;
-	double maxYSteps_;
-	uint32_t maxStepsPerSecond_;
-	double frameSeparation_;
+	double xStepSize_; ///\< Step size for the horizontal axis.
+	double yStepSize_; ///\< Step size for the vertical axis.
+	double xLength_;   ///\< Length of the foam cutter horizontal axis.
+	double yLength_;   ///\< Length of the foam cutter vertical axis.
+	uint32_t maxStepsPerSecond_;  ///\< Maximum rate for the stepper motors before they start missing steps.
+	double frameSeparation_; ///\< Distance between the left and right frames of the foam cutter.
 
 	static const double DEFAULT_STEP_SIZE;
 	static const size_t DEFAULT_MAX_STEP_RATE;

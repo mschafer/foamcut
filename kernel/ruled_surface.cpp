@@ -9,9 +9,11 @@
  * Contributors:
  *     Marc Schafer
  */
+
+#include "ruled_surface.hpp"
 #include <stdexcept>
 #include <boost/assert.hpp>
-#include "ruled_surface.hpp"
+#include <Script.hpp>
 
 namespace foamcut {
 
@@ -112,6 +114,12 @@ RuledSurface::interpolateZ(double newlZ, double newrZ) const
 	ret->lZ_ = newlZ;
 	ret->span_ = newrZ - newlZ;
 
+	return ret;
+}
+
+stepper::Script::handle RuledSurface::generateScript(const Machine &machine)
+{
+	stepper::Script::handle ret(new stepper::Script());
 	return ret;
 }
 

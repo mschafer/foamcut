@@ -34,6 +34,8 @@ add_executable(test_foamcut_kernel
   shape_test.cpp
   spline_test.cpp
   $<TARGET_OBJECTS:foamcut_kernel>
+  $<TARGET_OBJECTS:stepper_host>
+  $<TARGET_OBJECTS:stepper_sim>
 )
 
 target_link_libraries(test_foamcut_kernel 

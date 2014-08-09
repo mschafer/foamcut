@@ -21,7 +21,7 @@ const double Machine::DEFAULT_FRAME_SEPARATION = 30.;
 
 
 Machine::Machine() : xStepSize_(DEFAULT_STEP_SIZE), yStepSize_(DEFAULT_STEP_SIZE),
-		maxXSteps_(std::numeric_limits<double>::max()), maxYSteps_(std::numeric_limits<double>::max()),
+		xLength_(std::numeric_limits<double>::max()), yLength_(std::numeric_limits<double>::max()),
 		maxStepsPerSecond_(DEFAULT_MAX_STEP_RATE), frameSeparation_(DEFAULT_FRAME_SEPARATION)
 {
 }

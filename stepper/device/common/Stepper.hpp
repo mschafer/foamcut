@@ -60,6 +60,7 @@ private:
 	Engine engine_;
 	uint32_t speedAdjust_;
 	volatile bool pause_;
+	LimitSwitches lastLimits_;
 
 	/** Sets the Stepper to an idle state for a new connection. */
 	void setupConnection(ConnectMsg *cm);
