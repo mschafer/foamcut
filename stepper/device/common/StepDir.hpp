@@ -73,7 +73,7 @@ public:
 	void xStep(bool v) { setBit(X_STEP, v); }
 	bool xDir() const { return getBit(X_DIR); }
 	void xDir(bool v) { setBit(X_DIR, v); }
-	void xStep(int v) {
+	void xStepDir(int v) {
 		if (v > 0) {
 			setBit(X_STEP, true);
 			setBit(X_DIR, true);
@@ -90,7 +90,7 @@ public:
 	void yStep(bool v) { setBit(Y_STEP, v); }
 	bool yDir() const { return getBit(Y_DIR); }
 	void yDir(bool v) { setBit(Y_DIR, v); }
-	void yStep(int v) {
+	void yStepDir(int v) {
 		if (v > 0) {
 			setBit(Y_STEP, true);
 			setBit(Y_DIR, true);
@@ -107,7 +107,7 @@ public:
 	void zStep(bool v) { setBit(Z_STEP, v); }
 	bool zDir() const { return getBit(Z_DIR); }
 	void zDir(bool v) { setBit(Z_DIR, v); }
-	void zStep(int v) {
+	void zStepDir(int v) {
 		if (v > 0) {
 			setBit(Z_STEP, true);
 			setBit(Z_DIR, true);
@@ -124,7 +124,7 @@ public:
 	void uStep(bool v) { setBit(U_STEP, v); }
 	bool uDir() const { return getBit(U_DIR); }
 	void uDir(bool v) { setBit(U_DIR, v); }
-	void uStep(int v) {
+	void uStepDir(int v) {
 		if (v > 0) {
 			setBit(U_STEP, true);
 			setBit(U_DIR, true);

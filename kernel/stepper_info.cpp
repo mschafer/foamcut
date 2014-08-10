@@ -9,18 +9,18 @@
  * Contributors:
  *     Marc Schafer
  */
-#include "machine.hpp"
+#include "stepper_info.hpp"
 #include <limits>
 #include <cstddef>
 
 namespace foamcut {
 
-const double Machine::DEFAULT_STEP_SIZE = .001;
-const size_t Machine::DEFAULT_MAX_STEP_RATE = 1000;
-const double Machine::DEFAULT_FRAME_SEPARATION = 30.;
+const double StepperInfo::DEFAULT_STEP_SIZE = .001;
+const size_t StepperInfo::DEFAULT_MAX_STEP_RATE = 1000;
+const double StepperInfo::DEFAULT_FRAME_SEPARATION = 30.;
 
 
-Machine::Machine() : xStepSize_(DEFAULT_STEP_SIZE), yStepSize_(DEFAULT_STEP_SIZE),
+StepperInfo::StepperInfo() : xStepSize_(DEFAULT_STEP_SIZE), yStepSize_(DEFAULT_STEP_SIZE),
 		xLength_(std::numeric_limits<double>::max()), yLength_(std::numeric_limits<double>::max()),
 		maxStepsPerSecond_(DEFAULT_MAX_STEP_RATE), frameSeparation_(DEFAULT_FRAME_SEPARATION)
 {

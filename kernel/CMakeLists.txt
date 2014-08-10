@@ -33,10 +33,10 @@ include_directories (
 set (KERNEL_SRC
   airfoil.cpp
   dat_file.cpp
-  machine.cpp
   ruled_surface.cpp
   shape.cpp
   spline.cpp
+  stepper_info.cpp
 )
 
 # headers

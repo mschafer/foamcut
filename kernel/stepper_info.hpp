@@ -9,8 +9,8 @@
  * Contributors:
  *     Marc Schafer
  */
-#ifndef foamcut_machine_hpp
-#define foamcut_machine_hpp
+#ifndef foamcut_stepper_info_hpp
+#define foamcut_stepper_info_hpp
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -18,10 +18,10 @@
 namespace foamcut {
 
 /**
- * Container for parameters describing the foam cutting machine.
+ * Describes the physical characteristics of the stepper.
  */
-struct Machine {
-	Machine();
+struct StepperInfo {
+	StepperInfo();
 
 	double xStepSize_; ///\< Step size for the horizontal axis.
 	double yStepSize_; ///\< Step size for the vertical axis.

@@ -117,9 +117,67 @@ RuledSurface::interpolateZ(double newlZ, double newrZ) const
 	return ret;
 }
 
-stepper::Script::handle RuledSurface::generateScript(const Machine &machine)
+void RuledSurface::setTime(double speed)
+{
+	time_.clear();
+	time_.reserve(lx_.size());
+	time_[0] = 0.;
+	for (size_t i=1; i<lx_.size(); ++i) {
+		double ld = hypot(lx_[i]-lx_[i-1], ly_[i]-ly_[i-1]);
+		double rd = hypot(rx_[i]-rx_[i-1], ry_[i]-ry_[i-1]);
+		if (ld > rd) {
+			time_[i] = time_[i-1] + (ld / speed);
+		} else {
+			time_[i] = time_[i-1] + (rd / speed);
+		}
+	}
+}
+
+stepper::Script::handle RuledSurface::generateScript(const StepperInfo &stepper)
 {
 	stepper::Script::handle ret(new stepper::Script());
+
+	// convert distances to steps
+	std::vector<int> lxi(lx_.size());
+	std::vector<int> lyi(ly_.size());
+	std::vector<int> rxi(rx_.size());
+	std::vector<int> ryi(ry_.size());
+	for (size_t i=0; i<lx_.size(); ++i) {
+		lxi[i] = static_cast<int>(lx_[i] / stepper.xStepSize_);
+		lyi[i] = static_cast<int>(ly_[i] / stepper.yStepSize_);
+		rxi[i] = static_cast<int>(rx_[i] / stepper.xStepSize_);
+		ryi[i] = static_cast<int>(ry_[i] / stepper.yStepSize_);
+	}
+
+	// calculate relative steps and lines from coordinates
+	double skipTime = 0.;
+	for (size_t i=1; i<lxi.size(); ++i) {
+		int16_t dlxi = static_cast<int16_t>(lxi[i] - lxi[i-1]);
+		int16_t dlyi = static_cast<int16_t>(lyi[i] - lyi[i-1]);
+		int16_t drxi = static_cast<int16_t>(rxi[i] - rxi[i-1]);
+		int16_t dryi = static_cast<int16_t>(ryi[i] - ryi[i-1]);
+		int mind = std::min(abs(dlxi), abs(dlyi));
+		mind = std::min(mind, abs(drxi));
+		mind = std::min(mind, abs(dryi));
+		if (mind == 0) {
+			// points are less than one step apart so skip
+			skipTime = time_[i] - time_[i-1];
+			continue;
+		} else if (mind == 1) {
+			// individual step
+			stepper::device::StepDir s;
+			s.xStepDir(dlxi);
+			s.yStepDir(dlyi);
+			s.zStepDir(drxi);
+			s.uStepDir(dryi);
+			ret->addStep(s, time_[i]-time_[i-1]+skipTime);
+			skipTime = 0.;
+		} else {
+			// line
+			ret->addLine(dlxi, dlyi, drxi, dryi, time_[i]-time_[i-1]+skipTime);
+			skipTime = 0.;
+		}
+	}
 	return ret;
 }
 

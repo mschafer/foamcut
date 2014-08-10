@@ -15,7 +15,7 @@
 #include <memory>
 #include <boost/shared_ptr.hpp>
 #include "shape.hpp"
-#include "Machine.hpp"
+#include "stepper_info.hpp"
 
 namespace stepper {
 	class Script;
@@ -51,13 +51,26 @@ public:
 	 * When cutting foam, the face of the foam block is offset from the plane in which the
 	 * wire is moved.  This function calculates the points for the wire to move through in
 	 * order to cut the correct shape at the block of foam.
+	 *
+	 * Preserves previously set traversal time (\sa setTime).
 	 */
 	handle interpolateZ(double lZ, double rZ) const;
 
 	/**
+	 * Set the traversal time for each segment of the ruled surface based
+	 * on the desired speed.  The speed value is the maximum so the actual
+	 * speed at the smaller end of a ruled surface will be lower.  This method
+	 * should be called before doing the interpolation out to the frames.
+	 * \param speed Maximum wire speed through the foam at the larger end of
+	 * the ruled surface.  Units are length / second where length units match
+	 * the input coordinates.
+	 */
+	void setTime(double speed);
+
+	/**
 	 * Generate a set of instructions for the stepper to cut this RuledSurface.
 	 */
-	std::shared_ptr<stepper::Script> generateScript(const Machine &machine);
+	std::shared_ptr<stepper::Script> generateScript(const StepperInfo &stepper);
 
 	/** \todo Add a method for sweep rotation */
 
@@ -73,6 +86,7 @@ private:
 	std::vector<double> ly_;
 	std::vector<double> rx_;
 	std::vector<double> ry_;
+	std::vector<double> time_;
 	double lZ_;
 	double span_;
 };
