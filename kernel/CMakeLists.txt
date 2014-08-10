@@ -21,7 +21,7 @@ find_package( Boost REQUIRED COMPONENTS
 # directory for unit tests
 add_subdirectory(test)
 
-set (STEPPER_HOST_DIR ${CMAKE_SOURCE_DIR}/stepper/host/lib)
+set (STEPPER_HOST_DIR ${CMAKE_SOURCE_DIR}/stepper/host)
 set (DEVICE_COMMON_DIR ${CMAKE_SOURCE_DIR}/stepper/device/common)
 
 include_directories (

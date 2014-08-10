@@ -22,7 +22,7 @@ link_directories(${Boost_LIBRARY_DIRS})
 
 set (DEVICE_COMMON_DIR ${CMAKE_SOURCE_DIR}/stepper/device/common)
 set (DEVICE_SIM_DIR ${CMAKE_SOURCE_DIR}/stepper/device/sim)
-set (HOST_LIB_DIR ${CMAKE_SOURCE_DIR}/stepper/host/lib)
+set (HOST_LIB_DIR ${CMAKE_SOURCE_DIR}/stepper/host)
 
 include_directories ( 
   ${Boost_INCLUDE_DIRS}
