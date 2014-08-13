@@ -93,6 +93,7 @@ void Simulator::stepTimerExpired(const boost::system::error_code &ec)
 {
 	if (!ec) {
 		Stepper &s = Stepper::instance();
+		s.runOnce();  // background sleeps in sim so prevent underflow
 		s.onTimerExpired();
 	} else {
 		std::string em("Simulator::stepTimerExpired error: ");

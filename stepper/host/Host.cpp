@@ -81,6 +81,8 @@ void Host::executeScript(const Script &s)
 		ec = link_->send(dsm.release());
 		if (ec != device::SUCCESS) {
 			throw std::runtime_error("Host::executeScript Unexpected send failure");
+		} else {
+			++i;
 		}
 	}
 	device::GoMsg *gm = new device::GoMsg();
@@ -169,7 +171,9 @@ void Host::handleMessage(device::Message *m)
 	{
 		device::FatalErrorMsg *fem = static_cast<device::FatalErrorMsg*>(m);
 		std::ostringstream oss;
-		oss << "Host::runOnce Fatal error from device: " << (int)fem->fatalErrorCode_;
+		int ec = (int)fem->fatalErrorCode_;
+		oss << "Host::runOnce Fatal error " << ec <<
+				" from device: " << device::FatalErrorMessage[ec];
 		throw std::runtime_error(oss.str());
 		delete m;
 	}

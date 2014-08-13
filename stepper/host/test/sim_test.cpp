@@ -65,16 +65,13 @@ BOOST_AUTO_TEST_CASE( sim_single_step_script_test )
 }
 
 #if 0
-
-BOOST_AUTO_TEST_CASE(sim_script_test)
+BOOST_AUTO_TEST_CASE(sim_circle_test)
 {
 	double radius = 1000.;
 	double dtheta = 1.; //degrees
-	double speed = 1.;
 	const double pi = 4. * atan(1.);
 	const double d2r = pi / 180.;
-	double segmentTime = 2.*pi*radius/speed*dtheta/360.;
-
+	double segmentTime = .02;
 	stepper::Script script;
 	double ox = radius;
 	double oy = 0.;
@@ -83,11 +80,18 @@ BOOST_AUTO_TEST_CASE(sim_script_test)
 		double y = radius * sin(t * d2r);
 		uint16_t dx = (uint16_t)(x - ox);
 		uint16_t dy = (uint16_t)(y - oy);
-		script.addLine(dx, dy, 0, 0, segmentTime);
+		script.addLine(dx, dy, dx/2, dy/2, segmentTime);
+		ox = x;
+		oy = y;
 	}
 
-	stepper::device::Engine engine;
+	Host host;
+	BOOST_CHECK(host.connectToSimulator());
 
+	host.executeScript(script);
+
+	boost::this_thread::sleep_for(boost::chrono::milliseconds(2000));
+
+	std::cout << Simulator::instance().position();
 }
-
 #endif

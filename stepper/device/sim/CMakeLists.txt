@@ -16,11 +16,14 @@ set(Boost_USE_STATIC_LIBS  ON)
 add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
 find_package( Boost REQUIRED COMPONENTS 
-  system thread date_time chrono
+  system thread date_time chrono log
 )
 
 set (DEVICE_COMMON_DIR ${CMAKE_SOURCE_DIR}/stepper/device/common)
 set (DEVICE_SIM_DIR ${CMAKE_SOURCE_DIR}/stepper/device/sim)
+
+# enable simulator specific debugging features
+add_definitions(-DFOAMCUT_SIMULATOR)
 
 # source files
 set (SIM_SRC
@@ -31,6 +34,7 @@ set (SIM_SRC
   ${DEVICE_COMMON_DIR}/Stepper.cpp
   ASIOReceiver.cpp
   ASIOSender.cpp
+  Logger.cpp
   SimCommunicator.cpp
   Simulator.cpp
 )

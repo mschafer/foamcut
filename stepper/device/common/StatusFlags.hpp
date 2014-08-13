@@ -51,12 +51,14 @@ private:
 
 /** Fatal error codes. */
 enum FatalError {
-	SCRIPT_BUFFER_OVERFLOW_ERROR = 1,
-	STEP_QUEUE_UNDERFLOW_ERROR = 2,
-	MEMORY_ALLOCATION_ERROR = 3,
-	ILLEGAL_SCRIPT_DATA = 4,
-	UNRECOGNIZED_MESSAGE = 5
+	SCRIPT_BUFFER_OVERFLOW_ERROR = 0,
+	STEP_QUEUE_UNDERFLOW_ERROR   = 1,
+	MEMORY_ALLOCATION_ERROR      = 2,
+	ILLEGAL_SCRIPT_DATA          = 3,
+	UNRECOGNIZED_MESSAGE         = 4
 };
+
+extern const char *FatalErrorMessage[5];
 
 /**
  * This function is called whenever a fatal error occurs.

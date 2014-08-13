@@ -15,6 +15,14 @@
 
 namespace stepper { namespace device {
 
+const char *FatalErrorMessage[5] = {
+		"Script buffer overflow",
+		"Step queue underflow",
+		"Memory allocation",
+		"Illegal script data",
+		"Unrecognized message"
+};
+
 StatusFlags::StatusFlags() : flags_(0)
 {
 

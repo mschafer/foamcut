@@ -15,7 +15,7 @@ set(Boost_USE_STATIC_LIBS  ON)
 add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
 find_package( Boost REQUIRED COMPONENTS 
-  system thread date_time chrono unit_test_framework
+  system thread date_time chrono unit_test_framework log
 )
 
 link_directories(${Boost_LIBRARY_DIRS})
