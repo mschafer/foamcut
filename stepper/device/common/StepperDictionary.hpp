@@ -32,7 +32,8 @@ enum MessageId {
     HEARTBEAT_MSG           = 10,
     HEARTBEAT_RESPONSE_MSG  = 11,
     LIMIT_SWITCHES_MSG      = 12,
-    FATAL_ERROR_MSG			= 13
+    FATAL_ERROR_MSG			= 13,
+    STATUS_MSG              = 14
 };
 
 /** Starts the engine executing the currently cached script. */
@@ -189,7 +190,7 @@ struct HeartbeatMsg : Message
 struct HeartbeatResponseMsg : Message
 {
 	enum {
-		PAYLOAD_SIZE = sizeof(StatusFlags),
+		PAYLOAD_SIZE = 0,
 		ID = HEARTBEAT_RESPONSE_MSG
 	};
 
@@ -197,8 +198,6 @@ struct HeartbeatResponseMsg : Message
 		id(ID);
 		payloadSize(PAYLOAD_SIZE);
 	}
-
-	StatusFlags statusFlags_;
 };
 
 struct LimitSwitchesMsg : Message
@@ -230,6 +229,23 @@ struct FatalErrorMsg : Message
 
 	uint8_t fatalErrorCode_;
 };
+
+struct StatusMsg : Message
+{
+	enum {
+		PAYLOAD_SIZE = sizeof(StatusFlags),
+		ID = STATUS_MSG
+	};
+
+	StatusMsg() {
+		id(ID);
+		payloadSize(PAYLOAD_SIZE);
+	}
+
+	StatusFlags statusFlags_;
+};
+
+
 
 }}
 

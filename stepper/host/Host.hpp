@@ -56,9 +56,9 @@ private:
     boost::chrono::time_point<boost::chrono::steady_clock> heartbeatTime_;
     std::atomic<size_t> heartbeatCount_;
     std::unique_ptr<device::ConnectResponseMsg> connectResponse_;
-    std::unique_ptr<device::HeartbeatResponseMsg> heartbeatResponse_;
+    std::unique_ptr<device::StatusMsg> deviceStatus_;
     std::atomic<bool> connected_;
-	boost::chrono::time_point<boost::chrono::steady_clock> scriptDoneTime_;
+    std::atomic<int> scriptMsgCount_;
 
     void runOnce(const boost::system::error_code& error);
     void handleMessage(device::Message *m);

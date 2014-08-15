@@ -12,6 +12,7 @@
 #include "Engine.hpp"
 #include "StatusFlags.hpp"
 #include <HAL.hpp>
+#include <Logger.hpp>
 
 namespace stepper { namespace device {
 
@@ -79,6 +80,7 @@ uint8_t Engine::extractBytes(uint8_t *buff, uint8_t count)
 			do {
 				ec = HAL::sendMessage(ack);
 			} while (ec != SUCCESS);
+			Logger::trace("stepper", "data ack'd");
 		}
 	}
 	return ret;

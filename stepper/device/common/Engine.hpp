@@ -97,7 +97,7 @@ public:
 	void setupConnection();
 
 private:
-	RingBuffer<Message*, DataScriptMsg::IN_FLIGHT_COUNT> messages_;
+	RingBuffer<Message*, DataScriptMsg::IN_FLIGHT_COUNT+1> messages_;
 	RingBuffer<Line::NextStep, 16> steps_;
 	Line line_;
 	uint16_t msgOffset_;

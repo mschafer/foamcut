@@ -15,6 +15,7 @@
 #include "StepperDictionary.hpp"
 #include "StatusFlags.hpp"
 #include <HAL.hpp>
+#include <Logger.hpp>
 
 namespace stepper { namespace device {
 
@@ -36,6 +37,17 @@ void Stepper::runOnce()
 		handleMessage(m);
 	}
 
+	// check for status changes
+	if (StatusFlags::instance().updated()) {
+		StatusMsg *sm = new StatusMsg();
+		if (sm) {
+			sm->statusFlags_ = StatusFlags::instance();
+			if (HAL::sendMessage(sm) == SUCCESS) {
+				StatusFlags::instance().reset();
+			}
+		}
+	}
+
 	// run the engine which parses the script buffer
 	engine_();
 
@@ -43,12 +55,13 @@ void Stepper::runOnce()
 	LimitSwitches limits = HAL::readLimitSwitches();
 	if (limits != lastLimits_) {
 		LimitSwitchesMsg *lsm = new LimitSwitchesMsg();
-		lsm->limits_ = limits;
-		if (HAL::sendMessage(lsm) == SUCCESS) {
-			lastLimits_ = limits;
+		if (lsm) {
+			lsm->limits_ = limits;
+			if (HAL::sendMessage(lsm) == SUCCESS) {
+				lastLimits_ = limits;
+			}
 		}
 	}
-
 }
 
 void Stepper::onTimerExpired()
@@ -89,7 +102,10 @@ void Stepper::handleMessage(Message *m)
 
 	case GO_MSG:
 	{
-		if(!StatusFlags::instance().get(StatusFlags::ENGINE_RUNNING)) {
+		Logger::trace("stepper", "go received");
+		if(StatusFlags::instance().get(StatusFlags::ENGINE_RUNNING)) {
+			error(STEPPER_ALREADY_RUNNING);
+		} else {
 			StatusFlags::instance().set(StatusFlags::ENGINE_RUNNING);
 			HAL::startTimer(200);
 		}
@@ -99,6 +115,7 @@ void Stepper::handleMessage(Message *m)
 
 	case PAUSE_MSG:
 	{
+		StatusFlags::instance().clear(StatusFlags::ENGINE_RUNNING);
 		pause_ = true;
 		delete m;
 	}
@@ -114,6 +131,7 @@ void Stepper::handleMessage(Message *m)
 
 	case CONNECT_MSG:
 	{
+		StatusFlags::instance().set(StatusFlags::CONNECTED);
 		ConnectMsg *cm  = static_cast<ConnectMsg*>(m);
 		setupConnection(cm);
 		ConnectResponseMsg *crm = new (m) ConnectResponseMsg();
@@ -123,15 +141,15 @@ void Stepper::handleMessage(Message *m)
 
 	case HEARTBEAT_MSG:
 	{
+		Logger::trace("stepper", "heartbeat received");
 		HeartbeatResponseMsg *hrm = new (m) HeartbeatResponseMsg();
-		hrm->statusFlags_ = StatusFlags::instance();
-		StatusFlags::instance().clear();
 		HAL::sendMessage(hrm);
 	}
 	break;
 
 	case DATA_SCRIPT_MSG:
 	{
+		Logger::trace("stepper", "data received");
 		engine_.addScriptMessage(m);
 	}
 	break;

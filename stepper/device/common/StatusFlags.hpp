@@ -33,20 +33,42 @@ struct StatusFlags
 
     StatusFlags();
 
-    void set(Flag b) { flags_ |= (uint32_t)b; }
-    void clear(Flag b) { flags_ &= ~b; }
+    void set(Flag b) {
+    	if (!get(b)) {
+    		flags_ |= (uint32_t)b;
+    		updated_ = true;
+    	}
+    }
+
+    void clear(Flag b) {
+    	if (get(b)) {
+    		flags_ &= ~b;
+    		updated_ = true;
+    	}
+    }
+
     bool get(Flag b) const { return (flags_ & (uint32_t)b) != 0; }
 
     /** Clears transient flags but leaves sticky ones. */
-    void clear() { flags_ &= ~STICKY_FLAGS; }
+    void clear() {
+    	flags_ &= ~STICKY_FLAGS;
+    	updated_ = false;
+    }
 
     /** Clears all flags. */
-    void reset() { flags_ = 0; }
+    void reset() { flags_ = 0; updated_ = false; }
+
+    bool updated() {
+    	bool r = updated_;
+    	updated_ = false;
+    	return r;
+    }
 
     static StatusFlags &instance();
 
 private:
     volatile uint32_t flags_;
+    volatile bool updated_;
 };
 
 /** Fatal error codes. */
@@ -55,10 +77,11 @@ enum FatalError {
 	STEP_QUEUE_UNDERFLOW_ERROR   = 1,
 	MEMORY_ALLOCATION_ERROR      = 2,
 	ILLEGAL_SCRIPT_DATA          = 3,
-	UNRECOGNIZED_MESSAGE         = 4
+	UNRECOGNIZED_MESSAGE         = 4,
+	STEPPER_ALREADY_RUNNING      = 5
 };
 
-extern const char *FatalErrorMessage[5];
+extern const char *FatalErrorMessage[6];
 
 /**
  * This function is called whenever a fatal error occurs.

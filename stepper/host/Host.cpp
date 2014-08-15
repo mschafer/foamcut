@@ -15,11 +15,12 @@
 #include "Host.hpp"
 #include "TCPLink.hpp"
 #include "Script.hpp"
+#include <Logger.hpp>
 
 namespace stepper {
 
 Host::Host() : work_(ios_), timer_(ios_),  pongCount_(0),
-		heartbeatCount_(0), connected_(false)
+		heartbeatCount_(0), connected_(false), scriptMsgCount_(0)
 {
     timer_.expires_from_now(boost::posix_time::milliseconds(20));
     timer_.async_wait(boost::bind(&Host::runOnce, this, boost::asio::placeholders::error));
@@ -57,7 +58,7 @@ bool Host::connectToSimulator()
 
 	int iter = 10;
 	for (int iter=0; iter<10; ++iter) {
-		if (connected() && heartbeatResponse_) return true;
+		if (connected() && deviceStatus_) return true;
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 	}
 	return false;
@@ -70,6 +71,7 @@ void Host::executeScript(const Script &s)
 	}
 
 	scriptMsgs_ = s.generateMessages();
+	scriptMsgCount_ = scriptMsgs_->size();
 
 	// fill up the device window with script messages and then send a
 	// GoMsg to start the device running.  The remainder of the
@@ -90,19 +92,14 @@ void Host::executeScript(const Script &s)
 	if (ec != device::SUCCESS) {
 		throw std::runtime_error("Host::executeScript Unexpected send failure");
 	}
-	scriptDoneTime_ = boost::chrono::steady_clock::now();
-	boost::chrono::steady_clock::duration d = boost::chrono::duration_cast<boost::chrono::nanoseconds>(boost::chrono::duration<double>(s.duration()));
-	scriptDoneTime_ += d;
 }
 
 bool Host::scriptRunning()
 {
-	auto d = boost::chrono::steady_clock::now() - scriptDoneTime_;
-	boost::lock_guard<boost::mutex> guard(mtx_);
-	if (boost::chrono::steady_clock::now() >= scriptDoneTime_) {
-		return heartbeatResponse_->statusFlags_.get(device::StatusFlags::ENGINE_RUNNING);
+	if (scriptMsgCount_ == 0) {
+		return deviceStatus_->statusFlags_.get(device::StatusFlags::ENGINE_RUNNING);
 	} else {
-		return false;
+		return true;
 	}
 }
 
@@ -131,6 +128,7 @@ void Host::handleMessage(device::Message *m)
 
 	case device::ACK_SCRIPT_MSG:
 	{
+		scriptMsgCount_--;
 		if (!scriptMsgs_->empty()) {
 			Script::MessageCollection::auto_type dsm = scriptMsgs_->pop_front();
 			device::ErrorCode ec = link_->send(dsm.release());
@@ -145,10 +143,17 @@ void Host::handleMessage(device::Message *m)
 	case device::HEARTBEAT_RESPONSE_MSG:
 	{
 		///\todo notify if status changes
-		boost::lock_guard<boost::mutex> guard(mtx_);
-		device::HeartbeatResponseMsg *hrm = static_cast<device::HeartbeatResponseMsg*>(m);
-		heartbeatResponse_.reset(hrm);
+		Logger::trace("host", "heartbeat response received");
 		heartbeatCount_ = 0;
+	}
+	break;
+
+	case device::STATUS_MSG:
+	{
+		Logger::trace("host", "device status received");
+		boost::lock_guard<boost::mutex> guard(mtx_);
+		device::StatusMsg *sm = static_cast<device::StatusMsg*>(m);
+		deviceStatus_.reset(sm);
 	}
 	break;
 
@@ -208,6 +213,7 @@ void Host::heartbeat()
 		device::ErrorCode ec = link_->send(hm);
 		if (ec == device::SUCCESS) {
 			++heartbeatCount_;
+			stepper::Logger::trace("host", "heartbeat sent");
 		} else {
 			delete hm;
 		}

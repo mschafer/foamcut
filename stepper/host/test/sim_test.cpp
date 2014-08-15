@@ -22,13 +22,14 @@
 #include <Script.hpp>
 #include <Engine.hpp>
 #include <Simulator.hpp>
+#include <Logger.hpp>
 
 using namespace stepper;
 using namespace stepper::device;
 
 std::ostream& operator<<(std::ostream& os, const Simulator::Position& pos)
 {
-	os << "x: " << pos[StepDir::X_AXIS];
+	os << "x: "   << pos[StepDir::X_AXIS];
 	os << "\ty: " << pos[StepDir::Y_AXIS];
 	os << "\tz: " << pos[StepDir::Z_AXIS];
 	os << "\tu: " << pos[StepDir::U_AXIS] << std::endl;
@@ -64,7 +65,22 @@ BOOST_AUTO_TEST_CASE( sim_single_step_script_test )
 
 }
 
+BOOST_AUTO_TEST_CASE( sim_single_line_script_test )
+{
+	Host host;
+	Script script;
+	script.addLine(113, -50, -100, 0, 1.);
+
+	BOOST_CHECK(host.connectToSimulator());
+
+	host.executeScript(script);
+	while (host.scriptRunning()) {}
+
+	std::cout << Simulator::instance().position();
+}
+
 #if 0
+
 BOOST_AUTO_TEST_CASE(sim_circle_test)
 {
 	double radius = 1000.;
@@ -94,4 +110,5 @@ BOOST_AUTO_TEST_CASE(sim_circle_test)
 
 	std::cout << Simulator::instance().position();
 }
+
 #endif

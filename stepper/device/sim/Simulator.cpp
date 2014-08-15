@@ -109,7 +109,6 @@ void HAL::initialize()
 
 void HAL::setStepDirBits(const StepDir &s)
 {
-	std::cout << "set bits: " << s;
 	Simulator &sim = Simulator::instance();
 	for (int i=0; i<StepDir::AXIS_COUNT; ++i) {
 		StepDir::AxisIdx ai = static_cast<StepDir::AxisIdx>(i);

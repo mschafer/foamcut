@@ -17,6 +17,7 @@
 #include <boost/thread.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <iostream>
+#include <Logger.hpp>
 
 namespace stepper { namespace device {
 
@@ -78,11 +79,16 @@ void SimCommunicator::acceptComplete(const boost::system::error_code &error)
 
 ErrorCode SimCommunicator::sendMessage(Message *message, Message::Priority priority)
 {
+	ErrorCode ec;
 	if (sender_.get() != nullptr) {
-		return sender_->enqueue(message);
+		ec = sender_->enqueue(message);
 	} else {
-		return RESOURCE_UNAVAILABLE;
+		ec = RESOURCE_UNAVAILABLE;
 	}
+	if (ec != SUCCESS) {
+		Logger::warning("sim", "failed to send message");
+	}
+	return ec;
 }
 
 void SimCommunicator::handleError(const boost::system::error_code &error)
