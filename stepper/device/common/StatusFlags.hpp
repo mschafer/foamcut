@@ -50,19 +50,12 @@ struct StatusFlags
     bool get(Flag b) const { return (flags_ & (uint32_t)b) != 0; }
 
     /** Clears transient flags but leaves sticky ones. */
-    void clear() {
-    	flags_ &= ~STICKY_FLAGS;
-    	updated_ = false;
-    }
+    void clear();
 
     /** Clears all flags. */
-    void reset() { flags_ = 0; updated_ = false; }
+    void reset();
 
-    bool updated() {
-    	bool r = updated_;
-    	updated_ = false;
-    	return r;
-    }
+    bool updated() { return updated_; }
 
     static StatusFlags &instance();
 

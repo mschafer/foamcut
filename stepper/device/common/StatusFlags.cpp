@@ -35,6 +35,18 @@ StatusFlags &StatusFlags::instance()
 	return theFlags;
 }
 
+void StatusFlags::reset()
+{
+	flags_ = 0;
+	updated_ = false;
+}
+
+void StatusFlags::clear()
+{
+   	flags_ &= ~STICKY_FLAGS;
+   	updated_ = false;
+}
+
 void error(FatalError ec)
 {
 	FatalErrorMsg *fem = new FatalErrorMsg((uint8_t)ec);

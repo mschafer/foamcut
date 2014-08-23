@@ -35,6 +35,7 @@ bool Engine::nextStep(Line::NextStep &out)
 	if (steps_.empty()) {
 		if (status_ == FINISHING) {
 			status_ = IDLE;
+			StatusFlags::instance().clear(StatusFlags::ENGINE_RUNNING);
 		} else {
 			error(STEP_QUEUE_UNDERFLOW_ERROR);
 		}
@@ -135,10 +136,12 @@ bool Engine::parseNextCommand()
 	break;
 
 	case DONE_CMD:
-		if (steps_.empty())
+		if (steps_.empty()) {
 			status_ = IDLE;
-		else
+			StatusFlags::instance().clear(StatusFlags::ENGINE_RUNNING);
+		} else {
 			status_ = FINISHING;
+		}
 		break;
 
 	default:

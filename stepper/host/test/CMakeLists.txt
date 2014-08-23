@@ -36,7 +36,7 @@ add_executable(test_stepper
 	line_test.cpp
 	log_test.cpp
 	pool_test.cpp
-	sim_test.cpp
+#	sim_test.cpp
     $<TARGET_OBJECTS:stepper_sim>
     $<TARGET_OBJECTS:stepper_host>
 )

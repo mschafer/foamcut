@@ -44,6 +44,8 @@ void Stepper::runOnce()
 			sm->statusFlags_ = StatusFlags::instance();
 			if (HAL::sendMessage(sm) == SUCCESS) {
 				StatusFlags::instance().reset();
+			} else {
+				delete sm;
 			}
 		}
 	}
@@ -59,6 +61,8 @@ void Stepper::runOnce()
 			lsm->limits_ = limits;
 			if (HAL::sendMessage(lsm) == SUCCESS) {
 				lastLimits_ = limits;
+			} else {
+				delete lsm;
 			}
 		}
 	}
@@ -131,11 +135,15 @@ void Stepper::handleMessage(Message *m)
 
 	case CONNECT_MSG:
 	{
-		StatusFlags::instance().set(StatusFlags::CONNECTED);
 		ConnectMsg *cm  = static_cast<ConnectMsg*>(m);
 		setupConnection(cm);
+		StatusFlags::instance().set(StatusFlags::CONNECTED);
 		ConnectResponseMsg *crm = new (m) ConnectResponseMsg();
-		HAL::sendMessage(crm);
+		if (crm) {
+			if (!HAL::sendMessage(crm) == SUCCESS) {
+				delete crm;
+			}
+		}
 	}
 	break;
 
@@ -143,7 +151,11 @@ void Stepper::handleMessage(Message *m)
 	{
 		Logger::trace("stepper", "heartbeat received");
 		HeartbeatResponseMsg *hrm = new (m) HeartbeatResponseMsg();
-		HAL::sendMessage(hrm);
+		if (hrm) {
+			if (!HAL::sendMessage(hrm) == SUCCESS) {
+				delete hrm;
+			}
+		}
 	}
 	break;
 
