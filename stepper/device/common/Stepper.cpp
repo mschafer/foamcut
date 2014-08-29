@@ -43,7 +43,7 @@ void Stepper::runOnce()
 		if (sm) {
 			sm->statusFlags_ = StatusFlags::instance();
 			if (HAL::sendMessage(sm) == SUCCESS) {
-				StatusFlags::instance().reset();
+				StatusFlags::instance().clear();
 			} else {
 				delete sm;
 			}
@@ -119,7 +119,6 @@ void Stepper::handleMessage(Message *m)
 
 	case PAUSE_MSG:
 	{
-		StatusFlags::instance().clear(StatusFlags::ENGINE_RUNNING);
 		pause_ = true;
 		delete m;
 	}

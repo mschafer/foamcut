@@ -49,20 +49,23 @@ BOOST_AUTO_TEST_CASE( sim_single_step_script_test )
 	Host host;
 	Script script;
 	StepDir sd;
-	sd.xStep(1);
-	sd.yStep(1);
-	sd.zStep(-1);
-	sd.uStep(-1);
+	sd.xStepDir(1);
+	sd.yStepDir(1);
+	sd.zStepDir(-1);
+	sd.uStepDir(-1);
 	script.addStep(sd, .1);
 
 	BOOST_CHECK(host.connectToSimulator());
 
 	host.executeScript(script);
-
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(2000));
-
-	std::cout << Simulator::instance().position();
-
+	boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
+	while (host.scriptRunning()) {
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
+	}
+	Simulator::Position answer = {1, 1, -1, -1};
+	auto p = Simulator::instance().position();
+	BOOST_CHECK_EQUAL_COLLECTIONS(p.begin(), p.end(), answer.begin(), answer.end());
+	BOOST_CHECK_SMALL(script.duration() - Simulator::instance().time(), 1.e-6);
 }
 
 BOOST_AUTO_TEST_CASE( sim_single_line_script_test )
@@ -74,9 +77,14 @@ BOOST_AUTO_TEST_CASE( sim_single_line_script_test )
 	BOOST_CHECK(host.connectToSimulator());
 
 	host.executeScript(script);
-	while (host.scriptRunning()) {}
+	while (host.scriptRunning()) {
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
+	}
 
-	std::cout << Simulator::instance().position();
+	Simulator::Position answer = {113, -50, -100, 0};
+	auto p = Simulator::instance().position();
+	BOOST_CHECK_EQUAL_COLLECTIONS(p.begin(), p.end(), answer.begin(), answer.end());
+	BOOST_CHECK_SMALL(script.duration() - Simulator::instance().time(), 1.e-6);
 }
 
 #if 0

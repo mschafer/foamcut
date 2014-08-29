@@ -36,6 +36,7 @@ public:
 	const std::array<int, StepDir::AXIS_COUNT> &position() {
 		return pos_;
 	}
+	double time() const { return time_; }
 
 	static void reset();
 
@@ -57,6 +58,7 @@ private:
 	StepDir invertMask_;
 	StepDir currentBits_;
 	Position pos_;
+	double time_;
 	std::array<std::pair<int, int>, StepDir::AXIS_COUNT> limit_;
 
 	void runOnce(const boost::system::error_code &ec);

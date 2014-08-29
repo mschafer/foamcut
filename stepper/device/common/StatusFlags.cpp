@@ -43,7 +43,7 @@ void StatusFlags::reset()
 
 void StatusFlags::clear()
 {
-   	flags_ &= ~STICKY_FLAGS;
+   	flags_ &= STICKY_FLAGS;
    	updated_ = false;
 }
 

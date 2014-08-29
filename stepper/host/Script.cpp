@@ -8,8 +8,9 @@ namespace stepper {
 
 const double MAX_STEP_DELAY = std::numeric_limits<uint16_t>::max() * device::Stepper::TIMER_PERIOD_USEC * 1.e-6;
 const double MAX_LINE_TIME = std::numeric_limits<uint32_t>::max() * device::Stepper::TIMER_PERIOD_USEC * 1.e-6;
+const double SCRIPT_START_DELAY = .001;
 
-Script::Script() : duration_(0.)
+Script::Script() : duration_(SCRIPT_START_DELAY)
 {
 	bytes_.push_back(device::Engine::DONE_CMD);
 }
@@ -82,6 +83,7 @@ void Script::addDelay(double duration)
 	dc.delay_ = dtime;
 	uint8_t *p = (uint8_t*)&dc;
 	bytes_.insert(bytes_.end(), p, p+device::Engine::DelayCmd::SIZE);
+	duration_ += duration;
 }
 
 std::unique_ptr<Script::MessageCollection>

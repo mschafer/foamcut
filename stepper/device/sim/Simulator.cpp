@@ -27,7 +27,7 @@ MemoryAllocator &MemoryAllocator::instance()
 	return ma;
 }
 
-Simulator::Simulator(uint16_t port) : backgroundTimer_(ios_), stepTimer_(ios_)
+Simulator::Simulator(uint16_t port) : backgroundTimer_(ios_), stepTimer_(ios_), time_(0.)
 {
 
 	for (int i=0; i<StepDir::AXIS_COUNT; ++i) {
@@ -164,6 +164,7 @@ void HAL::startTimer(uint32_t period)
 	Stepper &s = Stepper::instance();
 	sim.stepTimer_.expires_from_now(boost::posix_time::microseconds(period*5));
 	sim.stepTimer_.async_wait(boost::bind(&Simulator::stepTimerExpired, &sim, boost::asio::placeholders::error));
+	sim.time_ += 5.e-6 * period;
 }
 
 void HAL::stopTimer()
