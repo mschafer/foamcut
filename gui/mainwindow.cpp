@@ -149,8 +149,8 @@ void MainWindow::geometryChanged()
 			partPath_ = nullptr;
 			cutterPath_ = nullptr;
 			ui->cut_button->setEnabled(false);
-			cutPlotMgr_->update(rootShape_, tipShape_, partPath_, cutterPath_);
 		}
+		cutPlotMgr_->update(rootShape_, tipShape_, partPath_, cutterPath_);
 	} catch (std::exception &ex) {
 		qDebug() << ex.what();
 	}
