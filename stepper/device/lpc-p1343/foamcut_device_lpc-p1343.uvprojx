@@ -366,7 +366,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.. ..\..</IncludePath>
+              <IncludePath>..\common;..\lpc-p1343</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -468,6 +468,41 @@
               <FileName>sysinit.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\sysinit.c</FilePath>
+            </File>
+            <File>
+              <FileName>HAL.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>.\HAL.cpp</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>common</GroupName>
+          <Files>
+            <File>
+              <FileName>Engine.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\common\Engine.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>Line.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\common\Line.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>Message.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\common\Message.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>StatusFlags.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\common\StatusFlags.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>Stepper.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\common\Stepper.cpp</FilePath>
             </File>
           </Files>
         </Group>

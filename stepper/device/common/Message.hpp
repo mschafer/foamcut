@@ -12,6 +12,7 @@
 #ifndef stepper_device_Message_hpp
 #define stepper_device_Message_hpp
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
 #include <new>

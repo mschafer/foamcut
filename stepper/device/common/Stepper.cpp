@@ -19,7 +19,7 @@
 
 namespace stepper { namespace device {
 
-Stepper::Stepper() : pause_(false), speedAdjust_(1<<SpeedAdjustMsg::UNITY_SPEED_ADJUST_SHIFT)
+Stepper::Stepper() : speedAdjust_(1<<SpeedAdjustMsg::UNITY_SPEED_ADJUST_SHIFT), pause_(false)
 {
 }
 

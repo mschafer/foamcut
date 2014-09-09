@@ -18,7 +18,6 @@ void *Message::operator new(size_t size)
 {
     MemoryAllocator &ms = MemoryAllocator::instance();
     void *ret = ms.alloc(size);
-    if (ret == NULL) throw std::bad_alloc();
     return ret;
 }
 
