@@ -56,10 +56,8 @@ RuledSurface::RuledSurface(const Shape &lShape, const Shape &rShape,
 			ls = sFrac*dls + lsLimits.first;
 			rs = sFrac*drs + rsLimits.first;
 
-			// match endpoint exactly when within eps.
+			// match endpoint exactly when within eps. on either side
 			if (fabs(ls - lsLimits.second) <= eps || (fabs(rs - rsLimits.second) <= eps)) {
-				BOOST_ASSERT_MSG((fabs(ls - lsLimits.second) <= eps && (fabs(rs - rsLimits.second) <= eps)),
-						"RuledSurface::RuledSurface discretization didn't reach segment end simultaneously for left and right");
 				segEnd = true;
 			}
 		}

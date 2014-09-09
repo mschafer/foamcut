@@ -168,6 +168,11 @@ public:
 	handle insertBreak(double s) const;
 
 	/**
+	 * Prepend a shape to the beginning of this shape.
+	 */
+	handle prependShape(const Shape &shape) const;
+
+	/**
 	 * Splices in a shape with coordinates (x,y) at the beginning of segment with
      * index = insseg.  If insseg == nseg, the shape is appended.
 	 */

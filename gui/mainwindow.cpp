@@ -27,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->speed_edit->setValidator(new QDoubleValidator());
     ui->zRightFrame_edit->setValidator(new QDoubleValidator());
     ui->rotatePart_edit->setValidator(new QDoubleValidator());
+    ui->xLeadIn_edit->setValidator(new QDoubleValidator());
+    ui->yLeadIn_edit->setValidator(new QDoubleValidator());
 
     ui->rootZ_edit->setValidator(new QDoubleValidator());
     ui->rootKerf_edit->setValidator(new QDoubleValidator());

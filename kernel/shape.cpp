@@ -413,12 +413,39 @@ Shape::insertBreak(double sbrk) const
 }
 
 Shape::handle
+Shape::prependShape(const Shape &shape) const
+{
+	// number of points in the new shape
+	size_t npts = x_.size() + shape.x().size();
+	std::vector<double> xn, yn;
+	xn.reserve(npts); yn.reserve(npts);
+
+	xn.insert(xn.begin(), shape.x().begin(), shape.x().end());
+	yn.insert(yn.begin(), shape.y().begin(), shape.y().end());
+
+	// translate this shape so its first point is the same as the last
+	// point of the prepended shape.
+	double dx = shape.x().back() - x_.front();
+	double dy = shape.y().back() - y_.front();
+	for (size_t ip=0; ip<x_.size(); ++ip) {
+		xn.push_back(x_[ip] + dx);
+		yn.push_back(y_[ip] + dy);
+	}
+	handle ret(new Shape(xn, yn, name_));
+	return ret;
+}
+
+
+Shape::handle
 Shape::insertShape(size_t insseg, const Shape &shape) const
 {
+	if (insseg == 0) return prependShape(shape);
+
 	size_t nseg = xSpline_.size();
 
 	std::vector<double> xn; xn.reserve(x_.size() + shape.x_.size());
 	std::vector<double> yn; yn.reserve(y_.size() + shape.y_.size());
+	double dx, dy;
 
 	// copy over everything up to where new shape goes
 	for (size_t iseg=0; iseg < insseg; ++iseg) {
@@ -430,28 +457,24 @@ Shape::insertShape(size_t insseg, const Shape &shape) const
 		}
 	}
 
-	// origin of the new shape is the last point added
-	double xorg = xn.back();
-	double yorg = yn.back();
-
 	// add in the translated new shape.
-	xn.push_back(xorg);
-	yn.push_back(yorg);
-	for (size_t ip=1; ip<shape.x().size(); ++ip) {
-		xn.push_back(shape.x()[ip] + xorg - shape.x().front());
-		yn.push_back(shape.y()[ip] + yorg - shape.y().front());
+	dx = xn.back() - shape.x().front();
+	dy = yn.back() - shape.y().front();
+	for (size_t ip=0; ip<shape.x().size(); ++ip) {
+		xn.push_back(shape.x()[ip] + dx);
+		yn.push_back(shape.y()[ip] + dy);
 	}
 
 	// add the rest of the original shape translated to end of new shape
-	xorg = xn.back();
-	yorg = yn.back();
+	dx = xn.back() - xSpline_[insseg].y().front();
+	dy = yn.back() - ySpline_[insseg].y().front();
 
     for (size_t iseg=insseg; iseg<nseg; ++iseg) {
 		const std::vector<double> &xold = xSpline_[iseg].y();
 		const std::vector<double> &yold = ySpline_[iseg].y();
 		for (size_t ip=0; ip<xold.size(); ++ip) {
-			xn.push_back(xold[ip]);
-			yn.push_back(yold[ip]);
+			xn.push_back(xold[ip] + dx);
+			yn.push_back(yold[ip] + dy);
 		}
 	}
 
