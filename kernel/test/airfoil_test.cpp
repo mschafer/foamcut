@@ -137,3 +137,35 @@ BOOST_AUTO_TEST_CASE( airfoil_leloop_kerf )
     auto shape = airfoil.shape();
     auto kshape = shape->offset(.03);
 }
+
+BOOST_AUTO_TEST_CASE( airfoil_lead_in )
+{
+	using namespace foamcut;
+	std::string datDir(FOAMCUT_TEST_DATA_DIR);
+	std::string fname = datDir + "/ag45c-03.dat";
+    std::ifstream xfs(fname.c_str(), std::ifstream::in);
+    BOOST_CHECK(xfs.is_open());
+    DatFile::handle dat = DatFile::read(xfs);
+    xfs.close();
+    Airfoil airfoil(dat, 10., 0., false);
+
+    auto shape = airfoil.shape();
+
+    double xLead = 1.;
+    double yLead = 2.;
+    auto lis = shape->addLeadInOut(xLead, yLead);
+
+    const std::vector<double> &x = lis->x();
+    const std::vector<double> &y = lis->y();
+    size_t n = x.size();
+
+    BOOST_CHECK_CLOSE(x[0], x[1]-xLead, 1.e-9);
+    BOOST_CHECK(x[1] == x[2]);
+    BOOST_CHECK_CLOSE(x[n-1], x[n-2]-xLead, 1.e-9);
+    BOOST_CHECK(x[n-2] == x[n-3]);
+
+    BOOST_CHECK_CLOSE(y[0], y[1]-yLead, 1.e-9);
+    BOOST_CHECK(y[1] == y[2]);
+    BOOST_CHECK_CLOSE(y[n-1], y[n-2]-yLead, 1.e-9);
+    BOOST_CHECK(y[n-2] == y[n-3]);
+}

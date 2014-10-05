@@ -482,6 +482,29 @@ Shape::insertShape(size_t insseg, const Shape &shape) const
 	return ret;
 }
 
+Shape::handle
+Shape::addLeadInOut(double xl, double yl) const
+{
+	if (xl == 0. && yl == 0.) {
+		return handle(new Shape(*this));
+	}
+
+	size_t n = x_.size();
+	std::vector<double> xn(n+4);
+	std::vector<double> yn(n+4);
+
+	std::copy(x_.begin(), x_.end(), xn.begin()+2);
+	xn[0] = xn[2] - xl; xn[1] = xn[2];
+	xn[n+3] = xn[n+1] - xl; xn[n+2] = xn[n+1];
+
+	std::copy(y_.begin(), y_.end(), yn.begin()+2);
+	yn[0] = yn[2] - yl; yn[1] = yn[2];
+	yn[n+3] = yn[n+1] - yl; yn[n+2] = yn[n+1];
+
+	handle ret(new Shape(xn, yn, name_));
+	return ret;
+}
+
 void
 Shape::invariant() const
 {
@@ -510,6 +533,7 @@ Shape::buildSplines() {
 		double ds = hypot(x_[i] - x_[i-1], y_[i] - y_[i-1]);
 		s_[i] = s_[i-1] + ds;
 
+		///\todo doubles might not be exactly ==, use tolerance
 		if (ds == 0.) {
 			// create subvectors over the continuous part
 			std::vector<double> xs(x_.begin() + segStart, x_.begin() + i);

@@ -77,5 +77,5 @@ BOOST_AUTO_TEST_CASE( shape_leloop_kerf )
 	Shape::Point p = shape->evaluate(0.);
 
 	auto kshape = shape->offset(-.03);
-
 }
+

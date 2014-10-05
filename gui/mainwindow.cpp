@@ -101,22 +101,6 @@ void MainWindow::on_tipKerf_edit_editingFinished()
 	geometryChanged();
 }
 
-foamcut::Shape::handle addLeadInHelper(const foamcut::Shape::handle shape, double xl, double yl)
-{
-	if (xl == 0. && yl == 0.) return shape;
-
-	std::vector<double> x(2);
-	std::vector<double> y(2);
-	x[0] = 0.; y[0] = 0.;
-	x[1] = xl; y[1] = yl;
-	foamcut::Shape::handle lis(new foamcut::Shape(x, y));
-	auto rlis = lis->reverse();
-
-	foamcut::Shape::handle ret = shape->insertShape(0, *lis);
-	ret = ret->insertShape(ret->segmentCount(), *rlis);
-	return ret;
-}
-
 void MainWindow::geometryChanged()
 {
 	try {
@@ -126,7 +110,7 @@ void MainWindow::geometryChanged()
 		if (rootShape_ != nullptr) {
 			double rootKerf = ui->rootKerf_edit->text().toDouble();
 			rootKerfShape_ = rootShape_->offset(rootKerf / 2.);
-			rootKerfShape_ = addLeadInHelper(rootKerfShape_, xLead, yLead);
+			rootKerfShape_ = rootKerfShape_->addLeadInOut(xLead, yLead);
 		} else {
 			rootKerfShape_ = nullptr;
 		}
@@ -134,7 +118,7 @@ void MainWindow::geometryChanged()
 		if (tipShape_ != nullptr) {
 			double tipKerf = ui->tipKerf_edit->text().toDouble();
 			tipKerfShape_ = tipShape_->offset(tipKerf / 2.);
-			tipKerfShape_ = addLeadInHelper(tipKerfShape_, xLead, yLead);
+			tipKerfShape_ = tipKerfShape_->addLeadInOut(xLead, yLead);
 		} else {
 			tipKerfShape_ = nullptr;
 		}

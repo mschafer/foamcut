@@ -179,6 +179,11 @@ public:
 	handle insertShape(size_t insseg, const Shape &shape) const;
 
 	/**
+	 * Adds a straight lead in and matching lead out segment to the start and end.
+	 */
+	handle addLeadInOut(double xl, double yl) const;
+
+	/**
 	 * Approximate shape with line segments for plotting.
 	 * \tparam vector for holding x,y values should conform to std::vector interface
 	 */
