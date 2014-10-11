@@ -1,3 +1,6 @@
+#ifndef Synchronizer_hpp
+#define Synchronizer_hpp
+
 class Synchronizer
 {
 public:
@@ -8,19 +11,21 @@ public:
     {
     }
 
-    size_t run(const uint8_t *in, size_t inSize) {
-        size_t i;
-        for (i=0; i<patternSize_ - pos_; ++i) {
+    bool run(const uint8_t *in, size_t &inSize) {
+        size_t i = 0;
+    	while (inSize > 0 && pos_ < patternSize_) {
             if (in[i] == pattern_[pos_]) {
                 ++pos_;
+                ++i;
             } else {
-                return 0;
+                pos_ = 0;
             }
+            --inSize;
         }
         if (pos_ == patternSize_) {
-            return i;
+            return true;
         } else {
-            return 0;
+            return false;
         }
     }
 
@@ -37,3 +42,5 @@ private:
     Synchronizer &operator=(const Synchronizer &rhs);
 
 };
+
+#endif

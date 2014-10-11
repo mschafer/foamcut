@@ -1,3 +1,6 @@
+#ifndef SerialProtocol_hpp
+#define SerialProtocol_hpp
+
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -24,7 +27,7 @@ public:
 
     bool timeToSendSync();
     void run();
-
+    State state() const { return state_; }
 
 private:
     static const char *SYNC_STRING;
@@ -42,3 +45,5 @@ private:
     SerialProtocol &operator=(const SerialProtocol &rhs);
 
 };
+
+#endif

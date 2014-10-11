@@ -62,8 +62,7 @@ void SerialProtocol::run()
 			state_ = ERROR;
 			break;
 		}
-		size_t syncd = sync_.run(rxBuff_, n);
-		if (syncd) {
+		if (sync_.run(rxBuff_, n)) {
 			state_ = SYNCHRONIZED;
 		}
 

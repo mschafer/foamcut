@@ -4,8 +4,9 @@
 #include <cfloat>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-#include "port.hpp"
-#include "synchronizer.hpp"
+#include "Port.hpp"
+#include "Synchronizer.hpp"
+#include "SerialProtocol.hpp"
 
 BOOST_AUTO_TEST_CASE( simple_port_test )
 {
@@ -29,6 +30,24 @@ BOOST_AUTO_TEST_CASE( simple_port_test )
     BOOST_CHECK(B.recvAvailable() == 5);
 
     uint8_t r[5];
+}
 
+BOOST_AUTO_TEST_CASE( sync_test)
+{
+    PortPair pp(2048);
+    Port &A = pp.portA();
+    Port &B = pp.portB();
 
+    SerialProtocol spA(A);
+    SerialProtocol spB(B);
+
+    spA.run();
+    spB.run();
+    spA.run();
+    spB.run();
+    spA.run();
+    spB.run();
+
+    BOOST_CHECK(spA.state() == SerialProtocol::SYNCHRONIZED);
+    BOOST_CHECK(spB.state() == SerialProtocol::SYNCHRONIZED);
 }

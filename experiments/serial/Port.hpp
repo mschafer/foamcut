@@ -1,5 +1,10 @@
+#ifndef Port_hpp
+#define Port_hpp
+
 #include <boost/circular_buffer.hpp>
 #include <boost/thread.hpp>
+
+
 
 class PortPair;
 
@@ -62,7 +67,9 @@ private:
 	boost::circular_buffer<uint8_t> cbB_;
 	Port portA_;
 	Port portB_;
-	boost::mutex lock_;
+	boost::recursive_mutex lock_;
 
-	boost::mutex &mutex() { return lock_; }
+	boost::recursive_mutex &mutex() { return lock_; }
 };
+
+#endif
