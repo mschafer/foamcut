@@ -139,7 +139,7 @@ void Stepper::handleMessage(Message *m)
 		StatusFlags::instance().set(StatusFlags::CONNECTED);
 		ConnectResponseMsg *crm = new (m) ConnectResponseMsg();
 		if (crm) {
-			if (!HAL::sendMessage(crm) == SUCCESS) {
+			if (!(HAL::sendMessage(crm) == SUCCESS)) {
 				delete crm;
 			}
 		}
@@ -151,7 +151,7 @@ void Stepper::handleMessage(Message *m)
 		Logger::trace("stepper", "heartbeat received");
 		HeartbeatResponseMsg *hrm = new (m) HeartbeatResponseMsg();
 		if (hrm) {
-			if (!HAL::sendMessage(hrm) == SUCCESS) {
+			if (!(HAL::sendMessage(hrm) == SUCCESS)) {
 				delete hrm;
 			}
 		}

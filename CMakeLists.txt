@@ -9,7 +9,7 @@
 #    Marc Schafer
 
 project(foamcut)
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.0.0)
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ -g")
@@ -24,6 +24,7 @@ ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 add_subdirectory(kernel)
 add_subdirectory(gui)
 add_subdirectory(stepper)
+add_subdirectory(experiments)
 
 #set (CPACK_PACKAGE_EXECUTABLES "motor-stepper")
 set (CPACK_GENERATOR "ZIP")
