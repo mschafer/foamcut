@@ -95,7 +95,7 @@ public:
 		if (space() < range.second) return false;
 
 		// copy to the end of the buffer
-		size_t end = std::min(range.second, N-in_);
+		size_t end = (std::min)(range.second, N-in_);
 		std::copy(range.first, range.first+end, &buff_[in_]);
 		if (end == range.second) {
 			size_t nin = in_ + end;
