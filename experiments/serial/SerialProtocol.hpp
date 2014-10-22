@@ -6,7 +6,9 @@
 
 #include "Port.hpp"
 #include "Synchronizer.hpp"
+#include "APDU.hpp"
 #include <chrono>
+#include <boost/ptr_container/ptr_deque.hpp>
 
 class SerialProtocol
 {
@@ -33,6 +35,8 @@ public:
     };
     static const double SYNC_INTERVAL_SEC;
 
+    bool send(APDU *a);
+
 
     bool timeToSendSync();
     void run();
@@ -52,7 +56,11 @@ private:
     uint8_t txBuff_[MAX_PACKET_SIZE];
     ptrdiff_t rxPos_;
     ptrdiff_t rxDataPos_;
+    boost::ptr_deque<APDU> sendQueue_;
+    ptrdiff_t txPos_;
 
+
+    void doSend();
     bool receivePacket();
     void handlePacket();
     void handleError();

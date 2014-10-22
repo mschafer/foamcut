@@ -25,11 +25,15 @@ struct Ack
 
 struct Data
 {
+    enum {
+        PAYLOAD_SIZE = SerialProtocol::MAX_PACKET_SIZE-4
+    };
+
     uint8_t id_;
     uint8_t sequence_;
     uint8_t size_;
     uint8_t crc_;
-    uint8_t data_[SerialProtocol::MAX_PACKET_SIZE-4];
+    uint8_t data_[PAYLOAD_SIZE];
 };
 
 struct Disconnect
@@ -46,6 +50,12 @@ SerialProtocol::SerialProtocol(Port &port) :port_(port), state_(SerialProtocol::
         rxPos_(0), rxDataPos_(0)
 {
 
+}
+
+bool SerialProtocol::send(APDU *a)
+{
+    sendQueue_.push_back(a);
+    return true;
 }
 
 bool SerialProtocol::timeToSendSync()
@@ -145,6 +155,43 @@ bool SerialProtocol::receivePacket()
         rxPos_ = 0;
         handlePacket();
         return true;
+    }
+}
+
+void SerialProtocol::doSend()
+{
+    Data *pData = reinterpret_cast<Data*>(txBuff_);
+    pData->id_ = DATA_ID;
+    while (!sendQueue_.empty()) {
+        if (port_.sendAvailable() < MAX_PACKET_SIZE) return;
+
+        // assemble one data packet and send it
+        size_t dpPos = 0;
+        while (dpPos < Data::PAYLOAD_SIZE) {
+
+            APDU &a = sendQueue_.front();
+            size_t n = std::min(sizeof(Data::PAYLOAD_SIZE)-dpPos, a.size()-txPos_);
+            std::copy(a.data()+dpPos, a.data()+n, pData->data_);
+            txPos_ += n;
+
+            if (txPos_ == a.size()) {
+                txPos_ = 0;
+                sendQueue_.pop_front();
+            }
+
+            if (sendQueue_.empty()) break;
+        }
+
+        // send the packet
+        pData->size_ = static_cast<uint8_t>(dpPos);
+        pData->sequence_ = 1;
+        pData->crc_ = 0;
+        pData->id_ = DATA_ID;
+        size_t nsent = dpPos + 4;
+        Port::ErrorCode ec = port_.send(reinterpret_cast<uint8_t *>(pData), nsent);
+        if (ec) {
+        }
+        assert(nsent == dpPos + 4);
     }
 }
 
