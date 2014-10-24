@@ -36,12 +36,11 @@ public:
     static const double SYNC_INTERVAL_SEC;
 
     bool send(APDU *a);
-
-
+    APDU *recv();
+    
     bool timeToSendSync();
     void run();
     ErrorCode recv(uint8_t *buff, size_t &size);
-    ErrorCode send(const uint8_t *data, size_t &size);
     State state() const { return state_; }
 
 private:
@@ -58,7 +57,7 @@ private:
     ptrdiff_t rxDataPos_;
     boost::ptr_deque<APDU> sendQueue_;
     ptrdiff_t txPos_;
-
+    APDUFactory factory_;
 
     void doSend();
     bool receivePacket();

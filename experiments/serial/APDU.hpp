@@ -30,4 +30,12 @@ private:
     std::unique_ptr<uint8_t[]> data_;
 };
 
+class APDUFactory
+{
+public:
+    void feed(uint8_t *bytes, size_t &count);
+
+
+};
+
 #endif
