@@ -28,8 +28,6 @@ BOOST_AUTO_TEST_CASE( simple_port_test )
     BOOST_CHECK(A.send(data, s) == Port::PORT_SUCCESS);
     BOOST_CHECK(s == 1);
     BOOST_CHECK(B.recvAvailable() == 5);
-
-    uint8_t r[5];
 }
 
 BOOST_AUTO_TEST_CASE( sync_test)

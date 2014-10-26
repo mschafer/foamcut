@@ -11,6 +11,16 @@ public:
     {
     }
 
+	bool run(uint8_t c) {
+		if (pattern_[pos_] == c) {
+			++pos_;
+		} else {
+			pos_ = 0;
+		}
+
+		return (pos_ == patternSize_);
+	}
+
     bool run(const uint8_t *in, size_t &inSize) {
         size_t i = 0;
     	while (inSize > 0 && pos_ < patternSize_) {
@@ -31,6 +41,7 @@ public:
 
     size_t position() const { return pos_; }
     size_t remaining() const { return patternSize_ - pos_; }
+	void reset() { pos_ = 0; }
 
 private:
     const char *pattern_;

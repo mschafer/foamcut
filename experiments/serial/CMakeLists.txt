@@ -18,6 +18,7 @@ include_directories (
 
 set (HEADERS
   Port.hpp
+  SerialPackets.hpp
   SerialProtocol.hpp
   Synchronizer.hpp
 )
