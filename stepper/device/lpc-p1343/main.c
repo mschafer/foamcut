@@ -78,7 +78,7 @@ int main(void) {
         CDC_PollOutEp();
         cnt = 0;
         for (cnt=0; cnt<sizeof(buffer); cnt++) {
-        	if (CDC_ReadByte(&buffer[cnt]) != 0) break;
+        	if (CDC_ReadByte(&buffer[cnt]) == 0) break;
         	++cnt;
         }
 

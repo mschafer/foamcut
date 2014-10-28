@@ -80,7 +80,7 @@
         <Book>
           <Number>0</Number>
           <Title>Schematics (MCB1343)</Title>
-          <Path>C:\Keil\ARM\PACK\Keil\LPC1300_DFP\1.0.0\Documents\mcb1000-schematics.pdf</Path>
+          <Path>C:\Keil_v5\ARM\PACK\Keil\LPC1300_DFP\1.0.0\Documents\mcb1000-schematics.pdf</Path>
         </Book>
         <Book>
           <Number>1</Number>
@@ -205,7 +205,7 @@
 
   <Group>
     <GroupName>core</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

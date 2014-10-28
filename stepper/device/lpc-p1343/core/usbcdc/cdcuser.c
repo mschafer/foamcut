@@ -75,10 +75,10 @@ void CDC_FreeBlock(CDCBlock_t *b)
 
 uint8_t CDC_ReadByte(uint8_t *rxByte)
 {
-    uint8_t ret = 0xFF;
+    uint8_t ret = 0;
     CDCBlock_t *b = CDC_FullBlocks;
     if (b !=NULL) {
-    	ret = 0;
+    	ret = 1;
     	*rxByte = b->data[b->position];
         b->position++;
         if (b->position == b->count) {

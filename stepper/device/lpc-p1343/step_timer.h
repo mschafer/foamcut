@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * \file
  * This interface controls timer32_0 which is used to drive the stepper.
@@ -23,8 +27,17 @@ void step_timer_init(void);
 void step_timer_start(uint32_t val);
 
 /**
+ * Stop the timer from running.  No further interrupts will be generated.
+ */
+void step_timer_stop(void);
+
+/**
  * \return 0 if timer is stopped, 1 if it is running.
  */
 uint8_t step_timer_enabled(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

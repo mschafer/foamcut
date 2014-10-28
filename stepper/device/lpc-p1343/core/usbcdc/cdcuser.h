@@ -21,17 +21,21 @@
 
 #include <stdint.h>
 
-/* CDC buffer handling */
-extern int CDC_RdOutBuf(char *buffer, const int *length);
-extern int CDC_WrOutBuf(const char *buffer, int *length);
-extern int CDC_OutBufAvailChar(int *availChar);
-
 /* CDC Data In/Out Endpoint Address */
 #define CDC_DEP_IN       0x83
 #define CDC_DEP_OUT      0x03
 
 /* CDC Communication In Endpoint Address */
 #define CDC_CEP_IN       0x81
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* CDC buffer handling */
+extern int CDC_RdOutBuf(char *buffer, const int *length);
+extern int CDC_WrOutBuf(const char *buffer, int *length);
+extern int CDC_OutBufAvailChar(int *availChar);
 
 /* CDC Requests Callback Functions */
 extern uint32_t CDC_SendEncapsulatedCommand(void);
@@ -76,7 +80,7 @@ void CDC_PollOutEp(void);
 /**
  * Reads a single byte from the CDC buffer and puts it into rxByte.
  * \param rxByte A pointer to the address that will hold the byte that is read.
- * \return 0 on success, -1 if no byte is available.
+ * \return 1 on success, 0 if no byte is available.
  */
 uint8_t CDC_ReadByte(uint8_t *rxByte);
 
@@ -92,6 +96,10 @@ uint32_t CDC_WriteInEp(const uint8_t *data, uint32_t length);
  * Blocks until all bytes have been sent.
  */
 void CDC_BlockingWriteInEp(const uint8_t *data, uint32_t length);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /* __CDCUSER_H__ */
 

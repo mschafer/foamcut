@@ -3,14 +3,18 @@
 
 #include <stdint.h>
 
-void gpioInit(void);
-
 typedef enum {
     GPIO_OUTPUT_PIN,
     GPIO_INPUT_FLOAT_PIN,
     GPIO_INPUT_PULLUP_PIN,
     GPIO_INPUT_PULLDOWN_PIN,
 } gpioPinFunction_t;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void gpioInit(void);
 
 /**
  * Configure an i/o pin as input or output,
@@ -22,5 +26,9 @@ uint8_t gpioSetPinFunction(uint_fast8_t port, uint_fast8_t pin, gpioPinFunction_
 void gpioSetPin(uint_fast8_t port, uint_fast8_t pin, uint_fast8_t val);
 
 uint_fast8_t gpioGetPin(uint_fast8_t port, uint_fast8_t pin);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

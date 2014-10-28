@@ -1,6 +1,5 @@
 #include "lpc134x.h"
 #include "core/gpio/gpio.h"
-//#include "stepper.h"
 
 void step_timer_init()
 {
@@ -30,31 +29,16 @@ void step_timer_init()
 void step_timer_start(uint32_t val)
 {
     TMR_TMR32B0TCR = TMR_TMR32B0TCR_COUNTERRESET_ENABLED;
-    if (val != 0) {
-        TMR_TMR32B0MR0 = val;
-        TMR_TMR32B0TCR = TMR_TMR32B0TCR_COUNTERENABLE_ENABLED;
-    } else {
-        TMR_TMR32B0TCR = TMR_TMR32B0TCR_COUNTERENABLE_DISABLED;
-    }
+    TMR_TMR32B0MR0 = val;
+    TMR_TMR32B0TCR = TMR_TMR32B0TCR_COUNTERENABLE_ENABLED;
+}
+
+void step_timer_stop()
+{
+    TMR_TMR32B0TCR = TMR_TMR32B0TCR_COUNTERENABLE_DISABLED;
 }
 
 uint8_t step_timer_enabled()
 {
 	return (TMR_TMR32B0TCR & TMR_TMR32B0TCR_COUNTERENABLE_MASK) == 0 ? 0 : 1;
-}
-
-void TIMER32_0_IRQHandler(void)
-{
-    uint8_t v;
-    /* clear the interrupt flag */
-    TMR_TMR32B0IR = TMR_TMR32B0IR_MR0;
-
-#ifdef CFG_UMS
-    st_run_once();
-
-#else
-    v = gpioGetPin(2, 7);
-    v = (v == 0) ? 1 : 0;
-    gpioSetPin(2, 7, v);
-#endif
 }
