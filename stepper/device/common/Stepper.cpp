@@ -138,10 +138,8 @@ void Stepper::handleMessage(Message *m)
 		setupConnection(cm);
 		StatusFlags::instance().set(StatusFlags::CONNECTED);
 		ConnectResponseMsg *crm = new (m) ConnectResponseMsg();
-		if (crm) {
-			if (!(HAL::sendMessage(crm) == SUCCESS)) {
-				delete crm;
-			}
+        if (!(HAL::sendMessage(crm) == SUCCESS)) {
+		    delete crm;
 		}
 	}
 	break;
@@ -150,10 +148,8 @@ void Stepper::handleMessage(Message *m)
 	{
 		Logger::trace("stepper", "heartbeat received");
 		HeartbeatResponseMsg *hrm = new (m) HeartbeatResponseMsg();
-		if (hrm) {
-			if (!(HAL::sendMessage(hrm) == SUCCESS)) {
-				delete hrm;
-			}
+		if (!(HAL::sendMessage(hrm) == SUCCESS)) {
+		    delete hrm;
 		}
 	}
 	break;
@@ -164,6 +160,16 @@ void Stepper::handleMessage(Message *m)
 		engine_.addScriptMessage(m);
 	}
 	break;
+    
+    case PING_MSG:
+    {
+        Logger::trace("stepper", "ping received");
+        PingResponseMsg *prm = new (m) PingResponseMsg();
+        if (!(HAL::sendMessage(prm) == SUCCESS)) {
+            delete prm;
+        }
+    }
+    break;
 
 	default:
 		error(UNRECOGNIZED_MESSAGE);

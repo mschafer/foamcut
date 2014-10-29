@@ -21,8 +21,8 @@
 namespace stepper {
 
 namespace device {
-class ASIOReceiver;
-class ASIOSender;
+	template <typename T> class ASIOSender;
+	template <typename T> class ASIOReceiver;
 }
 
 /**
@@ -48,8 +48,8 @@ private:
     boost::asio::io_service &ios_;
     boost::mutex mtx_;
     boost::asio::ip::tcp::socket socket_;
-    std::unique_ptr<device::ASIOSender> sender_;
-    std::unique_ptr<device::ASIOReceiver> receiver_;
+	std::unique_ptr<device::ASIOSender<boost::asio::ip::tcp::socket> > sender_;
+	std::unique_ptr<device::ASIOReceiver<boost::asio::ip::tcp::socket> > receiver_;
 
     void connect();
     void connectComplete(const boost::system::error_code &error);

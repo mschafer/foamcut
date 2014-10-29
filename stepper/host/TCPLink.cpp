@@ -75,9 +75,9 @@ void TCPLink::handleError(const boost::system::error_code &error)
 void TCPLink::connectComplete(const boost::system::error_code &error)
 {
     if (!error) {
-        device::ASIOSender::ErrorCallback ec = boost::bind(&TCPLink::handleError, this, _1);
-        sender_.reset(new device::ASIOSender(socket_, ec));
-        receiver_.reset(new device::ASIOReceiver(socket_, ec));
+		device::ASIOSender<boost::asio::ip::tcp::socket>::ErrorCallback ec = boost::bind(&TCPLink::handleError, this, _1);
+		sender_.reset(new device::ASIOSender<boost::asio::ip::tcp::socket>(socket_, ec));
+		receiver_.reset(new device::ASIOReceiver<boost::asio::ip::tcp::socket>(socket_, ec));
     } else {
     	handleError(error);
     }

@@ -14,7 +14,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include <assert.h>
+//#include <assert.h>
 #include <new>
 
 namespace stepper { namespace device {
@@ -64,9 +64,9 @@ public:
 
     const MessageHeader &header() const  {
         // use asserts to verify layout of class b/c we don't have c++11 aligment
-        assert(sizeof(MessageHeader) == 4);
+        //assert(sizeof(MessageHeader) == 4);
         const MessageHeader *p = reinterpret_cast<const MessageHeader*>(payload() - sizeof(MessageHeader));
-        assert((reinterpret_cast<size_t>(p) & 3) == 0); // alignment
+        //assert((reinterpret_cast<size_t>(p) & 3) == 0); // alignment
         return *p;
     }
     MessageHeader &header() { return const_cast<MessageHeader&>(static_cast<const Message*>(this)->header()); }
@@ -87,7 +87,7 @@ public:
 
 	const uint8_t *payload() const { 
         const uint8_t *ret = reinterpret_cast<const uint8_t*>(this+1);
-        assert((size_t)ret % sizeof(void*) == 0);
+        //assert((size_t)ret % sizeof(void*) == 0);
         return ret;
     }
     uint8_t *payload() { return const_cast<uint8_t*>(static_cast<const Message*>(this)->payload()); }

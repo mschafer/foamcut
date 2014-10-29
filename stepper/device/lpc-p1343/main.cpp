@@ -43,7 +43,8 @@
 #include "core/systick/systick.h"
 #include "core/usbcdc/cdcuser.h"
 #include "step_timer.h"
-//#include "ums.h"
+#include <Stepper.hpp>
+#include <HAL.hpp>
 
 uint8_t buffer[64];
 /**************************************************************************/
@@ -57,16 +58,17 @@ int main(void) {
 
     // Configure cpu and mandatory peripherals
     systemInit();
-    step_timer_init();
 
-#ifdef CFG_UMS
-    ums_init();
+#ifdef CFG_FOAMCUT
+    stepper::device::HAL::initialize();
+    
     while(1) {
     	CDC_PollOutEp();
-    	ums_run_once();
+        stepper::device::Stepper::instance().runOnce();
     }
 
 #else
+    step_timer_init();
     currentSecond = lastSecond = 0;
 
     // led 0 on LPC-P1343

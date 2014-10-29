@@ -47,12 +47,6 @@ namespace stepper { namespace device {
         U_REV_LIM_PIN  = 11
     };        
         
-MemoryAllocator &MemoryAllocator::instance()
-{
-	static MemoryAllocator ma;
-	return ma;
-}
-
 namespace HAL {
     Message *rxMsg_ = NULL;
     uint16_t rxPos_ = 0;
@@ -105,25 +99,29 @@ void HAL::setStepDirBits(const StepDir &s)
 
 LimitSwitches HAL::readLimitSwitches()
 {
+    // pins are pulled up and limit switch grounds them so
+    // gpioGetPin returns 0 for a switch that is activated.
     LimitSwitches ret;
-    ret.xFwd(gpioGetPin(X_FWD_LIM_PORT, X_FWD_LIM_PIN));
-    ret.xRev(gpioGetPin(X_REV_LIM_PORT, X_REV_LIM_PIN));
+    ret.xFwd(!(bool)(gpioGetPin(X_FWD_LIM_PORT, X_FWD_LIM_PIN)));
+    ret.xRev(!(bool)(gpioGetPin(X_REV_LIM_PORT, X_REV_LIM_PIN)));
 
-    ret.yFwd(gpioGetPin(Y_FWD_LIM_PORT, Y_FWD_LIM_PIN));
-    ret.yRev(gpioGetPin(Y_REV_LIM_PORT, Y_REV_LIM_PIN));
+    ret.yFwd(!(bool)(gpioGetPin(Y_FWD_LIM_PORT, Y_FWD_LIM_PIN)));
+    ret.yRev(!(bool)(gpioGetPin(Y_REV_LIM_PORT, Y_REV_LIM_PIN)));
 
-    ret.zFwd(gpioGetPin(Z_FWD_LIM_PORT, Z_FWD_LIM_PIN));
-    ret.zRev(gpioGetPin(Z_REV_LIM_PORT, Z_REV_LIM_PIN));
+    ret.zFwd(!(bool)(gpioGetPin(Z_FWD_LIM_PORT, Z_FWD_LIM_PIN)));
+    ret.zRev(!(bool)(gpioGetPin(Z_REV_LIM_PORT, Z_REV_LIM_PIN)));
 
-    ret.uFwd(gpioGetPin(U_FWD_LIM_PORT, U_FWD_LIM_PIN));
-    ret.uRev(gpioGetPin(U_REV_LIM_PORT, U_REV_LIM_PIN));
+    ret.uFwd(!(bool)(gpioGetPin(U_FWD_LIM_PORT, U_FWD_LIM_PIN)));
+    ret.uRev(!(bool)(gpioGetPin(U_REV_LIM_PORT, U_REV_LIM_PIN)));
 
 	return ret;
 }
 
 ErrorCode HAL::sendMessage(Message *m, Message::Priority priority)
 {
+    ///\todo shouldn't attempt to send anything unless connected
     CDC_BlockingWriteInEp(m->transmitStart(), m->transmitSize());
+    delete m;
     ErrorCode ec;
     return ec;
 }
@@ -172,7 +170,6 @@ void HAL::stopTimer()
 
 extern "C" void TIMER32_0_IRQHandler(void)
 {
-    uint8_t v;
     /* clear the interrupt flag */
     TMR_TMR32B0IR = TMR_TMR32B0IR_MR0;
 
@@ -180,6 +177,7 @@ extern "C" void TIMER32_0_IRQHandler(void)
     stepper::device::Stepper::instance().onTimerExpired();
 
 #else
+    uint8_t v;
     v = gpioGetPin(2, 7);
     v = (v == 0) ? 1 : 0;
     gpioSetPin(2, 7, v);

@@ -23,12 +23,13 @@ namespace stepper { namespace device {
  * Hold buffer(s) to receive raw bytes and then extract individual messages
  * for processing.
  */
+template <typename ASIOWriteStream>
 class ASIOReceiver
 {
 public:
     typedef boost::function<void (const boost::system::error_code &error)> ErrorCallback;
 
-    ASIOReceiver(boost::asio::ip::tcp::socket &s, ErrorCallback ec);
+	ASIOReceiver(ASIOWriteStream &s, ErrorCallback ec);
     ~ASIOReceiver();
 
     Message *getMessage();
@@ -39,7 +40,7 @@ private:
         BUFFER_SIZE = 1<<22
     };
 
-    boost::asio::ip::tcp::socket &socket_;
+	ASIOWriteStream &socket_;
     ErrorCallback errorCallback_;
     boost::mutex mtx_;
     MessageList rxList_;

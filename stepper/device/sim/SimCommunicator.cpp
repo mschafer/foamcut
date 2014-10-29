@@ -69,9 +69,9 @@ Message *SimCommunicator::receiveMessage()
 void SimCommunicator::acceptComplete(const boost::system::error_code &error)
 {
     if (!error) {
-        ASIOSender::ErrorCallback ec = boost::bind(&SimCommunicator::handleError, this, _1);
-        sender_.reset(new ASIOSender(socket_, ec));
-        receiver_.reset(new ASIOReceiver(socket_, ec));
+		ASIOSender<boost::asio::ip::tcp::socket>::ErrorCallback ec = boost::bind(&SimCommunicator::handleError, this, _1);
+		sender_.reset(new ASIOSender<boost::asio::ip::tcp::socket>(socket_, ec));
+		receiver_.reset(new ASIOReceiver<boost::asio::ip::tcp::socket>(socket_, ec));
     } else {
     	handleError(error);
     }

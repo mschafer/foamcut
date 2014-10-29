@@ -21,8 +21,8 @@
 namespace stepper { namespace device {
 
 class Message;
-class ASIOSender;
-class ASIOReceiver;
+template <typename T> class ASIOSender;
+template <typename T> class ASIOReceiver;
 
 /**
  * CommService implementation for boost based target.
@@ -61,9 +61,9 @@ private:
     boost::asio::io_service &ios_;
     boost::asio::ip::tcp::socket socket_;
 	std::unique_ptr<boost::asio::ip::tcp::acceptor> acceptor_;
-    std::unique_ptr<ASIOSender> sender_;
-    std::unique_ptr<ASIOReceiver> receiver_;
-    uint16_t port_;
+	std::unique_ptr<device::ASIOSender<boost::asio::ip::tcp::socket> > sender_;
+	std::unique_ptr<device::ASIOReceiver<boost::asio::ip::tcp::socket> > receiver_;
+	uint16_t port_;
 
     void handleError(const boost::system::error_code &error);
     void run();

@@ -47,7 +47,8 @@ struct ConstBufferSequence {
     T &list_;
 };
 
-ASIOSender::ASIOSender(boost::asio::ip::tcp::socket &s, ErrorCallback ec) : socket_(s), 
+template <typename ASIOWriteStream>
+ASIOSender<ASIOWriteStream>::ASIOSender(ASIOWriteStream &s, ErrorCallback ec) : socket_(s),
     errorCallback_(ec), toSend_(QUEUE_SIZE, NULL), beingSent_(QUEUE_SIZE, NULL), status_(SUCCESS),
     waitingSenders_(0), inProgress_(false)
 {
@@ -55,7 +56,8 @@ ASIOSender::ASIOSender(boost::asio::ip::tcp::socket &s, ErrorCallback ec) : sock
     beingSent_.clear();
 }
 
-ASIOSender::~ASIOSender()
+template <typename ASIOWriteStream>
+ASIOSender<ASIOWriteStream>::~ASIOSender()
 {
     boost::unique_lock<boost::mutex> lock(mtx_);
     status_ = FATAL_ERROR;
@@ -68,25 +70,36 @@ ASIOSender::~ASIOSender()
     clearQueues();
 }
 
-///\todo senders can get stuck here when Simulator is trying to shut down
-ErrorCode ASIOSender::enqueue(Message *msg)
+template <typename ASIOWriteStream>
+ErrorCode ASIOSender<ASIOWriteStream>::enqueue(Message *msg)
 {
-    boost::unique_lock<boost::mutex> lock(mtx_);
-    while (toSend_.size() >= QUEUE_SIZE && status_ == SUCCESS) {
-        ++waitingSenders_;
-        full_.wait(lock);
-        --waitingSenders_;
-    }
+	boost::unique_lock<boost::mutex> lock(mtx_);
+	while (toSend_.size() >= QUEUE_SIZE && status_ == SUCCESS) {
+		++waitingSenders_;
 
-    if (status_ == SUCCESS) {
-        toSend_.push_back(msg);
-        if (!inProgress_) {
-            startSending();
-        }
-        return SUCCESS;
-    } else {
-        return FATAL_ERROR;
-    }
+		try {
+			full_.wait(lock);
+		}
+
+		// don't send if the wait throws an error
+		catch (...) {
+			--waitingSenders_;
+			return RESOURCE_UNAVAILABLE;
+		}
+
+		--waitingSenders_;
+	}
+
+	if (status_ == SUCCESS) {
+		toSend_.push_back(msg);
+		if (!inProgress_) {
+			startSending();
+		}
+		return SUCCESS;
+	}
+	else {
+		return FATAL_ERROR;
+	}
 }
 
 /**
@@ -96,7 +109,8 @@ ErrorCode ASIOSender::enqueue(Message *msg)
  *  inProgress_ must be false
  *  beingSent_ must be empty
  */
-void ASIOSender::startSending()
+template <typename ASIOWriteStream>
+void ASIOSender<ASIOWriteStream>::startSending()
 {
     assert(inProgress_ == false);
     if (toSend_.empty()) return;
@@ -113,26 +127,28 @@ void ASIOSender::startSending()
         boost::asio::placeholders::error));
 }
 
-void ASIOSender::sendComplete(const boost::system::error_code &error)
+template <typename ASIOWriteStream>
+void ASIOSender<ASIOWriteStream>::sendComplete(const boost::system::error_code &error)
 {
     BOOST_FOREACH(Message *m, beingSent_) {
         delete m;
     }
     beingSent_.clear();
 
-    if (error) {
-        boost::lock_guard<boost::mutex> guard(mtx_);
-        status_ = FATAL_ERROR;
-        clearQueues();
-        errorCallback_(error);
-    } else {
-        boost::lock_guard<boost::mutex> guard(mtx_);
-        inProgress_ = false;
-        startSending();
-    }
+	boost::lock_guard<boost::mutex> guard(mtx_);
+	inProgress_ = false;
+	if (error) {
+		status_ = FATAL_ERROR;
+		clearQueues();
+		errorCallback_(error);
+	}
+	else {
+		startSending();
+	}
 }
 
-void ASIOSender::clearQueues()
+template <typename ASIOWriteStream>
+void ASIOSender<ASIOWriteStream>::clearQueues()
 {
     BOOST_FOREACH(Message *m, beingSent_) {
         delete m;
@@ -144,5 +160,8 @@ void ASIOSender::clearQueues()
     }
     toSend_.clear();
 }
+
+template class ASIOSender<boost::asio::ip::tcp::socket>;
+template class ASIOSender<boost::asio::serial_port>;
 
 }}

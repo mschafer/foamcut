@@ -18,32 +18,30 @@
 
 namespace stepper { namespace device {
     
-/**
- * Implement MemoryAllocator concept with a wrapper around boost::singleton_pool
- */
 class MemoryAllocator
 {
 public:
-    /// implemented in HAL.cpp
     static MemoryAllocator &instance();
 
-    void *alloc(size_t request) throw() {
-		return NULL;
-	}
-
-    void free(void *p) { }
+    void *alloc(size_t request) throw();
+    void free(void *p);
 
     size_t capacity(void const *p) const { return maxCapacity(); }
 
-    size_t maxCapacity() const { return 0; }
+    size_t maxCapacity() const { return CHUNK_SIZE; }
 
 private:
     enum {
-        POOL_SIZE = 64
+        CHUNK_SIZE = 64,
+        CHUNK_COUNT = 16
     };
 
-    MemoryAllocator() {}
+    MemoryAllocator();
     ~MemoryAllocator() {}
+
+    uint8_t *volatile lastAlloc_;
+    struct Node *volatile free_;        
+    uint8_t block_[CHUNK_SIZE*CHUNK_COUNT];
 };
 
 }}

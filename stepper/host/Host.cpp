@@ -71,7 +71,7 @@ void Host::executeScript(const Script &s)
 	}
 
 	scriptMsgs_ = s.generateMessages();
-	scriptMsgCount_ = scriptMsgs_->size();
+	scriptMsgCount_ = static_cast<int>(scriptMsgs_->size());
 
 	// fill up the device window with script messages and then send a
 	// GoMsg to start the device running.  The remainder of the

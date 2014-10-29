@@ -14,8 +14,8 @@
 
 namespace stepper { namespace device {
 
-
-ASIOReceiver::ASIOReceiver(boost::asio::ip::tcp::socket &s, ErrorCallback ec) :
+template <typename ASIOWriteStream>
+ASIOReceiver<ASIOWriteStream>::ASIOReceiver(ASIOWriteStream &s, ErrorCallback ec) :
     socket_(s), errorCallback_(ec), msg_(NULL), msgPos_(0), bufferPos_(0), bufferEnd_(0)
 {
     socket_.async_read_some(boost::asio::buffer(buffer_, BUFFER_SIZE),
@@ -24,11 +24,13 @@ ASIOReceiver::ASIOReceiver(boost::asio::ip::tcp::socket &s, ErrorCallback ec) :
         boost::asio::placeholders::bytes_transferred));
 }
 
-ASIOReceiver::~ASIOReceiver()
+template <typename ASIOWriteStream>
+ASIOReceiver<ASIOWriteStream>::~ASIOReceiver()
 {
 }
 
-Message *ASIOReceiver::getMessage()
+template <typename ASIOWriteStream>
+Message *ASIOReceiver<ASIOWriteStream>::getMessage()
 {
 	boost::lock_guard<boost::mutex> guard(mtx_);
 	if (!rxList_.empty()) {
@@ -39,7 +41,8 @@ Message *ASIOReceiver::getMessage()
 	}
 }
 
-void ASIOReceiver::readComplete(const boost::system::error_code &error, size_t bytesReceived)
+template <typename ASIOWriteStream>
+void ASIOReceiver<ASIOWriteStream>::readComplete(const boost::system::error_code &error, size_t bytesReceived)
 {
     if (error) {
         errorCallback_(error);
@@ -55,7 +58,8 @@ void ASIOReceiver::readComplete(const boost::system::error_code &error, size_t b
     }
 }
 
-void ASIOReceiver::extract()
+template <typename ASIOWriteStream>
+void ASIOReceiver<ASIOWriteStream>::extract()
 {
     while (bufferPos_ != bufferEnd_) {
         boost::this_thread::interruption_point();
@@ -93,7 +97,8 @@ void ASIOReceiver::extract()
     return;
 }
 
-bool ASIOReceiver::extractHeader() {
+template <typename ASIOWriteStream>
+bool ASIOReceiver<ASIOWriteStream>::extractHeader() {
     uint8_t *pHeader = reinterpret_cast<uint8_t*>(&header_);
     while (bufferPos_ != bufferEnd_ && msgPos_ < sizeof(MessageHeader)) {
         pHeader[msgPos_++] = buffer_[bufferPos_++];
@@ -106,5 +111,7 @@ bool ASIOReceiver::extractHeader() {
     }
 }
 
+template class ASIOReceiver<boost::asio::ip::tcp::socket>;
+template class ASIOReceiver<boost::asio::serial_port>;
 
 }}

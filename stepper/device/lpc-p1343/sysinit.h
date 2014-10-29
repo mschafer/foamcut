@@ -44,7 +44,15 @@
 #include "core/gpio/gpio.h"
 #include "core/systick/systick.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Function prototypes
 void systemInit(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

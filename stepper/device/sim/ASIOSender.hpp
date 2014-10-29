@@ -21,12 +21,13 @@
 
 namespace stepper { namespace device {
 
+template <typename ASIOWriteStream>
 class ASIOSender
 {
 public:
     typedef boost::function<void (const boost::system::error_code &error)> ErrorCallback;
 
-    ASIOSender(boost::asio::ip::tcp::socket &s, ErrorCallback ec);
+    ASIOSender(ASIOWriteStream &s, ErrorCallback ec);
     ~ASIOSender();
 
     ErrorCode enqueue(Message *msg);
@@ -40,7 +41,7 @@ private:
 
     boost::mutex mtx_;
     boost::condition_variable full_;
-    boost::asio::ip::tcp::socket &socket_;
+	ASIOWriteStream &socket_;
     ErrorCallback errorCallback_;
     MessageQueue toSend_;
     MessageQueue beingSent_;
