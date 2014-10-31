@@ -54,7 +54,6 @@ uint8_t buffer[64];
  */
 /**************************************************************************/
 int main(void) {
-    uint32_t currentSecond, lastSecond, chars;
 
     // Configure cpu and mandatory peripherals
     systemInit();
@@ -68,6 +67,7 @@ int main(void) {
     }
 
 #else
+    uint32_t currentSecond, lastSecond, chars;
     step_timer_init();
     currentSecond = lastSecond = 0;
 

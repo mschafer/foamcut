@@ -390,7 +390,7 @@ void USB_ClearEPBuf(uint32_t EPNum) {
  * \return Number of bytes read <= 64.
  */
 uint32_t USB_ReadEP(uint32_t EPNum, uint8_t *pData) {
-    uint32_t cnt, n, s;
+    uint32_t cnt, n;
 
     USB_CTRL = ((EPNum & 0x0F) << 2) | CTRL_RD_EN;
     /* 3 clock cycles to fetch the packet length from RAM. */

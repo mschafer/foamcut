@@ -250,8 +250,8 @@ void CDC_BulkIn(void) {
  * Called by ISR.
  */
 void CDC_BulkOut(void) {
-  // get data from USB into intermediate buffer
-    uint32_t s = USB_EPBufState(CDC_DEP_OUT);
+    // get data from USB into intermediate buffer
+    //uint32_t s = USB_EPBufState(CDC_DEP_OUT);
     //uint32_t numBytesRead = USB_ReadEP(CDC_DEP_OUT, &BulkBufOut[0]);
 }
 
