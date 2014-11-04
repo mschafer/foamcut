@@ -51,6 +51,7 @@ add_executable(foamcut_gui
   mainwindow.cpp
   movedialog.cpp
   qcustomplot.cpp
+  setupdialog.cpp
   shapeplotmgr.cpp
   $<TARGET_OBJECTS:foamcut_kernel>
   $<TARGET_OBJECTS:stepper_host>

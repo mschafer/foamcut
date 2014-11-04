@@ -23,7 +23,7 @@ bool SerialProtocol::send(APDU *a)
 
 bool SerialProtocol::timeToSendSync()
 {
-	auto now = std::chrono::steady_clock::now();
+	auto now = clock_hack::now();
 	std::chrono::duration<double> sec = now - syncTime_;
 	if (sec.count() > SYNC_INTERVAL_SEC) {
 		return true;

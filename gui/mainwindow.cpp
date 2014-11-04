@@ -13,6 +13,7 @@
 #include "mainwindow.h"
 #include "cutdialog.h"
 #include "movedialog.h"
+#include "setupdialog.h"
 #include "ui_mainwindow.h"
 #include "importwizard.h"
 #include "ruled_surface.hpp"
@@ -22,6 +23,10 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+	// used when accessing persistent application settings
+	QCoreApplication::setOrganizationName("winddummy");
+	QCoreApplication::setApplicationName("foamcut");
+
     ui->setupUi(this);
 
     ui->speed_edit->setValidator(new QDoubleValidator());
@@ -156,6 +161,6 @@ void MainWindow::on_cut_button_clicked()
 
 void MainWindow::on_actionSetup_triggered()
 {
-	qDebug() <<"action setup";
+	std::unique_ptr<SetupDialog> sd(new SetupDialog());
+	sd->exec();
 }
-

@@ -46,6 +46,14 @@ public:
 	static uint8_t crc8(uint8_t seed, const uint8_t *data, size_t len);
 
 private:
+
+	/** For some reason only system_clock works on windows and only steady_clock works on Mac */
+#ifdef WIN32
+	typedef std::chrono::system_clock clock_hack;
+#else
+	typedef std::chrono::steady_clock clock_hack;
+#endif
+
     static const char *SYNC_STRING;
     static const size_t SYNC_SIZE;
 	static Connect MY_CONNECT;
@@ -53,7 +61,7 @@ private:
     State state_;
     Synchronizer sync_;
     size_t sendingSync_;
-    std::chrono::time_point<std::chrono::steady_clock> syncTime_;
+    std::chrono::time_point<clock_hack> syncTime_;
 	boost::circular_buffer<uint8_t> rxDataFIFO_;
 	boost::circular_buffer<uint8_t> rxRawFIFO_;
 	uint8_t rxBuff_[MAX_SERIAL_PACKET_SIZE];

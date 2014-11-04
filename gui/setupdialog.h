@@ -14,7 +14,10 @@ class SetupDialog : public QDialog
 public:
     explicit SetupDialog(QWidget *parent = 0);
     ~SetupDialog();
-    
+
+private slots:
+	void accept();
+
 private:
     Ui::SetupDialog *ui;
 };
