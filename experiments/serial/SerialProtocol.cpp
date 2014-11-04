@@ -10,7 +10,7 @@ Connect SerialProtocol::MY_CONNECT;
 SerialProtocol::SerialProtocol(Port &port) :port_(port), state_(SerialProtocol::DISCONNECTED),
 		sync_(SerialProtocol::SYNC_STRING, strlen(SerialProtocol::SYNC_STRING)), sendingSync_(0),
 		rxDataFIFO_((RX_WINDOW_SIZE + 1)*MAX_SERIAL_PACKET_SIZE), rxRawFIFO_(64),
-        rxPos_(0), rxDataPos_(0)
+        rxPos_(0), rxDataPos_(0), txPos_(0)
 {
 
 }
@@ -23,7 +23,7 @@ bool SerialProtocol::send(APDU *a)
 
 bool SerialProtocol::timeToSendSync()
 {
-	auto now = std::chrono::system_clock::now();
+	auto now = std::chrono::steady_clock::now();
 	std::chrono::duration<double> sec = now - syncTime_;
 	if (sec.count() > SYNC_INTERVAL_SEC) {
 		return true;
@@ -221,7 +221,9 @@ void SerialProtocol::run()
 				state_ = ERROR;
 				break;
 			}
-			if (sendingSync_ == 0) syncTime_ = std::chrono::steady_clock::now();
+			if (sendingSync_ == 0) {
+				syncTime_ = std::chrono::steady_clock::now();
+			}
 		} else if (timeToSendSync()) {
 			sendingSync_ = SYNC_SIZE;
 		}

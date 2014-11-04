@@ -53,7 +53,7 @@ private:
     State state_;
     Synchronizer sync_;
     size_t sendingSync_;
-    std::chrono::time_point<std::chrono::system_clock> syncTime_;
+    std::chrono::time_point<std::chrono::steady_clock> syncTime_;
 	boost::circular_buffer<uint8_t> rxDataFIFO_;
 	boost::circular_buffer<uint8_t> rxRawFIFO_;
 	uint8_t rxBuff_[MAX_SERIAL_PACKET_SIZE];

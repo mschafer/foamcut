@@ -144,13 +144,13 @@ void MainWindow::geometryChanged()
 
 void MainWindow::on_move_button_clicked()
 {
-	std::auto_ptr<MoveDialog> md(new MoveDialog());
+	std::unique_ptr<MoveDialog> md(new MoveDialog());
 	md->exec();
 }
 
 void MainWindow::on_cut_button_clicked()
 {
-	std::auto_ptr<CutDialog> cd(new CutDialog());
+	std::unique_ptr<CutDialog> cd(new CutDialog());
 	cd->exec();
 }
 
