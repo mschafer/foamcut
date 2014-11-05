@@ -31,13 +31,17 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5PrintSupport REQUIRED)
+find_package(Qt5SerialPort REQUIRED)
 
 set(UI_FILES mainwindow.ui cutdialog.ui movedialog.ui datimportpage.ui setupdialog.ui)
 qt5_wrap_ui(UI_HDRS ${UI_FILES})
 
+set (DEVICE_COMMON_DIR ${CMAKE_SOURCE_DIR}/stepper/device/common)
+
 include_directories( 
   ../kernel
-  ${Boost_INCLUDE_DIRS}  
+  ${Boost_INCLUDE_DIRS}
+  ${DEVICE_COMMON_DIR}
 )
 
 add_executable(foamcut_gui
@@ -51,6 +55,7 @@ add_executable(foamcut_gui
   mainwindow.cpp
   movedialog.cpp
   qcustomplot.cpp
+  settings.cpp
   setupdialog.cpp
   shapeplotmgr.cpp
   $<TARGET_OBJECTS:foamcut_kernel>
@@ -58,7 +63,7 @@ add_executable(foamcut_gui
   $<TARGET_OBJECTS:stepper_sim>
 )
 
-qt5_use_modules(foamcut_gui Widgets PrintSupport)
+qt5_use_modules(foamcut_gui Widgets PrintSupport SerialPort)
 target_link_libraries( foamcut_gui
   ${Boost_LIBRARIES}
 )

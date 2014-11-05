@@ -70,7 +70,7 @@ public:
 	/**
 	 * Generate a set of instructions for the stepper to cut this RuledSurface.
 	 */
-	std::shared_ptr<stepper::Script> generateScript(const StepperInfo &stepper);
+	std::shared_ptr<stepper::Script> generateScript(const StepperInfo &sInfo);
 
 	/** \todo Add a method for sweep rotation */
 

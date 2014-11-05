@@ -23,10 +23,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-	// used when accessing persistent application settings
-	QCoreApplication::setOrganizationName("winddummy");
-	QCoreApplication::setApplicationName("foamcut");
-
     ui->setupUi(this);
 
     ui->speed_edit->setValidator(new QDoubleValidator());

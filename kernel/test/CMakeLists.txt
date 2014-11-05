@@ -19,9 +19,11 @@ find_package( Boost REQUIRED COMPONENTS
 )
 
 link_directories(${Boost_LIBRARY_DIRS})
+set (DEVICE_COMMON_DIR ${CMAKE_SOURCE_DIR}/stepper/device/common)
 
 include_directories ( 
-  ${Boost_INCLUDE_DIRS} 
+  ${Boost_INCLUDE_DIRS}
+  ${DEVICE_COMMON_DIR}
   ..
 )
 

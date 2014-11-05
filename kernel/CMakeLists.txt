@@ -36,7 +36,6 @@ set (KERNEL_SRC
   ruled_surface.cpp
   shape.cpp
   spline.cpp
-  stepper_info.cpp
 )
 
 # headers

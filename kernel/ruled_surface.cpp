@@ -10,10 +10,11 @@
  *     Marc Schafer
  */
 
-#include "ruled_surface.hpp"
 #include <stdexcept>
 #include <boost/assert.hpp>
-#include <Script.hpp>
+#include "ruled_surface.hpp"
+#include "stepper_info.hpp"
+#include "Script.hpp"
 
 namespace foamcut {
 
@@ -131,7 +132,7 @@ void RuledSurface::setTime(double speed)
 	}
 }
 
-stepper::Script::handle RuledSurface::generateScript(const StepperInfo &stepper)
+stepper::Script::handle RuledSurface::generateScript(const StepperInfo &sInfo)
 {
 	stepper::Script::handle ret(new stepper::Script());
 
@@ -141,10 +142,10 @@ stepper::Script::handle RuledSurface::generateScript(const StepperInfo &stepper)
 	std::vector<int> rxi(rx_.size());
 	std::vector<int> ryi(ry_.size());
 	for (size_t i=0; i<lx_.size(); ++i) {
-		lxi[i] = static_cast<int>(lx_[i] / stepper.xStepSize_);
-		lyi[i] = static_cast<int>(ly_[i] / stepper.yStepSize_);
-		rxi[i] = static_cast<int>(rx_[i] / stepper.xStepSize_);
-		ryi[i] = static_cast<int>(ry_[i] / stepper.yStepSize_);
+		lxi[i] = static_cast<int>(lx_[i] / sInfo.xStepSize_);
+		lyi[i] = static_cast<int>(ly_[i] / sInfo.yStepSize_);
+		rxi[i] = static_cast<int>(rx_[i] / sInfo.xStepSize_);
+		ryi[i] = static_cast<int>(ry_[i] / sInfo.yStepSize_);
 	}
 
 	// calculate relative steps and lines from coordinates
