@@ -5,8 +5,12 @@
 #include <boost/shared_ptr.hpp>
 
 namespace foamcut {
-	class Shape;
-	class RuledSurface;
+class Shape;
+class RuledSurface;
+}
+
+namespace stepper {
+class Host;
 }
 
 namespace Ui {

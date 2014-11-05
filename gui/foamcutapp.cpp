@@ -9,17 +9,9 @@
  * Contributors:
  *     Marc Schafer
  */
-#include "mainwindow.h"
 #include "foamcutapp.hpp"
 
-int main(int argc, char *argv[])
+FoamcutApp::FoamcutApp(int &argc, char **argv) : QApplication(argc, argv)
 {
-    QCoreApplication::setOrganizationName("mit");
-    QCoreApplication::setOrganizationDomain("mit.edu");
-    QCoreApplication::setApplicationName("FoamCut");
-    FoamcutApp a(argc, argv);
-    MainWindow w;
-    w.show();
-    
-    return a.exec();
+
 }

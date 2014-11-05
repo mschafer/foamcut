@@ -16,8 +16,6 @@
 
 namespace foamcut {
 
-const QString Settings::applicationName("foamcut");
-const QString Settings::organizationName("winddummy");
 const QString Settings::xStepSizeName("stepper/xStepSize");
 const QString Settings::yStepSizeName("stepper/yStepSize");
 const QString Settings::xLengthName("stepper/xLength");
@@ -175,7 +173,7 @@ StepperInfo Settings::stepperInfo()
 }
 
 QSettings &Settings::getQSettings() {
-	static QSettings s(organizationName, applicationName);
+	static QSettings s;
 	return s;
 }
 

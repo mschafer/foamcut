@@ -26,8 +26,6 @@ namespace foamcut {
 class Settings
 {
 public:
-	static const QString applicationName;
-	static const QString organizationName;
 	static const QString xStepSizeName;
 	static const QString yStepSizeName;
 	static const QString xLengthName;

@@ -44,11 +44,17 @@ include_directories(
   ${DEVICE_COMMON_DIR}
 )
 
+# headers
+file(GLOB GUI_HDR "*.h*")
+source_group("Header Files" FILES ${GUI_HDR})
+
 add_executable(foamcut_gui
   ${UI_HDRS}
+  ${GUI_HDR}
   cutdialog.cpp
   cutplotmgr.cpp
   datimportpage.cpp
+  foamcutapp.cpp
   importwizard.cpp
   logdoublespinbox.cpp
   main.cpp

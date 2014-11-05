@@ -8,7 +8,7 @@
 # Contributors:
 #    Marc Schafer
 
-# foamcut/stepper/host/lib
+# foamcut/stepper/host
 
 
 # boost: static libs, no auto link on windows
@@ -27,6 +27,7 @@ set (DEVICE_SIM_DIR ${CMAKE_SOURCE_DIR}/stepper/device/sim)
 
 # source files
 set (HOST_SRC
+  CDCLink.cpp
   Host.cpp
   TCPLink.cpp
   Script.cpp
@@ -34,7 +35,7 @@ set (HOST_SRC
 
 # headers
 file(GLOB HOST_HDR "*.h*" )
-source_group("Headers" FILES ${HOST_HDR} ${DEVICE_SIM_HDR})
+source_group("Headers" FILES ${HOST_HDR})
 
 include_directories ( 
     ${Boost_INCLUDE_DIRS}
@@ -43,7 +44,7 @@ include_directories (
 )
 
 add_library (stepper_host OBJECT
+    ${HOST_HDR}
 	${HOST_SRC}
 	${DEVICE_COMMON_HDR}
-	${DEVICE_SIM_HDR}
 )
