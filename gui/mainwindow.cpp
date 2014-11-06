@@ -102,6 +102,16 @@ void MainWindow::on_tipKerf_edit_editingFinished()
 	geometryChanged();
 }
 
+void MainWindow::on_xLeadIn_edit_editingFinished()
+{
+	geometryChanged();
+}
+
+void MainWindow::on_yLeadIn_edit_editingFinished()
+{
+	geometryChanged();
+}
+
 void MainWindow::geometryChanged()
 {
 	try {

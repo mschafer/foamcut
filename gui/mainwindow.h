@@ -9,10 +9,6 @@ class Shape;
 class RuledSurface;
 }
 
-namespace stepper {
-class Host;
-}
-
 namespace Ui {
 class MainWindow;
 }
@@ -33,6 +29,9 @@ private slots:
     void on_tipImport_button_clicked();
     void on_tipZ_edit_editingFinished();
     void on_tipKerf_edit_editingFinished();
+
+	void on_xLeadIn_edit_editingFinished();
+	void on_yLeadIn_edit_editingFinished();
 
 	void geometryChanged();
 

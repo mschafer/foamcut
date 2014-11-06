@@ -16,6 +16,7 @@
 #include <atomic>
 #include <boost/chrono.hpp>
 #include <boost/asio.hpp>
+#include <boost/thread.hpp>
 #include "Link.hpp"
 #include "Script.hpp"
 

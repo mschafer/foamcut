@@ -27,8 +27,11 @@ ShapePlotMgr::ShapePlotMgr(QCustomPlot *plot) : plot_(plot)
 	plot_->xAxis->setRange(-1., 1.);
 	plot_->yAxis->setRange(-1., 1.);
 
+	plot_->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
 	plot_->axisRect()->setRangeDrag(Qt::Horizontal | Qt::Vertical);
 	plot_->axisRect()->setRangeZoom(Qt::Horizontal | Qt::Vertical);
+
+	connect(plot_, SIGNAL(beforeReplot()), this, SLOT(beforeReplot()));
 }
 
 QCPCurveDataMap *ShapePlotMgr::lineFit(const foamcut::Shape::handle shape)
@@ -74,6 +77,29 @@ void ShapePlotMgr::replot()
 	curve->setData(dataMap, false);
 
 	plot_->replot();
+}
+
+void ShapePlotMgr::beforeReplot()
+{
+	QSize s = plot_->axisRect()->size();
+	double pixelAR = s.width() / s.height();
+	QCPRange xr = plot_->xAxis->range();
+	QCPRange yr = plot_->yAxis->range();
+	double axisAR = xr.size() / yr.size();
+
+	// if the window is too wide for the current axes, make the plots x range bigger
+	if (pixelAR > axisAR) {
+		double newSize = xr.size() * pixelAR / axisAR;
+		double lower = xr.center() - (newSize / 2.);
+		double upper = xr.center() + (newSize / 2.);
+		plot_->xAxis->setRange(QCPRange(lower, upper));
+	}
+	else {
+		double newSize = yr.size() / (pixelAR / axisAR);
+		double lower = yr.center() - (newSize / 2.);
+		double upper = yr.center() + (newSize / 2.);
+		plot_->yAxis->setRange(QCPRange(lower, upper));
+	}
 }
 
 #if 0

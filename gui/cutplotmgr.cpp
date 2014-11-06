@@ -23,16 +23,15 @@ CutPlotMgr::CutPlotMgr(QCustomPlot *plot) : plot_(plot)
 	plot_->xAxis->setRange(-1., 1.);
 	plot_->yAxis->setRange(-1., 1.);
 
-	plot_->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom |
-			QCP::iSelectAxes | QCP::iSelectLegend);
+	plot_->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom |QCP::iSelectLegend);
 	plot_->axisRect()->setRangeDrag(Qt::Horizontal | Qt::Vertical);
 	plot_->axisRect()->setRangeZoom(Qt::Horizontal | Qt::Vertical);
 	plot_->legend->setSelectableParts(QCPLegend::spItems); // legend box shall not be selectable, only legend items
 
 	// connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
 	connect(plot_, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
-	connect(plot_, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
 	connect(plot_, SIGNAL(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*)));
+	connect(plot_, SIGNAL(beforeReplot()), this, SLOT(beforeReplot()));
 
 	QCPCurve *curve;
 	QPen pen;
@@ -158,6 +157,7 @@ void CutPlotMgr::replot()
 	plot_->replot();
 }
 
+/** \todo change to selectionChangedByUser? */
 void CutPlotMgr::mousePress() {
 	// if an axis is selected, only allow the direction of that axis to be dragged
 	// if no axis is selected, both directions may be dragged
@@ -168,18 +168,6 @@ void CutPlotMgr::mousePress() {
 		plot_->axisRect()->setRangeDrag(plot_->yAxis->orientation());
 	else
 		plot_->axisRect()->setRangeDrag(Qt::Horizontal | Qt::Vertical);
-}
-
-void CutPlotMgr::mouseWheel() {
-	// if an axis is selected, only allow the direction of that axis to be zoomed
-	// if no axis is selected, both directions may be zoomed
-
-	if (plot_->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
-		plot_->axisRect()->setRangeZoom(plot_->xAxis->orientation());
-	else if (plot_->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
-		plot_->axisRect()->setRangeZoom(plot_->yAxis->orientation());
-	else
-		plot_->axisRect()->setRangeZoom(Qt::Horizontal | Qt::Vertical);
 }
 
 void CutPlotMgr::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item)
@@ -194,4 +182,25 @@ void CutPlotMgr::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *ite
 	}
 }
 
+void CutPlotMgr::beforeReplot()
+{
+	QSize s = plot_->axisRect()->size();
+	double pixelAR = s.width() / s.height();
+	QCPRange xr = plot_->xAxis->range();
+	QCPRange yr = plot_->yAxis->range();
+	double axisAR = xr.size() / yr.size();
 
+	// if the window is too wide for the current axes, make the plots x range bigger
+	if (pixelAR > axisAR) {
+		double newSize = xr.size() * pixelAR / axisAR;
+		double lower = xr.center() - (newSize / 2.);
+		double upper = xr.center() + (newSize / 2.);
+		plot_->xAxis->setRange(QCPRange(lower, upper));
+	}
+	else {
+		double newSize = yr.size() / (pixelAR / axisAR);
+		double lower = yr.center() - (newSize / 2.);
+		double upper = yr.center() + (newSize / 2.);
+		plot_->yAxis->setRange(QCPRange(lower, upper));
+	}
+}

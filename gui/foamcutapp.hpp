@@ -13,11 +13,20 @@
 #define foamcutapp_hpp
 
 #include <QApplication>
+#include <memory>
+
+namespace stepper {
+class Host;
+}
 
 class FoamcutApp : public QApplication
 {
 public:
 	explicit FoamcutApp(int &argc, char **argv);
+	~FoamcutApp();
+
+private:
+	std::unique_ptr<stepper::Host> host_;
 };
 
 #endif

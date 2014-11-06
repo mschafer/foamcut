@@ -37,11 +37,13 @@ set(UI_FILES mainwindow.ui cutdialog.ui movedialog.ui datimportpage.ui setupdial
 qt5_wrap_ui(UI_HDRS ${UI_FILES})
 
 set (DEVICE_COMMON_DIR ${CMAKE_SOURCE_DIR}/stepper/device/common)
+set (STEPPER_HOST_DIR ${CMAKE_SOURCE_DIR}/stepper/host)
 
 include_directories( 
   ../kernel
   ${Boost_INCLUDE_DIRS}
   ${DEVICE_COMMON_DIR}
+  ${STEPPER_HOST_DIR}
 )
 
 # headers

@@ -12,15 +12,16 @@
 #ifndef shapeplotmgr_h
 #define shapeplotmgr_h
 
-#include <boost/utility.hpp>
 #include "shape.hpp"
 #include "qcustomplot.h"
 
 /**
  * Displays a single shape on a plot.
  */
-class ShapePlotMgr : public boost::noncopyable
+class ShapePlotMgr : public QObject
 {
+	Q_OBJECT
+
 public:
 	enum {
 		LINE_CURVE = 0,
@@ -33,6 +34,9 @@ public:
 
 	static QCPCurveDataMap *lineFit(const foamcut::Shape::handle shape);
 	static QCPCurveDataMap *breakPoints(const foamcut::Shape::handle shape);
+
+private slots:
+	void beforeReplot();
 
 private:
 	ShapePlotMgr();

@@ -52,8 +52,8 @@ public:
 
 private slots:
 	void mousePress();
-	void mouseWheel();
 	void legendDoubleClick(QCPLegend* legend, QCPAbstractLegendItem* item);
+	void beforeReplot();
 
 private:
 	CutPlotMgr();

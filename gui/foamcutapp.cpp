@@ -10,8 +10,13 @@
  *     Marc Schafer
  */
 #include "foamcutapp.hpp"
+#include <Host.hpp>
 
 FoamcutApp::FoamcutApp(int &argc, char **argv) : QApplication(argc, argv)
 {
 
+}
+
+FoamcutApp::~FoamcutApp()
+{
 }
