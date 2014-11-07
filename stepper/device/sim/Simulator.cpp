@@ -27,13 +27,12 @@ MemoryAllocator &MemoryAllocator::instance()
 	return ma;
 }
 
-Simulator::Simulator(uint16_t port) : backgroundTimer_(ios_), stepTimer_(ios_), time_(0.)
+Simulator::Simulator(uint16_t port) : backgroundTimer_(ios_), stepTimer_(ios_)
 {
-
+	posLog_.push_back(Position());
 	for (int i=0; i<StepDir::AXIS_COUNT; ++i) {
 		limit_[i].first = std::numeric_limits<int>::min();
 		limit_[i].second = std::numeric_limits<int>::max();
-		pos_[i] = 0;
 	}
 
 	comm_.reset(new SimCommunicator(ios_, port));
@@ -110,6 +109,9 @@ void HAL::initialize()
 void HAL::setStepDirBits(const StepDir &s)
 {
 	Simulator &sim = Simulator::instance();
+	bool stepTaken = false;
+	Position nextP;
+	nextP.time_ = sim.time_;
 	for (int i=0; i<StepDir::AXIS_COUNT; ++i) {
 		StepDir::AxisIdx ai = static_cast<StepDir::AxisIdx>(i);
 
@@ -117,18 +119,24 @@ void HAL::setStepDirBits(const StepDir &s)
 		sim.currentBits_.dir(ai, s.dir(ai));
 
 		// was there an edge on a step bit?
+		int np = sim.position().pos_[i];
 		if (s.step(ai) != sim.currentBits_.step(ai)) {
 			sim.currentBits_.step(ai, s.step(ai));
 			// was the edge in the right direction to cause a step?
 			if (sim.currentBits_.step(ai) != sim.invertMask_.step(ai)) {
-				int np = sim.pos_[i] + ((sim.invertMask_.dir(ai) == sim.currentBits_.dir(ai)) ? -1 : 1);
+				stepTaken = true;
+				np += ((sim.invertMask_.dir(ai) == sim.currentBits_.dir(ai)) ? -1 : 1);
 
 				// apply limits
-				if (np >= sim.limit_[i].first && np <= sim.limit_[i].second) {
-					sim.pos_[i] = np;
-				}
+				np = std::max(np, sim.limit_[i].first);
+				np = std::min(np, sim.limit_[i].second);
 			}
 		}
+		nextP.pos_[i] = np;
+	}
+
+	if (stepTaken) {
+		sim.posLog_.push_back(nextP);
 	}
 }
 
@@ -138,9 +146,9 @@ LimitSwitches HAL::readLimitSwitches()
 	LimitSwitches ret;
 	for (int i=0; i<StepDir::AXIS_COUNT; ++i) {
 		StepDir::AxisIdx idx = static_cast<StepDir::AxisIdx>(i);
-		bool test = (sim.pos_[i] <= sim.limit_[i].first);
+		bool test = (sim.position().pos_[i] <= sim.limit_[i].first);
 		ret.reverseLimit(idx, test);
-		test = (sim.pos_[i] >= sim.limit_[i].second);
+		test = (sim.position().pos_[i] >= sim.limit_[i].second);
 		ret.forwardLimit(idx, test);
 	}
 	return ret;
@@ -162,9 +170,17 @@ void HAL::startTimer(uint32_t period)
 {
 	Simulator &sim = Simulator::instance();
 	Stepper &s = Stepper::instance();
-	sim.stepTimer_.expires_from_now(boost::posix_time::microseconds(period*5));
-	sim.stepTimer_.async_wait(boost::bind(&Simulator::stepTimerExpired, &sim, boost::asio::placeholders::error));
 	sim.time_ += 5.e-6 * period;
+
+	// below a certain threshold, just go as fast as possible
+	if (period >= 200) {
+		period -= 85;  // fudge factor to roughly account for overhead
+		sim.stepTimer_.expires_from_now(boost::posix_time::microseconds(period * 5));
+		sim.stepTimer_.async_wait(boost::bind(&Simulator::stepTimerExpired, &sim, boost::asio::placeholders::error));
+	}
+	else {
+		sim.ios_.post(boost::bind(&Simulator::stepTimerExpired, &sim, boost::system::error_code()));
+	}
 }
 
 void HAL::stopTimer()

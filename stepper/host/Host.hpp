@@ -29,23 +29,50 @@ class Simulator;
 class Host
 {
 public:
+	Host();
+	~Host();
 
+	/**
+	 * Connect to the local device simulator.
+	 * Sends disconnect and discards the current connection.
+	 * Any running script will be aborted.
+	 * If currently connected to the simulator, then the sim will be reset.
+	 */
+	void connectToSimulator();
+
+	/**
+	 * Initiates execution of a script on the device.
+	 * Does not block.
+	 * throws if scriptRunning already returns true.
+	 */
+	void executeScript(const Script &s);
+
+	bool connected() { return connected_; }
+	bool scriptRunning();
+
+	/**
+	 * Instructs the device to take \em count steps in the direction
+	 * specified by \em s.
+	 * Blocks until the move is complete.
+	 * throws if scriptRunning already returns true
+	 */
+	void move(stepper::device::StepDir s, size_t count);
+
+	/**
+	* Instructs the device to run continuously in the direction specified by \em s
+	* until all limit switches are activated.
+	* Blocks until the home is complete.
+	* throws if scriptRunning already returns true
+	*/
+	void home(stepper::device::StepDir s = stepper::device::StepDir());
+
+private:
 	enum {
 		BACKGROUND_PERIOD_MSEC = 20,
 		HEARTBEAT_PERIOD_MSEC = 500,
 		HEARTBEAT_DISCONNECT_COUNT = 5
 	};
 
-	Host();
-	~Host();
-
-	bool connectToSimulator();
-
-	void executeScript(const Script &s);
-	bool connected() { return connected_; }
-	bool scriptRunning();
-
-private:
 	boost::asio::io_service ios_;
     std::unique_ptr<boost::thread> thread_;
 	std::unique_ptr<Link> link_;

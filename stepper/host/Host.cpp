@@ -38,7 +38,7 @@ Host::~Host()
 	}
 }
 
-bool Host::connectToSimulator()
+void Host::connectToSimulator()
 {
 	connected_ = false;
 	connectResponse_.reset();
@@ -58,10 +58,10 @@ bool Host::connectToSimulator()
 
 	int iter = 10;
 	for (int iter=0; iter<10; ++iter) {
-		if (connected() && deviceStatus_) return true;
+		if (connected() && deviceStatus_) return;
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 	}
-	return false;
+	throw std::logic_error("conect to sim failed");
 }
 
 void Host::executeScript(const Script &s)

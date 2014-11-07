@@ -23,7 +23,7 @@ enum MessageId {
 	GO_MSG 					= 1,
 	PAUSE_MSG				= 2,
 	SPEED_ADJUST_MSG		= 3,
-	CONNECT_MSG				= 4,
+	CONNECT_MSG				= 4, ///\todo reset_connection? or separate abort?
 	CONNECT_RESPONSE_MSG	= 5,
 	ACK_SCRIPT_MSG			= 6,
 	DATA_SCRIPT_MSG			= 7,

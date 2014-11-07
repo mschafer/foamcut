@@ -13,6 +13,7 @@
 #define stepper_device_Simulator_hpp
 
 #include <memory>
+#include <deque>
 #include <boost/thread.hpp>
 #include <boost/asio.hpp>
 #include <StepDir.hpp>
@@ -20,23 +21,29 @@
 
 namespace stepper { namespace device {
 
+struct Position
+{
+	std::array<int, StepDir::AXIS_COUNT> pos_{ { 0, 0, 0, 0 } };
+	double time_{ 0. };
+};
+
 class SimCommunicator;
 
 class Simulator
 {
 public:
-	typedef std::array<int, StepDir::AXIS_COUNT> Position;
 
 	Simulator(uint16_t port=0);
 	~Simulator();
 
 	static Simulator &instance();
 
+	/// \return tcp/ip port used by the simulator
 	uint16_t port() const;
-	const std::array<int, StepDir::AXIS_COUNT> &position() {
-		return pos_;
-	}
-	double time() const { return time_; }
+
+	const Position &position() const { return posLog_.back(); }
+	const std::deque<Position> &positionLog() const { return posLog_; }
+	void clearLog() { posLog_.clear(); }
 
 	static void reset();
 
@@ -57,9 +64,9 @@ private:
 	std::unique_ptr<SimCommunicator> comm_;
 	StepDir invertMask_;
 	StepDir currentBits_;
-	Position pos_;
-	double time_;
+	std::deque<Position> posLog_;
 	std::array<std::pair<int, int>, StepDir::AXIS_COUNT> limit_;
+	double time_{ 0. };
 
 	void runOnce(const boost::system::error_code &ec);
 	void stepTimerExpired(const boost::system::error_code &ec);
