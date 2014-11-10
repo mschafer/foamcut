@@ -91,7 +91,7 @@ void Settings::maxStepRate(int v)
 
 QString Settings::port()
 {
-	return getQSettings().value(portName, "").toString();
+	return getQSettings().value(portName, "Simulator").toString();
 }
 
 void Settings::port(const QString &v)

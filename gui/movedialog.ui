@@ -206,7 +206,7 @@
      </widget>
     </item>
     <item row="0" column="2">
-     <widget class="QCheckBox" name="rightEnale_check">
+     <widget class="QCheckBox" name="rightEnable_check">
       <property name="focusPolicy">
        <enum>Qt::TabFocus</enum>
       </property>
@@ -292,7 +292,7 @@
   <tabstop>fast_radio</tabstop>
   <tabstop>speed_edit</tabstop>
   <tabstop>leftEnable_check</tabstop>
-  <tabstop>rightEnale_check</tabstop>
+  <tabstop>rightEnable_check</tabstop>
   <tabstop>home_button</tabstop>
  </tabstops>
  <resources/>

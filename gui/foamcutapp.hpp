@@ -25,6 +25,10 @@ public:
 	explicit FoamcutApp(int &argc, char **argv);
 	~FoamcutApp();
 
+	static FoamcutApp *instance();
+
+	stepper::Host &host() { return *host_.get(); }
+
 private:
 	std::unique_ptr<stepper::Host> host_;
 };

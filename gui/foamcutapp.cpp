@@ -14,9 +14,15 @@
 
 FoamcutApp::FoamcutApp(int &argc, char **argv) : QApplication(argc, argv)
 {
-
+	host_.reset(new stepper::Host());
+	host_->connectToSimulator();
 }
 
 FoamcutApp::~FoamcutApp()
 {
+}
+
+FoamcutApp *FoamcutApp::instance()
+{
+	return dynamic_cast<FoamcutApp*>(QCoreApplication::instance());
 }

@@ -103,6 +103,68 @@ bool Host::scriptRunning()
 	}
 }
 
+void Host::move(int16_t dx, int16_t dy, int16_t dz, int16_t du, double duration)
+{
+	Script script;
+	script.addLine(dx, dy, dz, du, duration);
+	executeScript(script);
+
+	int iter = 5 + (int)(duration * 10.);
+	while (iter > 0 && scriptRunning()) {
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
+		--iter;
+	}
+
+	if (iter == 0) {
+		throw std::runtime_error("Host::move failed to complete in reasonable time");
+	}
+}
+
+void Host::home()
+{
+	///\todo implement me
+}
+
+void Host::speedScaleFactor(double scale)
+{
+	if (scale < .5 || scale > 2.) {
+		throw std::out_of_range("Host::speedScaleFactor scale parameter is out of range");
+	}
+	device::SpeedAdjustMsg *sam = device::allocateMessage<device::SpeedAdjustMsg>();
+	sam->speedAdjust_ = (uint32_t)(scale * (double)(1 << device::SpeedAdjustMsg::UNITY_SPEED_ADJUST_SHIFT));
+	device::ErrorCode ec = link_->send(sam);
+	if (ec != device::SUCCESS) {
+		throw std::runtime_error("Host::speedScaleFactor Unexpected send failure");
+	}
+}
+
+void Host::pause()
+{
+	device::PauseMsg *pm = device::allocateMessage<device::PauseMsg>();
+	device::ErrorCode ec = link_->send(pm);
+	if (ec != device::SUCCESS) {
+		throw std::runtime_error("Host::pause Unexpected send failure");
+	}
+}
+
+void Host::resume()
+{
+	device::GoMsg *gm = device::allocateMessage<device::GoMsg>();
+	device::ErrorCode ec = link_->send(gm);
+	if (ec != device::SUCCESS) {
+		throw std::runtime_error("Host::resume Unexpected send failure");
+	}
+}
+
+void Host::abort()
+{
+	device::ConnectMsg *cm = device::allocateMessage<device::ConnectMsg>();
+	device::ErrorCode ec = link_->send(cm);
+	if (ec != device::SUCCESS) {
+		throw std::runtime_error("Host::abort Unexpected send failure");
+	}
+}
+
 void Host::runOnce(const boost::system::error_code& error)
 {
 	if (link_) {

@@ -77,7 +77,7 @@ struct SpeedAdjustMsg : Message
 		payloadSize(PAYLOAD_SIZE);
 		id(ID);
 	}
-
+	
 	uint32_t speedAdjust_;
 };
 
@@ -245,7 +245,12 @@ struct StatusMsg : Message
 	StatusFlags statusFlags_;
 };
 
-
+template <typename T>
+T* allocateMessage() {
+	Message *m = Message::alloc(T::PAYLOAD_SIZE);
+	T *ret = new (m)T();
+	return ret;
+}
 
 }}
 

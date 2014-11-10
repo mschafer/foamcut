@@ -56,15 +56,28 @@ public:
 	 * Blocks until the move is complete.
 	 * throws if scriptRunning already returns true
 	 */
-	void move(stepper::device::StepDir s, size_t count);
+	void move(int16_t dx, int16_t dy, int16_t dz, int16_t du, double duration);
 
 	/**
-	* Instructs the device to run continuously in the direction specified by \em s
-	* until all limit switches are activated.
-	* Blocks until the home is complete.
-	* throws if scriptRunning already returns true
-	*/
-	void home(stepper::device::StepDir s = stepper::device::StepDir());
+	 * Instructs the device to run continuously in the direction specified by \em s
+	 * until all limit switches are activated.
+	 * Blocks until the home is complete.
+	 * throws if scriptRunning already returns true
+	 */
+	void home();
+
+	/**
+	 * Scale the set speed of the device.
+	 * \param scale The multiplier used for the device speed which must be
+	 * in the range .5 < scale < 2.
+	 */
+	void speedScaleFactor(double scale);
+
+	void pause();
+
+	void resume();
+
+	void abort();
 
 private:
 	enum {

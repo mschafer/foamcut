@@ -20,9 +20,13 @@ private slots:
 	void on_left_button_clicked();
 	void on_right_button_clicked();
 	void on_down_button_clicked();
+	void on_home_button_clicked();
 
 private:
     Ui::MoveDialog *ui;
+
+	void moveX(int sign);
+	void moveY(int sign);
 };
 
 #endif // MOVEDIALOG_H
