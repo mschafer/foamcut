@@ -82,7 +82,7 @@ void ShapePlotMgr::replot()
 void ShapePlotMgr::beforeReplot()
 {
 	QSize s = plot_->axisRect()->size();
-	double pixelAR = s.width() / s.height();
+	double pixelAR = (double)s.width() / (double)s.height();
 	QCPRange xr = plot_->xAxis->range();
 	QCPRange yr = plot_->yAxis->range();
 	double axisAR = xr.size() / yr.size();

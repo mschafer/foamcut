@@ -18,6 +18,7 @@
 #include "importwizard.h"
 #include "ruled_surface.hpp"
 #include "cutplotmgr.h"
+#include "simdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -42,6 +43,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tipSpeeds_label->setText("");
 
     cutPlotMgr_.reset(new CutPlotMgr(ui->customPlot));
+
+	SimDialog *simd = new SimDialog(this);
+	simd->show();
 }
 
 MainWindow::~MainWindow()

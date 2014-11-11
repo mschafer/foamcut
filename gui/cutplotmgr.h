@@ -28,15 +28,6 @@ class CutPlotMgr : public QObject
 	Q_OBJECT
 
 public:
-	enum {
-		ROOT_BASE_CURVE   = 0,
-		TIP_BASE_CURVE    = 1,
-		ROOT_PART_CURVE   = 2,
-		TIP_PART_CURVE    = 3,
-		LEFT_FRAME_CURVE  = 4,
-		RIGHT_FRAME_CURVE = 5
-	};
-
 	CutPlotMgr(QCustomPlot *plot);
 
 	void update(foamcut::Shape::handle root, foamcut::Shape::handle tip,
@@ -56,6 +47,19 @@ private slots:
 	void beforeReplot();
 
 private:
+	enum {
+		ROOT_BASE_CURVE = 0,
+		TIP_BASE_CURVE = 1,
+		ROOT_PART_CURVE = 2,
+		TIP_PART_CURVE = 3,
+		LEFT_FRAME_CURVE = 4,
+		RIGHT_FRAME_CURVE = 5,
+		LEFT_FRAME_WIRE_ITEM = 0,
+		LEFT_PART_WIRE_ITEM = 1,
+		RIGHT_FRAME_WIRE_ITEM = 2,
+		RIGHT_PART_WIRE_ITEM = 3
+	};
+
 	CutPlotMgr();
 	void replot();
 

@@ -38,12 +38,14 @@ qt5_wrap_ui(UI_HDRS ${UI_FILES})
 
 set (DEVICE_COMMON_DIR ${CMAKE_SOURCE_DIR}/stepper/device/common)
 set (STEPPER_HOST_DIR ${CMAKE_SOURCE_DIR}/stepper/host)
+set (STEPPER_SIM_DIR ${CMAKE_SOURCE_DIR}/stepper/device/sim)
 
 include_directories( 
   ../kernel
   ${Boost_INCLUDE_DIRS}
   ${DEVICE_COMMON_DIR}
   ${STEPPER_HOST_DIR}
+  ${STEPPER_SIM_DIR}
 )
 
 # headers
@@ -66,6 +68,7 @@ add_executable(foamcut_gui
   settings.cpp
   setupdialog.cpp
   shapeplotmgr.cpp
+  simdialog.cpp
   $<TARGET_OBJECTS:foamcut_kernel>
   $<TARGET_OBJECTS:stepper_host>
   $<TARGET_OBJECTS:stepper_sim>

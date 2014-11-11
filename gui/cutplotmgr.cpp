@@ -185,22 +185,24 @@ void CutPlotMgr::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *ite
 void CutPlotMgr::beforeReplot()
 {
 	QSize s = plot_->axisRect()->size();
-	double pixelAR = s.width() / s.height();
+	double newArea = (double)s.height() * (double)s.width();
+	double pixelAR = (double)s.width() / (double)s.height();
 	QCPRange xr = plot_->xAxis->range();
 	QCPRange yr = plot_->yAxis->range();
 	double axisAR = xr.size() / yr.size();
 
-	// if the window is too wide for the current axes, make the plots x range bigger
-	if (pixelAR > axisAR) {
-		double newSize = xr.size() * pixelAR / axisAR;
-		double lower = xr.center() - (newSize / 2.);
-		double upper = xr.center() + (newSize / 2.);
-		plot_->xAxis->setRange(QCPRange(lower, upper));
-	}
-	else {
-		double newSize = yr.size() / (pixelAR / axisAR);
-		double lower = yr.center() - (newSize / 2.);
-		double upper = yr.center() + (newSize / 2.);
-		plot_->yAxis->setRange(QCPRange(lower, upper));
-	}
+	double xRangeScale = sqrt(pixelAR / axisAR);
+
+	// scale xRange
+	double newSize = xr.size() * xRangeScale;
+	double lower = xr.center() - (newSize / 2.);
+	double upper = xr.center() + (newSize / 2.);
+	plot_->xAxis->setRange(QCPRange(lower, upper));
+
+	// scale yRange
+	newSize = yr.size() / xRangeScale;
+	lower = yr.center() - (newSize / 2.);
+	upper = yr.center() + (newSize / 2.);
+	plot_->yAxis->setRange(QCPRange(lower, upper));
 }
+
