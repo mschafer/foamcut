@@ -101,7 +101,7 @@ CutPlotMgr::surfacePoints(const foamcut::RuledSurface::handle surf)
 	return std::make_pair(leftdm, rightdm);
 }
 
-void CutPlotMgr::replot()
+void CutPlotMgr::replot(bool rescale)
 {
 	QCPCurveDataMap *cdm;
 	QCPCurve *curve;
@@ -109,16 +109,12 @@ void CutPlotMgr::replot()
 	std::string rootName = "root";
 	std::string tipName = "tip";
 
-	plot_->xAxis->setRange(0., .1);
-	plot_->yAxis->setRange(0., .1);
-
 	if (root_.get() != nullptr) {
 		cdm = ShapePlotMgr::lineFit(root_);
 		curve = (QCPCurve*)(plot_->plottable(ROOT_BASE_CURVE));
 		curve->setData(cdm, false);
 		if (!root_->name().empty()) rootName = root_->name();
 		curve->setName(QString::fromStdString(rootName + " base"));
-		curve->rescaleAxes(true);
 	}
 
 	if (tip_.get() != nullptr) {
@@ -127,7 +123,6 @@ void CutPlotMgr::replot()
 		curve->setData(cdm, false);
 		if (!tip_->name().empty()) tipName = tip_->name();
 		curve->setName(QString::fromStdString(tipName + " base"));
-		curve->rescaleAxes(true);
 	}
 
 	if (part_.get() != nullptr) {
@@ -138,7 +133,6 @@ void CutPlotMgr::replot()
 		curve = (QCPCurve*)(plot_->plottable(TIP_PART_CURVE));
 		curve->setData(dms.second, false);
 		curve->setName(QString::fromStdString(tipName + " part"));
-		curve->rescaleAxes(true);
 	}
 
 	if (frame_.get() != nullptr) {
@@ -147,13 +141,16 @@ void CutPlotMgr::replot()
 		curve->setData(dms.first, false);
 		curve = (QCPCurve*)(plot_->plottable(RIGHT_FRAME_CURVE));
 		curve->setData(dms.second, false);
-		curve->rescaleAxes(true);
 	}
 
-	// make room for legend to right side of plot
-	QCPRange range = plot_->xAxis->range();
-	range.upper = 1.4 * range.upper;
-	plot_->xAxis->setRange(range);
+	if (rescale) {
+		plot_->rescaleAxes();
+
+		// make room for legend to right side of plot
+		QCPRange range = plot_->xAxis->range();
+		range.upper = 5. * range.upper;
+		plot_->xAxis->setRange(range);
+	}
 	plot_->replot();
 }
 
@@ -205,4 +202,3 @@ void CutPlotMgr::beforeReplot()
 	upper = yr.center() + (newSize / 2.);
 	plot_->yAxis->setRange(QCPRange(lower, upper));
 }
-

@@ -65,7 +65,7 @@ void MainWindow::on_rootImport_button_clicked()
 			ui->rootKerf_label->setText("Kerf [CCW]");
 		}
 		ui->rootName_label->setText(QString::fromStdString(rootShape_->name()));
-		geometryChanged();
+		geometryChanged(true);
 	}
 }
 
@@ -81,7 +81,7 @@ void MainWindow::on_tipImport_button_clicked()
 			ui->tipKerf_label->setText("Kerf [CCW]");
 		}
 		ui->tipName_label->setText(QString::fromStdString(tipShape_->name()));
-		geometryChanged();
+		geometryChanged(true);
 	}
 }
 
@@ -116,7 +116,7 @@ void MainWindow::on_yLeadIn_edit_editingFinished()
 	geometryChanged();
 }
 
-void MainWindow::geometryChanged()
+void MainWindow::geometryChanged(bool rescale)
 {
 	try {
 		double xLead = ui->xLeadIn_edit->text().toDouble();
@@ -151,7 +151,7 @@ void MainWindow::geometryChanged()
 			cutterPath_ = nullptr;
 			ui->cut_button->setEnabled(false);
 		}
-		cutPlotMgr_->update(rootShape_, tipShape_, partPath_, cutterPath_);
+		cutPlotMgr_->update(rootShape_, tipShape_, partPath_, cutterPath_, rescale);
 	} catch (std::exception &ex) {
 		qDebug() << ex.what();
 	}

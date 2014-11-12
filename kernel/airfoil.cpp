@@ -41,6 +41,13 @@ datfile_(datfile), chord_(chord), alpha_(alpha), hasLELoop_(leLoop)
 
     sle_ = findLeadingEdge();
     
+    // rotate to 0 alpha
+    Shape::Point ple = shape_->evaluate(sle_);
+    double xte = .5 * (shape_->x().front() + shape_->x().back());
+    double yte = .5 * (shape_->y().front() + shape_->y().back());
+    double alpha0 = atan2(ple.y - yte, ple.x - xte);
+    shape_ = shape_->rotate(-alpha0 * 45. / atan(1.));
+
     // calculate le loop before inserting break to get tangent right 
     if (leLoop) {
         leadingEdgeLoop(shape_->evaluate(sle_));

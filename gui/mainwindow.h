@@ -33,7 +33,7 @@ private slots:
 	void on_xLeadIn_edit_editingFinished();
 	void on_yLeadIn_edit_editingFinished();
 
-	void geometryChanged();
+	void geometryChanged(bool rescale = false);
 
 	void on_move_button_clicked();
 	void on_cut_button_clicked();

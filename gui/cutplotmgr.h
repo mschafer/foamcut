@@ -31,12 +31,13 @@ public:
 	CutPlotMgr(QCustomPlot *plot);
 
 	void update(foamcut::Shape::handle root, foamcut::Shape::handle tip,
-			foamcut::RuledSurface::handle part, foamcut::RuledSurface::handle frame) {
+			foamcut::RuledSurface::handle part, foamcut::RuledSurface::handle frame,
+			bool rescale = false) {
 		root_ = root;
 		tip_ = tip;
 		part_ = part;
 		frame_ = frame;
-		replot();
+		replot(rescale);
 	}
 
 	static std::pair<QCPCurveDataMap*, QCPCurveDataMap*> surfacePoints(const foamcut::RuledSurface::handle);
@@ -61,7 +62,7 @@ private:
 	};
 
 	CutPlotMgr();
-	void replot();
+	void replot(bool rescale);
 
 	QCustomPlot *plot_;
 	foamcut::Shape::handle root_;
