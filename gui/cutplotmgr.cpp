@@ -14,7 +14,7 @@
 #include "cutplotmgr.h"
 #include "shapeplotmgr.h"
 
-CutPlotMgr::CutPlotMgr(QCustomPlot *plot) : plot_(plot)
+CutPlotMgr::CutPlotMgr(FixedARPlot *plot) : plot_(plot)
 {
 	plot_->clearPlottables();
 
@@ -28,10 +28,7 @@ CutPlotMgr::CutPlotMgr(QCustomPlot *plot) : plot_(plot)
 	plot_->axisRect()->setRangeZoom(Qt::Horizontal | Qt::Vertical);
 	plot_->legend->setSelectableParts(QCPLegend::spItems); // legend box shall not be selectable, only legend items
 
-	// connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
-	connect(plot_, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
 	connect(plot_, SIGNAL(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*)));
-	connect(plot_, SIGNAL(beforeReplot()), this, SLOT(beforeReplot()));
 
 	QCPCurve *curve;
 	QPen pen;
@@ -143,28 +140,8 @@ void CutPlotMgr::replot(bool rescale)
 		curve->setData(dms.second, false);
 	}
 
-	if (rescale) {
-		plot_->rescaleAxes();
-
-		// make room for legend to right side of plot
-		QCPRange range = plot_->xAxis->range();
-		range.upper = 5. * range.upper;
-		plot_->xAxis->setRange(range);
-	}
+	if (rescale) plot_->rescaleAxesFixedAR();
 	plot_->replot();
-}
-
-/** \todo change to selectionChangedByUser? */
-void CutPlotMgr::mousePress() {
-	// if an axis is selected, only allow the direction of that axis to be dragged
-	// if no axis is selected, both directions may be dragged
-
-	if (plot_->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
-		plot_->axisRect()->setRangeDrag(plot_->xAxis->orientation());
-	else if (plot_->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
-		plot_->axisRect()->setRangeDrag(plot_->yAxis->orientation());
-	else
-		plot_->axisRect()->setRangeDrag(Qt::Horizontal | Qt::Vertical);
 }
 
 void CutPlotMgr::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item)
@@ -177,28 +154,4 @@ void CutPlotMgr::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *ite
 		bool visible = plItem->plottable()->visible();
 		plItem->plottable()->setVisible(!visible);
 	}
-}
-
-void CutPlotMgr::beforeReplot()
-{
-	QSize s = plot_->axisRect()->size();
-	double newArea = (double)s.height() * (double)s.width();
-	double pixelAR = (double)s.width() / (double)s.height();
-	QCPRange xr = plot_->xAxis->range();
-	QCPRange yr = plot_->yAxis->range();
-	double axisAR = xr.size() / yr.size();
-
-	double xRangeScale = sqrt(pixelAR / axisAR);
-
-	// scale xRange
-	double newSize = xr.size() * xRangeScale;
-	double lower = xr.center() - (newSize / 2.);
-	double upper = xr.center() + (newSize / 2.);
-	plot_->xAxis->setRange(QCPRange(lower, upper));
-
-	// scale yRange
-	newSize = yr.size() / xRangeScale;
-	lower = yr.center() - (newSize / 2.);
-	upper = yr.center() + (newSize / 2.);
-	plot_->yAxis->setRange(QCPRange(lower, upper));
 }

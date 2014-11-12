@@ -22,7 +22,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
-     <widget class="QCustomPlot" name="customPlot" native="true">
+     <widget class="FixedARPlot" name="cut_fixedARPlot" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
         <horstretch>0</horstretch>
@@ -407,9 +407,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QCustomPlot</class>
+   <class>FixedARPlot</class>
    <extends>QWidget</extends>
-   <header>qcustomplot.h</header>
+   <header>fixedarplot.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

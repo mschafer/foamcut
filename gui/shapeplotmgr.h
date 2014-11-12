@@ -13,7 +13,7 @@
 #define shapeplotmgr_h
 
 #include "shape.hpp"
-#include "qcustomplot.h"
+#include "fixedarplot.h"
 
 /**
  * Displays a single shape on a plot.
@@ -28,21 +28,18 @@ public:
 		BREAK_CURVE = 1
 	};
 
-	ShapePlotMgr(QCustomPlot *plot);
+	ShapePlotMgr(FixedARPlot *plot);
 
 	void update(foamcut::Shape::handle shape) { shape_ = shape; replot(); }
 
 	static QCPCurveDataMap *lineFit(const foamcut::Shape::handle shape);
 	static QCPCurveDataMap *breakPoints(const foamcut::Shape::handle shape);
 
-private slots:
-	void beforeReplot();
-
 private:
 	ShapePlotMgr();
 	void replot();
 
-	QCustomPlot *plot_;
+	FixedARPlot *plot_;
 	foamcut::Shape::handle shape_;
 };
 

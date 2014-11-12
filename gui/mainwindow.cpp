@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tipName_label->setText("");
     ui->tipSpeeds_label->setText("");
 
-    cutPlotMgr_.reset(new CutPlotMgr(ui->customPlot));
+    cutPlotMgr_.reset(new CutPlotMgr(ui->cut_fixedARPlot));
 
 	SimDialog *simd = new SimDialog(this);
 	simd->show();

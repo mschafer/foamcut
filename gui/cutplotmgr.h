@@ -15,7 +15,7 @@
 #include <boost/utility.hpp>
 #include "shape.hpp"
 #include "ruled_surface.hpp"
-#include "qcustomplot.h"
+#include "fixedarplot.h"
 
 /**
  * Displays a cut on a 2d plot.
@@ -28,7 +28,7 @@ class CutPlotMgr : public QObject
 	Q_OBJECT
 
 public:
-	CutPlotMgr(QCustomPlot *plot);
+	CutPlotMgr(FixedARPlot *plot);
 
 	void update(foamcut::Shape::handle root, foamcut::Shape::handle tip,
 			foamcut::RuledSurface::handle part, foamcut::RuledSurface::handle frame,
@@ -43,9 +43,7 @@ public:
 	static std::pair<QCPCurveDataMap*, QCPCurveDataMap*> surfacePoints(const foamcut::RuledSurface::handle);
 
 private slots:
-	void mousePress();
 	void legendDoubleClick(QCPLegend* legend, QCPAbstractLegendItem* item);
-	void beforeReplot();
 
 private:
 	enum {
@@ -64,7 +62,7 @@ private:
 	CutPlotMgr();
 	void replot(bool rescale);
 
-	QCustomPlot *plot_;
+	FixedARPlot *plot_;
 	foamcut::Shape::handle root_;
 	foamcut::Shape::handle tip_;
 	foamcut::RuledSurface::handle part_;

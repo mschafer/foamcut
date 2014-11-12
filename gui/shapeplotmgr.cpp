@@ -11,7 +11,7 @@
  */
 #include "shapeplotmgr.h"
 
-ShapePlotMgr::ShapePlotMgr(QCustomPlot *plot) : plot_(plot)
+ShapePlotMgr::ShapePlotMgr(FixedARPlot *plot) : plot_(plot)
 {
 	plot_->clearPlottables();
 	QCPCurve *curve = new QCPCurve(plot_->xAxis, plot_->yAxis);
@@ -30,8 +30,6 @@ ShapePlotMgr::ShapePlotMgr(QCustomPlot *plot) : plot_(plot)
 	plot_->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
 	plot_->axisRect()->setRangeDrag(Qt::Horizontal | Qt::Vertical);
 	plot_->axisRect()->setRangeZoom(Qt::Horizontal | Qt::Vertical);
-
-	connect(plot_, SIGNAL(beforeReplot()), this, SLOT(beforeReplot()));
 }
 
 QCPCurveDataMap *ShapePlotMgr::lineFit(const foamcut::Shape::handle shape)
@@ -70,51 +68,11 @@ void ShapePlotMgr::replot()
 	QCPCurve *curve = dynamic_cast<QCPCurve *>(plot_->plottable(LINE_CURVE));
 	QCPCurveDataMap *dataMap = lineFit(shape_);
 	curve->setData(dataMap, false);
-	curve->rescaleAxes();
 
 	curve = dynamic_cast<QCPCurve *>(plot_->plottable(BREAK_CURVE));
 	dataMap = breakPoints(shape_);
 	curve->setData(dataMap, false);
 
+	plot_->rescaleAxesFixedAR();
 	plot_->replot();
 }
-
-void ShapePlotMgr::beforeReplot()
-{
-	QSize s = plot_->axisRect()->size();
-	double pixelAR = (double)s.width() / (double)s.height();
-	QCPRange xr = plot_->xAxis->range();
-	QCPRange yr = plot_->yAxis->range();
-	double axisAR = xr.size() / yr.size();
-
-	// if the window is too wide for the current axes, make the plots x range bigger
-	if (pixelAR > axisAR) {
-		double newSize = xr.size() * pixelAR / axisAR;
-		double lower = xr.center() - (newSize / 2.);
-		double upper = xr.center() + (newSize / 2.);
-		plot_->xAxis->setRange(QCPRange(lower, upper));
-	}
-	else {
-		double newSize = yr.size() / (pixelAR / axisAR);
-		double lower = yr.center() - (newSize / 2.);
-		double upper = yr.center() + (newSize / 2.);
-		plot_->yAxis->setRange(QCPRange(lower, upper));
-	}
-}
-
-#if 0
-BoundingBox bounds(const QCPCurveDataMap *dm)
-{
-	BoundingBox ret;
-	QCPCurveData d = *(dm->begin());
-	ret.xMin_ = ret.xMax_ = d.key;
-	ret.yMin_ = ret.yMax_ = d.value;
-	BOOST_FOREACH(QCPCurveData d, std::make_pair(dm->begin(), dm->end())) {
-		ret.xMin_ = std::min(ret.xMin_, d.key);
-		ret.xMax_ = std::max(ret.xMax_, d.key);
-		ret.yMin_ = std::min(ret.yMin_, d.value);
-		ret.yMax_ = std::max(ret.yMax_, d.value);
-	}
-	return ret;
-}
-#endif
