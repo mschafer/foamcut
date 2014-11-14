@@ -66,7 +66,6 @@ add_executable(foamcut_gui
   mainwindow.cpp
   movedialog.cpp
   qcustomplot.cpp
-  settings.cpp
   setupdialog.cpp
   shapeplotmgr.cpp
   simdialog.cpp

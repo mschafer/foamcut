@@ -6,7 +6,6 @@
 #include "foamcutapp.hpp"
 #include <QTimer>
 #include <Simulator.hpp>
-#include <settings.hpp>
 
 SimDialog::SimDialog(QWidget *parent) :
     QDialog(parent), ui(new Ui::SimDialog())
@@ -63,9 +62,10 @@ SimDialog::~SimDialog()
 
 void SimDialog::update()
 {
+	auto app = FoamcutApp::instance();
 	stepper::device::Simulator &sim = stepper::device::Simulator::instance();
-	double xStepSize = foamcut::Settings::xStepSize();
-	double yStepSize = foamcut::Settings::yStepSize();
+	double xStepSize = app->xStepSize();
+	double yStepSize = app->yStepSize();
 	const std::deque<stepper::device::Position> &posLog = sim.positionLog();
 	auto lCurve = static_cast<QCPCurve*>(ui->plot->plottable(LEFT_CURVE));
 	auto rCurve = static_cast<QCPCurve*>(ui->plot->plottable(RIGHT_CURVE));

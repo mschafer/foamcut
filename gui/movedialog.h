@@ -14,6 +14,8 @@ class MoveDialog : public QDialog
 public:
     explicit MoveDialog(QWidget *parent = 0);
     ~MoveDialog();
+
+	virtual void done(int r);
     
 private slots:
 	void on_up_button_clicked();

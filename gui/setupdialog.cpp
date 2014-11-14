@@ -1,17 +1,17 @@
 #include "setupdialog.h"
 #include "ui_setupdialog.h"
 #include <qdebug.h>
-#include "settings.hpp"
+#include "foamcutapp.hpp"
 #include <QSerialPortInfo>
 
 SetupDialog::SetupDialog(QWidget *parent) :
     QDialog(parent), ui(new Ui::SetupDialog)
 {
     ui->setupUi(this);
-
-	ui->xStepSize_edit->setText(QString::number(foamcut::Settings::xStepSize()));
-	ui->yStepSize_edit->setText(QString::number(foamcut::Settings::yStepSize()));
-	ui->maxStepRate_edit->setText(QString::number(foamcut::Settings::maxStepRate()));
+	auto app = FoamcutApp::instance();
+	ui->xStepSize_edit->setText(QString::number(app->xStepSize()));
+	ui->yStepSize_edit->setText(QString::number(app->yStepSize()));
+	ui->maxStepRate_edit->setText(QString::number(app->maxStepRate()));
 
 	ui->xStepSize_edit->setValidator(new QDoubleValidator(0, 1.e9, 20));
 	ui->yStepSize_edit->setValidator(new QDoubleValidator(0, 1.e9, 20));
@@ -34,14 +34,15 @@ SetupDialog::~SetupDialog()
 
 void SetupDialog::accept()
 {
+	auto app = FoamcutApp::instance();
 	double xs = ui->xStepSize_edit->text().toDouble();
-	foamcut::Settings::xStepSize(xs);
+	app->xStepSize(xs);
 
 	double ys = ui->yStepSize_edit->text().toDouble();
-	foamcut::Settings::yStepSize(ys);
+	app->yStepSize(ys);
 
 	int maxStepRate = ui->maxStepRate_edit->text().toInt();
-	foamcut::Settings::maxStepRate(maxStepRate);
+	app->maxStepRate(maxStepRate);
 
 	qDebug() << "setup accepted";
 	QDialog::accept();

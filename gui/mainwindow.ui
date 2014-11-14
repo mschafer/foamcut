@@ -29,6 +29,7 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <zorder>frame</zorder>
      </widget>
     </item>
     <item>
@@ -259,7 +260,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="label_6">
             <property name="text">
-             <string>Speed ( /sec)</string>
+             <string>Cut Speed</string>
             </property>
            </widget>
           </item>

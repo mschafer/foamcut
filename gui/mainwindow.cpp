@@ -20,15 +20,15 @@
 #include "cutplotmgr.h"
 #include "simdialog.h"
 #include "foamcutapp.hpp"
-#include "settings.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+	auto app = FoamcutApp::instance();
     ui->setupUi(this);
 
-    ui->speed_edit->setValidator(new QDoubleValidator());
+	ui->speed_edit->setValidator(new QDoubleValidator());
     ui->zRightFrame_edit->setValidator(new QDoubleValidator());
     ui->rotatePart_edit->setValidator(new QDoubleValidator());
     ui->xLeadIn_edit->setValidator(new QDoubleValidator());
@@ -44,7 +44,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tipName_label->setText("");
     ui->tipSpeeds_label->setText("");
 
-    cutPlotMgr_.reset(new CutPlotMgr(ui->cut_fixedARPlot));
+	ui->speed_edit->setText(QString::number(app->cutSpeed()));
+	
+	cutPlotMgr_.reset(new CutPlotMgr(ui->cut_fixedARPlot));
 
 	SimDialog *simd = new SimDialog(this);
 	simd->show();
@@ -85,6 +87,12 @@ void MainWindow::on_tipImport_button_clicked()
 		ui->tipName_label->setText(QString::fromStdString(tipShape_->name()));
 		geometryChanged(true);
 	}
+}
+
+void MainWindow::on_speed_edit_editingFinished()
+{
+	auto app = FoamcutApp::instance();
+	app->cutSpeed(ui->speed_edit->text().toDouble());
 }
 
 void MainWindow::on_rootZ_edit_editingFinished()
@@ -175,7 +183,7 @@ void MainWindow::on_cut_button_clicked()
 		return;
 	}
 
-	auto script = cutterPath_->generateScript(foamcut::Settings::stepperInfo());
+	auto script = cutterPath_->generateScript(app->stepperInfo());
 	app->host().executeScript(*script);
 
 	std::unique_ptr<CutDialog> cd(new CutDialog());

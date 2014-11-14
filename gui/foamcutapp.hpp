@@ -13,12 +13,10 @@
 #define foamcutapp_hpp
 
 #include <QApplication>
+#include <QSettings>
 #include <memory>
 #include <Host.hpp>
-
-namespace stepper {
-class Host;
-}
+#include <stepper_info.hpp>
 
 ///\todo fold settings into this class
 
@@ -32,8 +30,57 @@ public:
 
 	stepper::Host &host() { return *host_.get(); }
 
+	double xStepSize();
+	void xStepSize(double v);
+
+	double yStepSize();
+	void yStepSize(double v);
+
+	double xLength();
+	void xLength(double v);
+
+	double yLength();
+	void yLength(double v);
+
+	double frameSeparation();
+	void frameSeparation(double v);
+
+	int maxStepRate();
+	void maxStepRate(int v);
+
+	QString port();
+	void port(const QString &v);
+
+	bool xLeftReverse();
+	void xLeftReverse(bool v);
+
+	bool xRightReverse();
+	void xRightReverse(bool v);
+
+	bool yLeftReverse();
+	void yLeftReverse(bool v);
+
+	bool yRightReverse();
+	void yRightReverse(bool v);
+
+	bool activeLowSteps();
+	void activeLowSteps(bool v);
+
+	double cutSpeed();
+	void cutSpeed(double v);
+
+	double moveDistance();
+	void moveDistance(double v);
+
+	bool moveFast();
+	void moveFast(bool v);
+
+	foamcut::StepperInfo stepperInfo();
+
 private:
 	std::unique_ptr<stepper::Host> host_;
+	QSettings settings_;
+
 };
 
 #endif

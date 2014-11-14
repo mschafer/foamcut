@@ -3,15 +3,17 @@
 #include "movedialog.h"
 #include "ui_movedialog.h"
 #include "foamcutapp.hpp"
-#include "settings.hpp"
 #include <StepDir.hpp>
 
 MoveDialog::MoveDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::MoveDialog)
 {
+	FoamcutApp *app = FoamcutApp::instance();
+
     ui->setupUi(this);
-	ui->speed_edit->setValidator(new QDoubleValidator());
+	ui->distance_spin->setValue(app->moveDistance());
+	ui->fast_speed_radio->setChecked(app->moveFast());
 }
 
 MoveDialog::~MoveDialog()
@@ -45,12 +47,22 @@ void MoveDialog::on_home_button_clicked()
 	a->host().home();
 }
 
+void MoveDialog::done(int result)
+{
+	auto app = FoamcutApp::instance();
+	double distance = ui->distance_spin->value();
+	app->moveDistance(distance);
+	app->moveFast(ui->fast_speed_radio->isChecked());
+	QDialog::done(result);
+}
+
 void MoveDialog::moveX(int sign)
 {
+	auto app = FoamcutApp::instance();
 	int16_t dx, dy, dz, du;
 	dx = dy = dz = du = 0;
 	double distance = ui->distance_spin->value();
-	double stepSize = foamcut::Settings::xStepSize();
+	double stepSize = app->xStepSize();
 	int stepCount = distance / stepSize;
 	if (stepCount > INT16_MAX) {
 		throw std::overflow_error("Move: step count is too large");
@@ -68,24 +80,24 @@ void MoveDialog::moveX(int sign)
 
 	if (moving) {
 		double duration;
-		if (ui->fast_radio->isChecked()) {
+		if (ui->fast_speed_radio->isChecked()) {
 			duration = (double)stepCount / 1000.;
 		}
 		else {
-			duration = distance / ui->speed_edit->text().toDouble();
+			duration = distance / app->cutSpeed();
 		}
 
-		FoamcutApp *a = FoamcutApp::instance();
-		a->host().move(dx, dy, dz, du, duration);
+		app->host().move(dx, dy, dz, du, duration);
 	}
 }
 
 void MoveDialog::moveY(int sign)
 {
+	auto app = FoamcutApp::instance();
 	int16_t dx, dy, dz, du;
 	dx = dy = dz = du = 0;
 	double distance = ui->distance_spin->value();
-	double stepSize = foamcut::Settings::yStepSize();
+	double stepSize = app->yStepSize();
 	int stepCount = distance / stepSize;
 	if (stepCount > INT16_MAX) {
 		throw std::overflow_error("Move: step count is too large");
@@ -103,14 +115,13 @@ void MoveDialog::moveY(int sign)
 
 	if (moving) {
 		double duration;
-		if (ui->fast_radio->isChecked()) {
+		if (ui->fast_speed_radio->isChecked()) {
 			duration = (double)stepCount / 1000.;
 		}
 		else {
-			duration = distance / ui->speed_edit->text().toDouble();
+			duration = distance / app->cutSpeed();
 		}
 
-		FoamcutApp *a = FoamcutApp::instance();
-		a->host().move(dx, dy, dz, du, duration);
+		app->host().move(dx, dy, dz, du, duration);
 	}
 }

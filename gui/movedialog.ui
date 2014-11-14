@@ -154,7 +154,7 @@
      </widget>
     </item>
     <item row="1" column="1">
-     <widget class="QRadioButton" name="fast_radio">
+     <widget class="QRadioButton" name="fast_speed_radio">
       <property name="focusPolicy">
        <enum>Qt::TabFocus</enum>
       </property>
@@ -163,22 +163,6 @@
       </property>
       <property name="checked">
        <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="2">
-     <widget class="QLineEdit" name="speed_edit">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="focusPolicy">
-       <enum>Qt::TabFocus</enum>
-      </property>
-      <property name="text">
-       <string>.25</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
     </item>
@@ -272,6 +256,19 @@
       </property>
      </widget>
     </item>
+    <item row="1" column="2">
+     <widget class="QRadioButton" name="cut_speed_radio">
+      <property name="focusPolicy">
+       <enum>Qt::TabFocus</enum>
+      </property>
+      <property name="text">
+       <string>Cut</string>
+      </property>
+      <property name="checked">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>
@@ -289,8 +286,7 @@
   <tabstop>left_button</tabstop>
   <tabstop>distance_spin</tabstop>
   <tabstop>buttonBox</tabstop>
-  <tabstop>fast_radio</tabstop>
-  <tabstop>speed_edit</tabstop>
+  <tabstop>fast_speed_radio</tabstop>
   <tabstop>leftEnable_check</tabstop>
   <tabstop>rightEnable_check</tabstop>
   <tabstop>home_button</tabstop>
