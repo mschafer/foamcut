@@ -20,6 +20,8 @@
 #include "Link.hpp"
 #include "Script.hpp"
 
+///\todo use pimpl to move boost asio includes out of this header and avoid Winsock conflicts
+
 namespace stepper {
 
 namespace device {
@@ -49,6 +51,11 @@ public:
 
 	bool connected() { return connected_; }
 	bool scriptRunning();
+
+	/** 
+	 * \return fraction complete of currently executing script.
+	 */
+	double scriptProgress();
 
 	/**
 	 * Instructs the device to take \em count steps in the direction
@@ -100,6 +107,7 @@ private:
     std::unique_ptr<device::StatusMsg> deviceStatus_;
     std::atomic<bool> connected_;
     std::atomic<int> scriptMsgCount_;
+	std::atomic<int> scriptMsgAckd_;
 
     void runOnce(const boost::system::error_code& error);
     void handleMessage(device::Message *m);

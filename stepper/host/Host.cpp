@@ -67,11 +67,12 @@ void Host::connectToSimulator()
 void Host::executeScript(const Script &s)
 {
 	if (scriptRunning()) {
-		throw std::logic_error("Host::executeScript failed, device is not idle");
+		throw std::runtime_error("Host::executeScript failed, device is not idle");
 	}
 
 	scriptMsgs_ = s.generateMessages();
 	scriptMsgCount_ = static_cast<int>(scriptMsgs_->size());
+	scriptMsgAckd_ = 0;
 
 	// fill up the device window with script messages and then send a
 	// GoMsg to start the device running.  The remainder of the
@@ -96,11 +97,16 @@ void Host::executeScript(const Script &s)
 
 bool Host::scriptRunning()
 {
-	if (scriptMsgCount_ == 0) {
+	if (scriptMsgAckd_ == scriptMsgCount_) {
 		return deviceStatus_->statusFlags_.get(device::StatusFlags::ENGINE_RUNNING);
 	} else {
 		return true;
 	}
+}
+
+double Host::scriptProgress()
+{
+	return (double)scriptMsgAckd_ / (double)scriptMsgCount_;
 }
 
 void Host::move(int16_t dx, int16_t dy, int16_t dz, int16_t du, double duration)
@@ -190,12 +196,12 @@ void Host::handleMessage(device::Message *m)
 
 	case device::ACK_SCRIPT_MSG:
 	{
-		scriptMsgCount_--;
+		scriptMsgAckd_++;
 		if (!scriptMsgs_->empty()) {
 			Script::MessageCollection::auto_type dsm = scriptMsgs_->pop_front();
 			device::ErrorCode ec = link_->send(dsm.release());
 			if (ec != device::SUCCESS) {
-				throw std::runtime_error("Host::runOnce Unexpected send failure");
+				throw std::runtime_error("Host::Unexpected send failure with script message");
 			}
 		}
 		delete m;

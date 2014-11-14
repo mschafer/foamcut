@@ -112,6 +112,7 @@ RuledSurface::interpolateZ(double newlZ, double newrZ) const
 	ret->ry_.swap(nry);
 	ret->lZ_ = newlZ;
 	ret->span_ = newrZ - newlZ;
+	ret->time_ = time_;
 
 	return ret;
 }
@@ -119,7 +120,7 @@ RuledSurface::interpolateZ(double newlZ, double newrZ) const
 void RuledSurface::setTime(double speed)
 {
 	time_.clear();
-	time_.reserve(lx_.size());
+	time_.resize(lx_.size());
 	time_[0] = 0.;
 	for (size_t i=1; i<lx_.size(); ++i) {
 		double ld = hypot(lx_[i]-lx_[i-1], ly_[i]-ly_[i-1]);
@@ -136,33 +137,30 @@ stepper::Script::handle RuledSurface::generateScript(const StepperInfo &sInfo)
 {
 	stepper::Script::handle ret(new stepper::Script());
 
-	// convert distances to steps
-	std::vector<int> lxi(lx_.size());
-	std::vector<int> lyi(ly_.size());
-	std::vector<int> rxi(rx_.size());
-	std::vector<int> ryi(ry_.size());
-	for (size_t i=0; i<lx_.size(); ++i) {
-		lxi[i] = static_cast<int>(lx_[i] / sInfo.xStepSize_);
-		lyi[i] = static_cast<int>(ly_[i] / sInfo.yStepSize_);
-		rxi[i] = static_cast<int>(rx_[i] / sInfo.xStepSize_);
-		ryi[i] = static_cast<int>(ry_[i] / sInfo.yStepSize_);
-	}
+	double xsc = 1. / sInfo.xStepSize_;
+	double ysc = 1. / sInfo.yStepSize_;
 
 	// calculate relative steps and lines from coordinates
 	double skipTime = 0.;
-	for (size_t i=1; i<lxi.size(); ++i) {
-		int16_t dlxi = static_cast<int16_t>(lxi[i] - lxi[i-1]);
-		int16_t dlyi = static_cast<int16_t>(lyi[i] - lyi[i-1]);
-		int16_t drxi = static_cast<int16_t>(rxi[i] - rxi[i-1]);
-		int16_t dryi = static_cast<int16_t>(ryi[i] - ryi[i-1]);
-		int mind = std::min(abs(dlxi), abs(dlyi));
-		mind = std::min(mind, abs(drxi));
-		mind = std::min(mind, abs(dryi));
-		if (mind == 0) {
+	int last_lx, last_ly, last_rx, last_ry;
+	last_lx = static_cast<int>(lx_[0] / sInfo.xStepSize_);
+	last_ly = static_cast<int>(ly_[0] / sInfo.yStepSize_);
+	last_rx = static_cast<int>(rx_[0] / sInfo.xStepSize_);
+	last_ry = static_cast<int>(ry_[0] / sInfo.yStepSize_);
+
+	for (size_t i=1; i<lx_.size(); ++i) {
+		int16_t dlxi = static_cast<int16_t>((lx_[i] * xsc) - (double)last_lx);
+		int16_t dlyi = static_cast<int16_t>((ly_[i] * ysc) - (double)last_ly);
+		int16_t drxi = static_cast<int16_t>((rx_[i] * xsc) - (double)last_rx);
+		int16_t dryi = static_cast<int16_t>((ry_[i] * ysc) - (double)last_ry);
+		int maxd = std::max(abs(dlxi), abs(dlyi));
+		maxd = std::max(maxd, abs(drxi));
+		maxd = std::max(maxd, abs(dryi));
+		if (maxd == 0) {
 			// points are less than one step apart so skip
 			skipTime = time_[i] - time_[i-1];
 			continue;
-		} else if (mind == 1) {
+		} else if (maxd == 1) {
 			// individual step
 			stepper::device::StepDir s;
 			s.xStepDir(dlxi);
@@ -176,6 +174,10 @@ stepper::Script::handle RuledSurface::generateScript(const StepperInfo &sInfo)
 			ret->addLine(dlxi, dlyi, drxi, dryi, time_[i]-time_[i-1]+skipTime);
 			skipTime = 0.;
 		}
+		last_lx += dlxi;
+		last_ly += dlyi;
+		last_rx += drxi;
+		last_ry += dryi;
 	}
 	return ret;
 }

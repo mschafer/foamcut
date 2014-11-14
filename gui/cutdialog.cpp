@@ -11,7 +11,7 @@ CutDialog::CutDialog(QWidget *parent) :
     ui->setupUi(this);
 	QTimer *timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-	timer->start(50);
+	timer->start(250);
 }
 
 CutDialog::~CutDialog()
@@ -43,5 +43,10 @@ void CutDialog::on_buttonBox_rejected()
 
 void CutDialog::update()
 {
-
+	FoamcutApp *a = FoamcutApp::instance();
+	if (a->host().scriptRunning()) {
+		ui->cut_progress->setValue((int)(a->host().scriptProgress()*100.));
+	} else {
+		accept();
+	}
 }

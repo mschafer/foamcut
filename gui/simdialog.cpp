@@ -66,12 +66,12 @@ void SimDialog::update()
 	stepper::device::Simulator &sim = stepper::device::Simulator::instance();
 	double xStepSize = foamcut::Settings::xStepSize();
 	double yStepSize = foamcut::Settings::yStepSize();
-	auto posLog = sim.positionLog();
+	const std::deque<stepper::device::Position> &posLog = sim.positionLog();
 	auto lCurve = static_cast<QCPCurve*>(ui->plot->plottable(LEFT_CURVE));
 	auto rCurve = static_cast<QCPCurve*>(ui->plot->plottable(RIGHT_CURVE));
 	size_t begin = rCurve->data()->size();
 	for (size_t i = begin; i < posLog.size(); ++i) {
-		stepper::device::Position &p = posLog[i];
+		const stepper::device::Position &p = posLog[i];
 		double x = (double)p.pos_[0] * xStepSize;
 		double y = (double)p.pos_[1] * yStepSize;
 		lCurve->addData(x, y);

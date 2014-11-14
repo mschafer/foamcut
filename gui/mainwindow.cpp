@@ -10,6 +10,7 @@
  *     Marc Schafer
  */
 #include <memory>
+#include <Host.hpp>
 #include "mainwindow.h"
 #include "cutdialog.h"
 #include "movedialog.h"
@@ -19,6 +20,8 @@
 #include "ruled_surface.hpp"
 #include "cutplotmgr.h"
 #include "simdialog.h"
+#include "foamcutapp.hpp"
+#include "settings.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -144,6 +147,7 @@ void MainWindow::geometryChanged(bool rescale)
 			///\todo get correct eps value from step size
 			partPath_.reset(new foamcut::RuledSurface(*rootKerfShape_, *tipKerfShape_, rootZ, tipZ-rootZ, .001));
 			double zRightFrame = ui->zRightFrame_edit->text().toDouble();
+			partPath_->setTime(ui->speed_edit->text().toDouble());
 			cutterPath_ = partPath_->interpolateZ(0., zRightFrame);
 			ui->cut_button->setEnabled(true);
 		} else {
@@ -165,6 +169,16 @@ void MainWindow::on_move_button_clicked()
 
 void MainWindow::on_cut_button_clicked()
 {
+	FoamcutApp *app = FoamcutApp::instance();
+	if (app->host().scriptRunning()) {
+		QMessageBox::critical(nullptr, "Foamcutter Device Busy", 
+			"The foamcutter device is already cutting something");
+		return;
+	}
+
+	auto script = cutterPath_->generateScript(foamcut::Settings::stepperInfo());
+	app->host().executeScript(*script);
+
 	std::unique_ptr<CutDialog> cd(new CutDialog());
 	cd->exec();
 }

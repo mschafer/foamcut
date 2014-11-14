@@ -19,6 +19,8 @@ namespace stepper {
 class Host;
 }
 
+///\todo fold settings into this class
+
 class FoamcutApp : public QApplication
 {
 public:
