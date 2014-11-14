@@ -10,7 +10,6 @@
  *     Marc Schafer
  */
 #include <memory>
-#include <Host.hpp>
 #include "mainwindow.h"
 #include "cutdialog.h"
 #include "movedialog.h"

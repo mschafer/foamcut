@@ -14,6 +14,7 @@
 
 #include <QApplication>
 #include <memory>
+#include <Host.hpp>
 
 namespace stepper {
 class Host;

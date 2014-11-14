@@ -16,23 +16,34 @@
 #include "TCPLink.hpp"
 #include "Script.hpp"
 #include <Logger.hpp>
+#include <boost/asio.hpp>
 
 namespace stepper {
 
-Host::Host() : work_(ios_), timer_(ios_),  pongCount_(0),
+struct HostImpl
+{
+	HostImpl() : work_(ios_), timer_(ios_) {}
+
+	boost::asio::io_service ios_;
+	boost::asio::io_service::work work_;
+	boost::asio::deadline_timer timer_;
+};
+
+Host::Host() : pongCount_(0),
 		heartbeatCount_(0), connected_(false), scriptMsgCount_(0)
 {
-    timer_.expires_from_now(boost::posix_time::milliseconds(20));
-    timer_.async_wait(boost::bind(&Host::runOnce, this, boost::asio::placeholders::error));
+	impl_.reset(new HostImpl());
+    impl_->timer_.expires_from_now(boost::posix_time::milliseconds(20));
+	impl_->timer_.async_wait(boost::bind(&Host::runOnce, this, boost::asio::placeholders::error));
 
-    boost::function<void ()> f = boost::bind(&boost::asio::io_service::run, &ios_);
+	boost::function<void()> f = boost::bind(&boost::asio::io_service::run, &impl_->ios_);
     thread_.reset(new boost::thread(f));
 
 }
 
 Host::~Host()
 {
-	ios_.stop();
+	impl_->ios_.stop();
 	if (thread_->joinable()) {
 		thread_->join();
 	}
@@ -48,7 +59,7 @@ void Host::connectToSimulator()
 	uint16_t port = device::Simulator::instance().port();
 
 	heartbeatTime_ = boost::chrono::steady_clock::now();
-	link_.reset(new TCPLink("localhost", port, ios_));
+	link_.reset(new TCPLink("localhost", port, impl_->ios_));
 	boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
 
 	device::ConnectMsg *cm = new device::ConnectMsg();
@@ -180,9 +191,9 @@ void Host::runOnce(const boost::system::error_code& error)
 		}
 	}
 
-	if (!ios_.stopped()) {
-		timer_.expires_from_now(boost::posix_time::milliseconds(BACKGROUND_PERIOD_MSEC));
-		timer_.async_wait(boost::bind(&Host::runOnce, this, boost::asio::placeholders::error));
+	if (!impl_->ios_.stopped()) {
+		impl_->timer_.expires_from_now(boost::posix_time::milliseconds(BACKGROUND_PERIOD_MSEC));
+		impl_->timer_.async_wait(boost::bind(&Host::runOnce, this, boost::asio::placeholders::error));
 	}
 }
 

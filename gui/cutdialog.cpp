@@ -1,7 +1,6 @@
 #include "cutdialog.h"
 #include "ui_cutdialog.h"
 #include "foamcutapp.hpp"
-#include <Host.hpp>
 #include <QTimer>
 
 CutDialog::CutDialog(QWidget *parent) :

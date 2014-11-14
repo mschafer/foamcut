@@ -15,14 +15,13 @@
 #include <memory>
 #include <atomic>
 #include <boost/chrono.hpp>
-#include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include "Link.hpp"
 #include "Script.hpp"
 
-///\todo use pimpl to move boost asio includes out of this header and avoid Winsock conflicts
-
 namespace stepper {
+
+class HostImpl;
 
 namespace device {
 class Simulator;
@@ -93,12 +92,10 @@ private:
 		HEARTBEAT_DISCONNECT_COUNT = 5
 	};
 
-	boost::asio::io_service ios_;
+	std::unique_ptr<HostImpl> impl_;
     std::unique_ptr<boost::thread> thread_;
 	std::unique_ptr<Link> link_;
     boost::mutex mtx_;
-    boost::asio::io_service::work work_;
-    boost::asio::deadline_timer timer_;
     std::atomic<size_t> pongCount_;
     std::unique_ptr<Script::MessageCollection> scriptMsgs_;
     boost::chrono::time_point<boost::chrono::steady_clock> heartbeatTime_;

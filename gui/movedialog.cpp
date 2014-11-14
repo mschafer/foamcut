@@ -5,7 +5,6 @@
 #include "foamcutapp.hpp"
 #include "settings.hpp"
 #include <StepDir.hpp>
-#include <Host.hpp>
 
 MoveDialog::MoveDialog(QWidget *parent) :
     QDialog(parent),
