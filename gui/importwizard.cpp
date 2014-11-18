@@ -14,6 +14,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QRadioButton>
+#include <QCheckBox>
 
 ImportWizard::ImportWizard(QWidget *parent) :
     QWizard(parent)
@@ -39,11 +40,13 @@ TypePage::TypePage(QWidget *parent)
 {
     setTitle(tr("File Type"));
 
-    xfoilRB_ = new QRadioButton(tr("&XFoil airfoil"));
-    datRB_ = new QRadioButton(tr("&Generic .dat file"));
+    xfoilRB_ = new QRadioButton(tr("&XFoil airfoil"), this);
+    datRB_ = new QRadioButton(tr("&Generic .dat file"), this);
 
-    typeLabel_ = new QLabel(tr("file type"));
+    typeLabel_ = new QLabel(tr("file type"), this);
     typeLabel_->setWordWrap(true);
+
+	leLoop_check = new QCheckBox("Leading edge cooling loop", this);
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(xfoilRB_);
@@ -68,20 +71,26 @@ void TypePage::typeChanged(bool checked)
 {
     if (!checked) return;
 
-    if (xfoilRB_->isChecked())
-        typeLabel_->setText(tr("Importing an airfoil takes the following extra steps\n"
-                               "  1. Reorder points so top (+y) surface is first.\n"
-                               "  2. Reflect and translate TE to x=0 and LE to x=chord.\n"
-                               "  3. Add a synchronization point at the LE.\n"
-                               "  4. Scale to desired chord.\n"
-                               "  5. Rotate to desired angle of attack.\n"
-                               "  6. Add optional cooling loop at leading edge."
-                               ));
-    else
-        typeLabel_->setText(tr("Import a .dat file as is.  The following options are "
-                               "available: \n"
-                               "  1. Reverse the order of the points.\n"
-                               "  2. Scale the shape.\n"
-                               "  3. Rotate the shape.\n"
-                               ));
+	if (xfoilRB_->isChecked()) {
+		typeLabel_->setText(tr("Importing an airfoil takes the following extra steps\n"
+			"  1. Reorder points so top (+y) surface is first.\n"
+			"  2. Reflect and translate TE to x=0 and LE to x=chord.\n"
+			"  3. Add a synchronization point at the LE.\n"
+			"  4. Scale to desired chord.\n"
+			"  5. Rotate to desired angle of attack.\n"
+			"  6. Add optional cooling loop at leading edge."
+			));
+
+		layout()->addWidget(leLoop_check);
+	}
+	else {
+		typeLabel_->setText(tr("Import a .dat file as is.  The following options are "
+			"available: \n"
+			"  1. Reverse the order of the points.\n"
+			"  2. Scale the shape.\n"
+			"  3. Rotate the shape.\n"
+			));
+
+		layout()->removeWidget(leLoop_check);
+	}
 }

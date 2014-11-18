@@ -22,6 +22,7 @@ namespace foamcut {
 class QLabel;
 class QRadioButton;
 class DatImportPage;
+class QCheckBox;
 
 class ImportWizard : public QWizard
 {
@@ -57,6 +58,8 @@ private:
     QLabel *typeLabel_;
     QRadioButton *xfoilRB_;
     QRadioButton *datRB_;
+	QCheckBox *leLoop_check;
+
 };
 
 #endif // IMPORTWIZARD_H
