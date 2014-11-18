@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>380</width>
-    <height>195</height>
+    <height>193</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,9 +16,9 @@
   <widget class="QDialogButtonBox" name="dialogButtonBox">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>200</x>
      <y>150</y>
-     <width>341</width>
+     <width>161</width>
      <height>32</height>
     </rect>
    </property>
@@ -81,28 +81,28 @@
      </widget>
     </item>
     <item row="2" column="1">
-     <widget class="QCheckBox" name="leftYReverse_check">
+     <widget class="QCheckBox" name="yLeftReverse_check">
       <property name="text">
        <string/>
       </property>
      </widget>
     </item>
     <item row="1" column="2">
-     <widget class="QCheckBox" name="rightXReverse_check">
+     <widget class="QCheckBox" name="xRightReverse_check">
       <property name="text">
        <string/>
       </property>
      </widget>
     </item>
     <item row="2" column="2">
-     <widget class="QCheckBox" name="rightYReverse_check">
+     <widget class="QCheckBox" name="yRightReverse_check">
       <property name="text">
        <string/>
       </property>
      </widget>
     </item>
     <item row="1" column="1">
-     <widget class="QCheckBox" name="leftXReverse_check">
+     <widget class="QCheckBox" name="xLeftReverse_check">
       <property name="text">
        <string/>
       </property>
@@ -125,18 +125,11 @@
     <rect>
      <x>20</x>
      <y>10</y>
-     <width>160</width>
-     <height>123</height>
+     <width>162</width>
+     <height>145</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout_2">
-    <item row="3" column="0">
-     <widget class="QLabel" name="label_4">
-      <property name="text">
-       <string>Connection Port</string>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="1">
      <widget class="QLineEdit" name="xStepSize_edit">
       <property name="text">
@@ -147,6 +140,13 @@
       </property>
      </widget>
     </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Connection Port</string>
+      </property>
+     </widget>
+    </item>
     <item row="1" column="0">
      <widget class="QLabel" name="label_2">
       <property name="text">
@@ -154,7 +154,7 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
+    <item row="3" column="1">
      <widget class="QLineEdit" name="maxStepRate_edit">
       <property name="text">
        <string>1000</string>
@@ -164,20 +164,34 @@
       </property>
      </widget>
     </item>
-    <item row="3" column="1">
-     <widget class="QComboBox" name="port_combo"/>
+    <item row="0" column="0">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>X step size</string>
+      </property>
+     </widget>
     </item>
-    <item row="2" column="0">
+    <item row="3" column="0">
      <widget class="QLabel" name="label_3">
       <property name="text">
        <string>Max steps / sec</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="0">
-     <widget class="QLabel" name="label">
+    <item row="4" column="1">
+     <widget class="QComboBox" name="port_combo"/>
+    </item>
+    <item row="5" column="1">
+     <widget class="QCheckBox" name="activeLowStep_check">
       <property name="text">
-       <string>X step size</string>
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0">
+     <widget class="QLabel" name="label_9">
+      <property name="text">
+       <string>Active Low Steps</string>
       </property>
      </widget>
     </item>
@@ -191,17 +205,20 @@
       </property>
      </widget>
     </item>
-    <item row="4" column="0">
-     <widget class="QLabel" name="label_9">
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="frameSeparation_edit">
       <property name="text">
-       <string>Active Low Steps</string>
+       <string>30.</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
     </item>
-    <item row="4" column="1">
-     <widget class="QCheckBox" name="activeLowStep_check">
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_10">
       <property name="text">
-       <string/>
+       <string>Frame Separation</string>
       </property>
      </widget>
     </item>

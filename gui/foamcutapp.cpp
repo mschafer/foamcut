@@ -27,8 +27,14 @@ const QString yLeftReverseName("stepper/yLeftReverse");
 const QString yRightReverseName("stepper/yRightReverse");
 const QString activeLowStepsName("stepper/activeLowSteps");
 const QString cutSpeedName("stepper/cutSpeed");
+
+// move dialog
 const QString moveDistanceName("move/distance");
 const QString moveFastName("move/fast");
+
+// airfoil import
+const QString airfoilImportDirName("airfoil/dir");
+const QString airfoilLELoopName("airfoil/leLoop");
 }
 
 FoamcutApp::FoamcutApp(int &argc, char **argv) : QApplication(argc, argv)
@@ -219,4 +225,22 @@ void FoamcutApp::moveFast(bool v)
 	settings_.setValue(moveFastName, v);
 }
 
+QString FoamcutApp::airfoilImportDir()
+{
+	return settings_.value(airfoilImportDirName, "").toString();
+}
 
+void FoamcutApp::airfoilImportDir(const QString &dir)
+{
+	settings_.setValue(airfoilImportDirName, dir);
+}
+
+bool FoamcutApp::airfoilLELoop()
+{
+	return settings_.value(airfoilLELoopName, false).toBool();
+}
+
+void FoamcutApp::airfoilLELoop(bool v)
+{
+	settings_.setValue(airfoilLELoopName, v);
+}

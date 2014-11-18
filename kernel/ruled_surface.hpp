@@ -28,6 +28,13 @@ class RuledSurface
 public:
 	typedef boost::shared_ptr<RuledSurface> handle;
 
+	struct Point {
+		double lx_;
+		double ly_;
+		double rx_;
+		double ry_;
+	};
+
 	/**
 	* Construct a ruled surface from splined shapes.
 	*/
@@ -66,6 +73,10 @@ public:
 	 * the input coordinates.
 	 */
 	void setTime(double speed);
+
+	double duration() const;
+
+	Point interpolateTime(double time) const;
 
 	/**
 	 * Generate a set of instructions for the stepper to cut this RuledSurface.

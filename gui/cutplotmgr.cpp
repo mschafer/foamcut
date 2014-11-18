@@ -14,7 +14,7 @@
 #include "cutplotmgr.h"
 #include "shapeplotmgr.h"
 
-CutPlotMgr::CutPlotMgr(FixedARPlot *plot) : plot_(plot)
+CutPlotMgr::CutPlotMgr(FixedARPlot *plot) : plot_(plot), time_(0.)
 {
 	plot_->clearPlottables();
 
@@ -75,7 +75,34 @@ CutPlotMgr::CutPlotMgr(FixedARPlot *plot) : plot_(plot)
 	curve->setName("right frame");
 	plot_->addPlottable(curve);
 
+	// WIRE_CURVE
+	QCPScatterStyle scatter;
+	scatter.setShape(QCPScatterStyle::ssDisc);
+	pen.setColor(Qt::black);
+	scatter.setPen(pen);
+	scatter.setSize(5);
+	curve = new QCPCurve(plot_->xAxis, plot_->yAxis);
+	curve->setLineStyle(QCPCurve::lsNone);
+	curve->setScatterStyle(scatter);
+	curve->setName("wire");
+	plot_->addPlottable(curve);
+
 	plot_->legend->setVisible(true);
+}
+
+void CutPlotMgr::updateWirePosition(double time)
+{
+	time_ = time;
+
+	QCPCurve *curve = (QCPCurve*)(plot_->plottable(WIRE_CURVE));
+	curve->clearData();
+	foamcut::RuledSurface::Point fp = frame_->interpolateTime(time_);
+	foamcut::RuledSurface::Point pp = part_->interpolateTime(time_);
+	curve->addData(fp.lx_, fp.ly_);
+	curve->addData(fp.rx_, fp.ry_);
+	curve->addData(pp.lx_, pp.ly_);
+	curve->addData(pp.rx_, pp.ry_);
+	plot_->replot();
 }
 
 std::pair<QCPCurveDataMap*, QCPCurveDataMap*>
@@ -138,6 +165,16 @@ void CutPlotMgr::replot(bool rescale)
 		curve->setData(dms.first, false);
 		curve = (QCPCurve*)(plot_->plottable(RIGHT_FRAME_CURVE));
 		curve->setData(dms.second, false);
+
+		// wire
+		curve = (QCPCurve*)(plot_->plottable(WIRE_CURVE));
+		curve->clearData();
+		foamcut::RuledSurface::Point fp = frame_->interpolateTime(time_);
+		foamcut::RuledSurface::Point pp = part_->interpolateTime(time_);
+		curve->addData(fp.lx_, fp.ly_);
+		curve->addData(fp.rx_, fp.ry_);
+		curve->addData(pp.lx_, pp.ly_);
+		curve->addData(pp.rx_, pp.ry_);
 	}
 
 	if (rescale) plot_->rescaleAxesFixedAR();

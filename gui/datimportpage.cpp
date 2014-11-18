@@ -12,6 +12,7 @@
 #include "datimportpage.h"
 #include "ui_datimportpage.h"
 #include "shapeplotmgr.h"
+#include "foamcutapp.hpp"
 #include <QFileDialog>
 #include <fstream>
 #include <QDebug>
@@ -46,12 +47,14 @@ DatImportPage::~DatImportPage()
 
 void DatImportPage::initializePage()
 {
+	FoamcutApp *app = FoamcutApp::instance();
 	datFile_.reset();
     bool isXFoil = field("type.xfoil").toBool();
     if (isXFoil) {
         ui->rotateLabel->setText(tr("Alpha"));
         ui->scaleLabel->setText(tr("Chord"));
         ui->reverse_check->setText(tr("Add LE loop"));
+		ui->reverse_check->setChecked(app->airfoilLELoop());
     } else {
         ui->rotateLabel->setText(tr("Rotate"));
         ui->scaleLabel->setText(tr("Scale"));
@@ -66,15 +69,15 @@ int DatImportPage::nextId() const
 
 void DatImportPage::on_fileBrowseButton_clicked()
 {
-	QSettings settings;
-	QString lastPath = settings.value("DatImportPage/lastPath", "").toString();
+	FoamcutApp *app = FoamcutApp::instance();
+	QString lastPath = app->airfoilImportDir();
     QString fileName = QFileDialog::getOpenFileName(this,
          tr("Open .dat file"), lastPath, tr(".dat files (*.dat);;All files (*.*)"));
 
     if (fileName.length() != 0) {
         ui->fileName_edit->setText(fileName);
         QString lastPath = QFileInfo(fileName).absolutePath() + QDir::separator() + "*";
-        settings.setValue("DatImportPage/lastPath", lastPath);
+        app->airfoilImportDir(lastPath);
     }
 
 	on_fileName_edit_editingFinished();
@@ -97,6 +100,11 @@ void DatImportPage::on_fileName_edit_editingFinished()
 
 void DatImportPage::do_check_changed(int state)
 {
+	FoamcutApp *app = FoamcutApp::instance();
+	bool isXFoil = field("type.xfoil").toBool();
+	if (isXFoil) {
+		app->airfoilLELoop(ui->reverse_check->isChecked());
+	}
 	do_replot();
 }
 

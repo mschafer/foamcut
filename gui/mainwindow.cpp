@@ -29,8 +29,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
 	ui->speed_edit->setValidator(new QDoubleValidator());
-    ui->zRightFrame_edit->setValidator(new QDoubleValidator());
-    ui->rotatePart_edit->setValidator(new QDoubleValidator());
     ui->xLeadIn_edit->setValidator(new QDoubleValidator());
     ui->yLeadIn_edit->setValidator(new QDoubleValidator());
 
@@ -91,6 +89,7 @@ void MainWindow::on_tipImport_button_clicked()
 
 void MainWindow::on_speed_edit_editingFinished()
 {
+	///\todo need to update times on RuledSurfaces
 	auto app = FoamcutApp::instance();
 	app->cutSpeed(ui->speed_edit->text().toDouble());
 }
@@ -128,6 +127,7 @@ void MainWindow::on_yLeadIn_edit_editingFinished()
 
 void MainWindow::geometryChanged(bool rescale)
 {
+	auto app = FoamcutApp::instance();
 	try {
 		double xLead = ui->xLeadIn_edit->text().toDouble();
 		double yLead = ui->yLeadIn_edit->text().toDouble();
@@ -153,7 +153,7 @@ void MainWindow::geometryChanged(bool rescale)
 			double tipZ  = ui->tipZ_edit->text().toDouble();
 			///\todo get correct eps value from step size
 			partPath_.reset(new foamcut::RuledSurface(*rootKerfShape_, *tipKerfShape_, rootZ, tipZ-rootZ, .001));
-			double zRightFrame = ui->zRightFrame_edit->text().toDouble();
+			double zRightFrame = app->frameSeparation();
 			partPath_->setTime(ui->speed_edit->text().toDouble());
 			cutterPath_ = partPath_->interpolateZ(0., zRightFrame);
 			ui->cut_button->setEnabled(true);
@@ -194,4 +194,13 @@ void MainWindow::on_actionSetup_triggered()
 {
 	std::unique_ptr<SetupDialog> sd(new SetupDialog());
 	sd->exec();
+}
+
+void MainWindow::on_wire_slider_valueChanged(int slider)
+{
+	// nothing to do unless both shapes are defined and we have a path
+	if (cutterPath_) {
+		double t = cutterPath_->duration() * (double)slider / (double)ui->wire_slider->maximum();
+		cutPlotMgr_->updateWirePosition(t);
+	}
 }

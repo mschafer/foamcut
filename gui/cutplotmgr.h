@@ -40,6 +40,8 @@ public:
 		replot(rescale);
 	}
 
+	void updateWirePosition(double time);
+
 	static std::pair<QCPCurveDataMap*, QCPCurveDataMap*> surfacePoints(const foamcut::RuledSurface::handle);
 
 private slots:
@@ -47,12 +49,13 @@ private slots:
 
 private:
 	enum {
-		ROOT_BASE_CURVE = 0,
-		TIP_BASE_CURVE = 1,
-		ROOT_PART_CURVE = 2,
-		TIP_PART_CURVE = 3,
-		LEFT_FRAME_CURVE = 4,
+		ROOT_BASE_CURVE   = 0,
+		TIP_BASE_CURVE    = 1,
+		ROOT_PART_CURVE   = 2,
+		TIP_PART_CURVE    = 3,
+		LEFT_FRAME_CURVE  = 4,
 		RIGHT_FRAME_CURVE = 5,
+		WIRE_CURVE        = 6,
 		LEFT_FRAME_WIRE_ITEM = 0,
 		LEFT_PART_WIRE_ITEM = 1,
 		RIGHT_FRAME_WIRE_ITEM = 2,
@@ -67,6 +70,7 @@ private:
 	foamcut::Shape::handle tip_;
 	foamcut::RuledSurface::handle part_;
 	foamcut::RuledSurface::handle frame_;
+	double time_;
 };
 
 #endif

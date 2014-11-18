@@ -133,6 +133,37 @@ void RuledSurface::setTime(double speed)
 	}
 }
 
+double RuledSurface::duration() const
+{
+	if (time_.empty()) {
+		throw std::runtime_error("RuledSurface::duaration times haven't been set yet");
+	}
+
+	return time_.back();
+}
+
+RuledSurface::Point RuledSurface::interpolateTime(double t) const
+{
+	if (time_.empty()) {
+		throw std::runtime_error("RuledSurface::duaration times haven't been set yet");
+	}
+
+	if (t < 0 || t > time_.back()) {
+		throw std::range_error("RuledSurface::interpolate time out of range");
+	}
+
+	size_t i = 1;
+	while (t > time_[i]) ++i;
+
+	Point ret;
+	double dtf = (t - time_[i-1]) / (time_[i] - time_[i-1]);
+	ret.lx_ = lx_[i-1] + (lx_[i] - lx_[i-1]) * dtf;
+	ret.ly_ = ly_[i-1] + (ly_[i] - ly_[i-1]) * dtf;
+	ret.rx_ = rx_[i-1] + (rx_[i] - rx_[i-1]) * dtf;
+	ret.ry_ = ry_[i-1] + (ry_[i] - ry_[i-1]) * dtf;
+	return ret;
+}
+
 stepper::Script::handle RuledSurface::generateScript(const StepperInfo &sInfo)
 {
 	stepper::Script::handle ret(new stepper::Script());

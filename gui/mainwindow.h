@@ -41,6 +41,8 @@ private slots:
 
 	void on_actionSetup_triggered();
 
+	void on_wire_slider_valueChanged(int);
+
 private:
     Ui::MainWindow *ui;
 	boost::shared_ptr<foamcut::Shape> rootShape_;

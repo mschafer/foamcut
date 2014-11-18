@@ -75,6 +75,12 @@ public:
 	bool moveFast();
 	void moveFast(bool v);
 
+	QString airfoilImportDir();
+	void airfoilImportDir(const QString &dir);
+
+	bool airfoilLELoop();
+	void airfoilLELoop(bool v);
+	
 	foamcut::StepperInfo stepperInfo();
 
 private:
