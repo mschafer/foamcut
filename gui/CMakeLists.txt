@@ -60,6 +60,7 @@ add_executable(foamcut_gui
   datimportpage.cpp
   fixedarplot.cpp
   foamcutapp.cpp
+  importdat.cpp
   importwizard.cpp
   logdoublespinbox.cpp
   main.cpp
