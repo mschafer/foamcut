@@ -43,9 +43,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->speed_edit->setText(QString::number(app->cutSpeed()));
 	
 	cutPlotMgr_.reset(new CutPlotMgr(ui->cut_fixedARPlot));
-
-	//SimDialog *simd = new SimDialog(this);
-	//simd->show();
 }
 
 MainWindow::~MainWindow()
@@ -182,6 +179,12 @@ void MainWindow::on_actionDAT_Import_triggered()
 		ui->tipName_label->setText(QString::fromStdString(tipShape_->name()));
 		geometryChanged(true);
 	}
+}
+
+void MainWindow::on_actionSimulator_triggered()
+{
+	SimDialog *simd = new SimDialog(this);
+	simd->show();
 }
 
 void MainWindow::on_swap_button_clicked()

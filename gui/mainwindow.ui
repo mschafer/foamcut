@@ -319,6 +319,7 @@
    </attribute>
    <addaction name="actionDAT_Import"/>
    <addaction name="actionSetup"/>
+   <addaction name="actionSimulator"/>
   </widget>
   <action name="actionSetup">
    <property name="text">
@@ -331,6 +332,11 @@
    </property>
    <property name="toolTip">
     <string>Import DAT files</string>
+   </property>
+  </action>
+  <action name="actionSimulator">
+   <property name="text">
+    <string>Simulator</string>
    </property>
   </action>
  </widget>

@@ -39,6 +39,8 @@ private slots:
 
 	void on_actionSetup_triggered();
 	void on_actionDAT_Import_triggered();
+	void on_actionSimulator_triggered();
+
 	void on_wire_slider_valueChanged(int);
 
 private:
