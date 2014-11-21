@@ -15,7 +15,7 @@
 #include "movedialog.h"
 #include "setupdialog.h"
 #include "ui_mainwindow.h"
-#include "importwizard.h"
+#include "datimportwizard.h"
 #include "ruled_surface.hpp"
 #include "cutplotmgr.h"
 #include "simdialog.h"
@@ -35,56 +35,21 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->rootZ_edit->setValidator(new QDoubleValidator());
     ui->rootKerf_edit->setValidator(new QDoubleValidator());
     ui->rootName_label->setText("");
-    ui->rootSpeeds_label->setText("");
 
     ui->tipZ_edit->setValidator(new QDoubleValidator());
     ui->tipKerf_edit->setValidator(new QDoubleValidator());
     ui->tipName_label->setText("");
-    ui->tipSpeeds_label->setText("");
 
 	ui->speed_edit->setText(QString::number(app->cutSpeed()));
 	
 	cutPlotMgr_.reset(new CutPlotMgr(ui->cut_fixedARPlot));
 
-	SimDialog *simd = new SimDialog(this);
-	simd->show();
+	//SimDialog *simd = new SimDialog(this);
+	//simd->show();
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
-}
-
-void MainWindow::on_rootImport_button_clicked()
-{
-    std::auto_ptr<ImportWizard> iw(new ImportWizard());
-    iw->exec();
-	if (iw->result() == QDialog::Accepted) {
-		rootShape_ = iw->shape();
-		if (rootShape_->area() < 0) {
-			ui->rootKerf_label->setText("Kerf [CW]");
-		} else {
-			ui->rootKerf_label->setText("Kerf [CCW]");
-		}
-		ui->rootName_label->setText(QString::fromStdString(rootShape_->name()));
-		geometryChanged(true);
-	}
-}
-
-void MainWindow::on_tipImport_button_clicked()
-{
-    std::auto_ptr<ImportWizard> iw(new ImportWizard());
-    iw->exec();
-	if (iw->result() == QDialog::Accepted) {
-		tipShape_ = iw->shape();
-		if (tipShape_->area() < 0) {
-			ui->tipKerf_label->setText("Kerf [CW]");
-		} else {
-			ui->tipKerf_label->setText("Kerf [CCW]");
-		}
-		ui->tipName_label->setText(QString::fromStdString(tipShape_->name()));
-		geometryChanged(true);
-	}
 }
 
 void MainWindow::on_speed_edit_editingFinished()
@@ -203,4 +168,37 @@ void MainWindow::on_wire_slider_valueChanged(int slider)
 		double t = cutterPath_->duration() * (double)slider / (double)ui->wire_slider->maximum();
 		cutPlotMgr_->updateWirePosition(t);
 	}
+}
+
+void MainWindow::on_actionDAT_Import_triggered()
+{
+	std::unique_ptr<DatImportWizard> diw(new DatImportWizard());
+	diw->exec();
+	if (diw->result() == QDialog::Accepted) {
+		auto shapes = diw->shapes();
+		rootShape_ = shapes.first;
+		tipShape_ = shapes.second;
+		ui->rootName_label->setText(QString::fromStdString(rootShape_->name()));
+		ui->tipName_label->setText(QString::fromStdString(tipShape_->name()));
+		geometryChanged(true);
+	}
+}
+
+void MainWindow::on_swap_button_clicked()
+{
+	// swap the shapes
+	foamcut::Shape::handle tmp = rootShape_;
+	rootShape_ = tipShape_;
+	tipShape_ = tmp;
+
+	// swap the shape names
+	ui->rootName_label->setText(QString::fromStdString(rootShape_->name()));
+	ui->tipName_label->setText(QString::fromStdString(tipShape_->name()));
+
+	// swap the kerfs
+	QString tmpK = ui->rootKerf_edit->text();
+	ui->rootKerf_edit->setText(ui->tipKerf_edit->text());
+	ui->tipKerf_edit->setText(tmpK);
+
+	geometryChanged();
 }

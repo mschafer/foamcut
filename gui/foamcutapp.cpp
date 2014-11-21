@@ -244,3 +244,24 @@ void FoamcutApp::airfoilLELoop(bool v)
 {
 	settings_.setValue(airfoilLELoopName, v);
 }
+
+foamcut::Shape::handle FoamcutApp::rootShape()
+{
+	return rootShape_;
+}
+
+void FoamcutApp::rootShape(foamcut::Shape::handle s)
+{
+
+}
+
+foamcut::Shape::handle FoamcutApp::tipShape()
+{
+	return tipShape_;
+}
+
+void FoamcutApp::tipShape(foamcut::Shape::handle s)
+{
+
+}
+

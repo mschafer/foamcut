@@ -33,7 +33,8 @@ find_package(Qt5Widgets REQUIRED)
 find_package(Qt5PrintSupport REQUIRED)
 find_package(Qt5SerialPort REQUIRED)
 
-set(UI_FILES mainwindow.ui cutdialog.ui movedialog.ui datimportpage.ui setupdialog.ui simulator_dialog.ui)
+set(UI_FILES mainwindow.ui cutdialog.ui movedialog.ui
+ datimportpage.ui setupdialog.ui simulator_dialog.ui)
 qt5_wrap_ui(UI_HDRS ${UI_FILES})
 
 set (DEVICE_COMMON_DIR ${CMAKE_SOURCE_DIR}/stepper/device/common)
@@ -58,10 +59,10 @@ add_executable(foamcut_gui
   cutdialog.cpp
   cutplotmgr.cpp
   datimportpage.cpp
+  datimportwizard.cpp
   fixedarplot.cpp
   foamcutapp.cpp
   importdat.cpp
-  importwizard.cpp
   logdoublespinbox.cpp
   main.cpp
   mainwindow.cpp

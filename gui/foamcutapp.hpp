@@ -16,9 +16,8 @@
 #include <QSettings>
 #include <memory>
 #include <Host.hpp>
+#include <Shape.hpp>
 #include <stepper_info.hpp>
-
-///\todo fold settings into this class
 
 class FoamcutApp : public QApplication
 {
@@ -83,8 +82,16 @@ public:
 	
 	foamcut::StepperInfo stepperInfo();
 
+	foamcut::Shape::handle rootShape();
+	void rootShape(foamcut::Shape::handle s);
+
+	foamcut::Shape::handle tipShape();
+	void tipShape(foamcut::Shape::handle s);
+
 private:
 	std::unique_ptr<stepper::Host> host_;
+	foamcut::Shape::handle rootShape_;
+	foamcut::Shape::handle tipShape_;
 	QSettings settings_;
 
 };

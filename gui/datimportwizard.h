@@ -9,11 +9,11 @@
  * Contributors:
  *     Marc Schafer
  */
-#ifndef IMPORTWIZARD_H
-#define IMPORTWIZARD_H
+#ifndef DATIMPORTWIZARD_H
+#define DATIMPORTWIZARD_H
 
 #include <QWizard>
-#include <boost/shared_ptr.hpp>
+#include <Shape.hpp>
 
 namespace foamcut {
 	class Shape;
@@ -24,42 +24,35 @@ class QRadioButton;
 class DatImportPage;
 class QCheckBox;
 
-class ImportWizard : public QWizard
+class DatImportWizard : public QWizard
 {
     Q_OBJECT
 public:
     enum {
         TYPE_PAGE,
-        IMPORT_PAGE
+        ROOT_IMPORT_PAGE,
+		TIP_IMPORT_PAGE
     };
 
-    explicit ImportWizard(QWidget *parent = 0);
+    DatImportWizard(QWidget *parent = 0);
 
-	boost::shared_ptr<foamcut::Shape> shape();
-signals:
-    
-public slots:
-    
+	bool validateCurrentPage();
+	std::pair<foamcut::Shape::handle, foamcut::Shape::handle> shapes();
 };
 
-class TypePage : public QWizardPage
+class DatTypePage : public QWizardPage
 {
     Q_OBJECT
 
 public:
-    TypePage(QWidget *parent = 0);
-
-    int nextId() const;
+    DatTypePage(QWidget *parent = 0);
 
 private slots:
     void typeChanged(bool checked);
 
 private:
-    QLabel *typeLabel_;
-    QRadioButton *xfoilRB_;
-    QRadioButton *datRB_;
-	QCheckBox *leLoop_check;
-
+	QLabel *typeLabel_;
+	QCheckBox *leLoop_check_;
 };
 
-#endif // IMPORTWIZARD_H
+#endif
