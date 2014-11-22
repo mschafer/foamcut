@@ -43,7 +43,7 @@ public:
 
 	const Position &position() const { return posLog_.back(); }
 	const std::deque<Position> &positionLog() const { return posLog_; }
-	void clearLog() { posLog_.clear(); posLog_.push_back(Position()); }
+	void clearLog() { posLog_.resize(1); }
 
 	static void reset();
 
