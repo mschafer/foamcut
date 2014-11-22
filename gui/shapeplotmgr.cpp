@@ -10,6 +10,7 @@
  *     Marc Schafer
  */
 #include "shapeplotmgr.h"
+#include "foamcutapp.hpp"
 
 ShapePlotMgr::ShapePlotMgr(FixedARPlot *plot) : plot_(plot)
 {
@@ -34,14 +35,15 @@ ShapePlotMgr::ShapePlotMgr(FixedARPlot *plot) : plot_(plot)
 
 QCPCurveDataMap *ShapePlotMgr::lineFit(const foamcut::Shape::handle shape)
 {
+	FoamcutApp *app = FoamcutApp::instance();
 	QCPCurveDataMap *dataMap = new QCPCurveDataMap();
 	double s = 0.;
 	auto p0 = shape->evaluate(s);
 	dataMap->insert(s, QCPCurveData(s, p0.x, p0.y));
 	double sMax = shape->s().back();
+	double tolerance = 2. * std::min(app->xStepSize(), app->yStepSize());
 	while (s < .99999 * sMax) {
-		/// \todo use step size to correctly set tolerance
-		double s1 = shape->fitLineSegment(s, .001);
+		double s1 = shape->fitLineSegment(s, tolerance);
 		auto p1 = shape->evaluate(s1);
 		dataMap->insert(s1, QCPCurveData(s1, p1.x, p1.y));
 		s = s1;

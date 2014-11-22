@@ -47,7 +47,7 @@ SimDialog::SimDialog(QWidget *parent) :
 	ui->plot->addPlottable(curve);
 
 	ui->plot->legend->setVisible(true);
-	connect(ui->plot, SIGNAL(beforeReplot()), this, SLOT(beforeReplot()));
+	//connect(ui->plot, SIGNAL(beforeReplot()), this, SLOT(beforeReplot()));
 	ui->plot->replot();
 
 	QTimer *timer = new QTimer(this);
@@ -105,4 +105,16 @@ void SimDialog::beforeReplot()
 	lower = yr.center() - (newSize / 2.);
 	upper = yr.center() + (newSize / 2.);
 	plot->yAxis->setRange(QCPRange(lower, upper));
+}
+
+void SimDialog::on_clear_button_clicked()
+{
+	auto &sim = stepper::device::Simulator::instance();
+	sim.clearLog();
+
+	auto lCurve = static_cast<QCPCurve*>(ui->plot->plottable(LEFT_CURVE));
+	auto rCurve = static_cast<QCPCurve*>(ui->plot->plottable(RIGHT_CURVE));
+	lCurve->clearData();
+	rCurve->clearData();
+	update();
 }

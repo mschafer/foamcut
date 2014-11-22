@@ -51,8 +51,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_speed_edit_editingFinished()
 {
-	///\todo need to update times on RuledSurfaces
-	auto app = FoamcutApp::instance();
+	FoamcutApp *app = FoamcutApp::instance();
+	if (partPath_) {
+		double zRightFrame = app->frameSeparation();
+		partPath_->setTime(ui->speed_edit->text().toDouble());
+		cutterPath_ = partPath_->interpolateZ(0., zRightFrame);
+	}
 	app->cutSpeed(ui->speed_edit->text().toDouble());
 }
 
@@ -113,8 +117,8 @@ void MainWindow::geometryChanged(bool rescale)
 		if (rootKerfShape_ != nullptr && tipKerfShape_ != nullptr) {
 			double rootZ = ui->rootZ_edit->text().toDouble();
 			double tipZ  = ui->tipZ_edit->text().toDouble();
-			///\todo get correct eps value from step size
-			partPath_.reset(new foamcut::RuledSurface(*rootKerfShape_, *tipKerfShape_, rootZ, tipZ-rootZ, .001));
+			double tolerance = 2. * std::min(app->xStepSize(), app->yStepSize());
+			partPath_.reset(new foamcut::RuledSurface(*rootKerfShape_, *tipKerfShape_, rootZ, tipZ-rootZ, tolerance));
 			double zRightFrame = app->frameSeparation();
 			partPath_->setTime(ui->speed_edit->text().toDouble());
 			cutterPath_ = partPath_->interpolateZ(0., zRightFrame);
@@ -183,8 +187,10 @@ void MainWindow::on_actionDAT_Import_triggered()
 
 void MainWindow::on_actionSimulator_triggered()
 {
-	SimDialog *simd = new SimDialog(this);
-	simd->show();
+	if (!simDialog_) {
+		simDialog_.reset(new SimDialog(this));
+	}
+	simDialog_->show();
 }
 
 void MainWindow::on_swap_button_clicked()

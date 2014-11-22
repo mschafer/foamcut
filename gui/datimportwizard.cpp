@@ -26,7 +26,7 @@ DatImportWizard::DatImportWizard(QWidget *parent) :
 
     setStartId(TYPE_PAGE);
 
-    ///\todo need cancel button on Mac because red x is disabled for some reason
+    ///need cancel button on Mac because red x is disabled for some reason
     setOption(NoCancelButton, false);
 
     setWindowTitle(tr("Import Shapes from DAT files"));

@@ -52,6 +52,7 @@ private:
 	boost::shared_ptr<foamcut::RuledSurface> partPath_;
 	boost::shared_ptr<foamcut::RuledSurface> cutterPath_;
 	std::unique_ptr<class CutPlotMgr> cutPlotMgr_;
+	std::unique_ptr<class SimDialog> simDialog_;
 };
 
 #endif // MAINWINDOW_H

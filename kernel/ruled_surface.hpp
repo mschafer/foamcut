@@ -83,8 +83,6 @@ public:
 	 */
 	std::shared_ptr<stepper::Script> generateScript(const StepperInfo &sInfo);
 
-	/** \todo Add a method for sweep rotation */
-
 	const std::vector<double> &leftX() const { return lx_; }
 	const std::vector<double> &leftY() const { return ly_; }
 	const std::vector<double> &rightX() const { return rx_; }

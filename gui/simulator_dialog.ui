@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QCustomPlot" name="plot" native="true">
+    <widget class="FixedARPlot" name="plot" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -187,9 +187,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QCustomPlot</class>
+   <class>FixedARPlot</class>
    <extends>QWidget</extends>
-   <header>qcustomplot.h</header>
+   <header>fixedarplot.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
@@ -202,8 +202,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>254</x>
+     <y>434</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -218,8 +218,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>322</x>
+     <y>434</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

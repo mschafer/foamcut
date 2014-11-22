@@ -20,6 +20,8 @@ private slots:
 	void update();
 	void beforeReplot();
 
+	void on_clear_button_clicked();
+
 private:
 	enum {
 		LEFT_CURVE = 0,
