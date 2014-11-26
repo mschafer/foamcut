@@ -41,7 +41,7 @@ void Stepper::runOnce()
 	if (StatusFlags::instance().updated()) {
 		StatusMsg *sm = new StatusMsg();
 		if (sm) {
-			sm->statusFlags_ = StatusFlags::instance();
+			sm->statusFlags_ = StatusFlags::instance().getFlags();
 			if (HAL::sendMessage(sm) == SUCCESS) {
 				StatusFlags::instance().clear();
 			} else {

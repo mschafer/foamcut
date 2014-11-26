@@ -11,6 +11,7 @@
  */
 #include "foamcutapp.hpp"
 #include <QString>
+#include <QDebug>
 
 namespace {
 // stepper settings
@@ -37,10 +38,13 @@ const QString airfoilImportDirName("airfoil/dir");
 const QString airfoilLELoopName("airfoil/leLoop");
 }
 
-FoamcutApp::FoamcutApp(int &argc, char **argv) : QApplication(argc, argv)
+FoamcutApp::FoamcutApp(int &argc, char **argv) : QApplication(argc, argv),
+currentPort_("none")
 {
 	host_.reset(new stepper::Host());
-	host_->connectToSimulator();
+	if (port() != "none") {
+		connectToDevice();
+	}
 }
 
 FoamcutApp::~FoamcutApp()
@@ -114,7 +118,7 @@ void FoamcutApp::maxStepRate(int v)
 
 QString FoamcutApp::port()
 {
-	return settings_.value(portName, "Simulator").toString();
+	return settings_.value(portName, "none").toString();
 }
 
 void FoamcutApp::port(const QString &v)
@@ -252,7 +256,7 @@ foamcut::Shape::handle FoamcutApp::rootShape()
 
 void FoamcutApp::rootShape(foamcut::Shape::handle s)
 {
-
+	rootShape_ = s;
 }
 
 foamcut::Shape::handle FoamcutApp::tipShape()
@@ -262,6 +266,37 @@ foamcut::Shape::handle FoamcutApp::tipShape()
 
 void FoamcutApp::tipShape(foamcut::Shape::handle s)
 {
+	tipShape_ = s;
+}
+
+void FoamcutApp::portChanged(const QString &portName)
+{
+	qDebug() << "port Changed to " << portName;
+}
+
+
+void FoamcutApp::startSimulator()
+{
+	//SimDialog *simd = new SimDialog(this);
+	//simd->show();
 
 }
 
+void FoamcutApp::stopSimulator()
+{
+
+}
+
+void FoamcutApp::connectToDevice()
+{
+	host_.reset(new stepper::Host());
+	try {
+		host_->connectToDevice(port().toStdString());
+	}
+
+	catch (std::exception &ex) {
+		currentPort_ = "none";
+		qDebug() << "connect failed: " << ex.what();
+	}
+	currentPort_ = port();
+}

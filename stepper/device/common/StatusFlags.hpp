@@ -23,6 +23,8 @@ enum ErrorCode {
 
 struct StatusFlags
 {
+
+	typedef uint32_t FlagContainer;
     enum Flag {
         MEMORY_ALLOCATION_FAILED = 0x01,
         COMM_SEND_FAILED         = 0x02,
@@ -57,10 +59,12 @@ struct StatusFlags
 
     bool updated() { return updated_; }
 
+	FlagContainer getFlags() const { return flags_; }
+
     static StatusFlags &instance();
 
 private:
-    volatile uint32_t flags_;
+    volatile FlagContainer flags_;
     volatile bool updated_;
 };
 

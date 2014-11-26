@@ -14,6 +14,7 @@
 #include <StepperDictionary.hpp>
 #include "Host.hpp"
 #include "TCPLink.hpp"
+#include "CDCLink.hpp"
 #include "Script.hpp"
 #include <Logger.hpp>
 #include <boost/asio.hpp>
@@ -72,7 +73,22 @@ void Host::connectToSimulator()
 		if (connected() && deviceStatus_) return;
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 	}
-	throw std::logic_error("conect to sim failed");
+	throw std::runtime_error("conect to sim failed");
+}
+
+void Host::connectToDevice(const std::string &portName)
+{
+	link_.reset(new CDCLink(portName, impl_->ios_));
+
+	device::ConnectMsg *cm = new device::ConnectMsg();
+	link_->send(cm);
+	int iter = 10;
+	for (int iter = 0; iter<10; ++iter) {
+		if (connected() && deviceStatus_) return;
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+	}
+	std::string msg = "connect to device faile on " + portName;
+	throw std::runtime_error(msg);
 }
 
 void Host::executeScript(const Script &s)
@@ -109,7 +125,7 @@ void Host::executeScript(const Script &s)
 bool Host::scriptRunning()
 {
 	if (scriptMsgAckd_ == scriptMsgCount_) {
-		return deviceStatus_->statusFlags_.get(device::StatusFlags::ENGINE_RUNNING);
+		return ((deviceStatus_->statusFlags_ & device::StatusFlags::ENGINE_RUNNING) != 0);
 	} else {
 		return true;
 	}

@@ -187,10 +187,8 @@ void MainWindow::on_actionDAT_Import_triggered()
 
 void MainWindow::on_actionSimulator_triggered()
 {
-	if (!simDialog_) {
-		simDialog_.reset(new SimDialog(this));
-	}
-	simDialog_->show();
+	auto app = FoamcutApp::instance();
+	app->startSimulator();
 }
 
 void MainWindow::on_swap_button_clicked()

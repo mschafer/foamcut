@@ -41,6 +41,8 @@ public:
 	 */
 	void connectToSimulator();
 
+	void connectToDevice(const std::string &portName);
+
 	/**
 	 * Initiates execution of a script on the device.
 	 * Does not block.

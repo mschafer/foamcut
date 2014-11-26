@@ -122,8 +122,7 @@ ErrorCode HAL::sendMessage(Message *m, Message::Priority priority)
     ///\todo shouldn't attempt to send anything unless connected
     CDC_BlockingWriteInEp(m->transmitStart(), m->transmitSize());
     delete m;
-    ErrorCode ec;
-    return ec;
+    return SUCCESS;
 }
 
 Message *HAL::receiveMessage()
@@ -150,6 +149,7 @@ Message *HAL::receiveMessage()
     if (rxPos_ == rxMsg_->transmitSize()) {
         Message *ret = rxMsg_;
         rxMsg_ = NULL;
+        rxPos_ = 0;
         return ret;
     }
     return NULL;

@@ -44,9 +44,10 @@ struct GoMsg : Message
 		ID = GO_MSG
 	};
 
-	GoMsg() {
+	GoMsg() : {
 		payloadSize(PAYLOAD_SIZE);
 		id(ID);
+		function(0);
 	}
 };
 
@@ -61,6 +62,7 @@ struct PauseMsg : Message
 	PauseMsg() {
 		payloadSize(PAYLOAD_SIZE);
 		id(ID);
+		function(0);
 	}
 };
 
@@ -76,6 +78,7 @@ struct SpeedAdjustMsg : Message
 	SpeedAdjustMsg() : speedAdjust_(0) {
 		payloadSize(PAYLOAD_SIZE);
 		id(ID);
+		function(0);
 	}
 	
 	uint32_t speedAdjust_;
@@ -92,6 +95,7 @@ struct ConnectMsg : Message
 	ConnectMsg() {
 		payloadSize(PAYLOAD_SIZE);
 		id(ID);
+		function(0);
 	}
 
 	StepDir invertMask_;
@@ -108,6 +112,7 @@ struct ConnectResponseMsg : Message
 	ConnectResponseMsg() {
 		payloadSize(PAYLOAD_SIZE);
 		id(ID);
+		function(0);
 	}
 };
 
@@ -124,6 +129,7 @@ struct AckScriptMsg : Message
 	AckScriptMsg() {
 		payloadSize(PAYLOAD_SIZE);
 		id(ID);
+		function(0);
 	}
 };
 
@@ -141,10 +147,12 @@ struct DataScriptMsg : Message
 	explicit DataScriptMsg(uint16_t size) {
 		id(ID);
 		payloadSize(size);
+		function(0);
 	}
 
 	DataScriptMsg() {
 		id(ID);
+		function(0);
 	}
 };
 
@@ -158,6 +166,7 @@ struct PingMsg : Message
 	PingMsg() {
 		id(ID);
 		payloadSize(PAYLOAD_SIZE);
+		function(0);
 	}
 };
 
@@ -171,6 +180,7 @@ struct PingResponseMsg : Message
 	PingResponseMsg() {
 		id(ID);
 		payloadSize(PAYLOAD_SIZE);
+		function(0);
 	}
 };
 
@@ -184,6 +194,7 @@ struct HeartbeatMsg : Message
 	HeartbeatMsg() {
 		id(ID);
 		payloadSize(PAYLOAD_SIZE);
+		function(0);
 	}
 };
 
@@ -197,6 +208,7 @@ struct HeartbeatResponseMsg : Message
 	HeartbeatResponseMsg() {
 		id(ID);
 		payloadSize(PAYLOAD_SIZE);
+		function(0);
 	}
 };
 
@@ -210,6 +222,7 @@ struct LimitSwitchesMsg : Message
 	LimitSwitchesMsg() {
 		id(ID);
 		payloadSize(PAYLOAD_SIZE);
+		function(0);
 	}
 
 	LimitSwitches limits_;
@@ -225,6 +238,7 @@ struct FatalErrorMsg : Message
 	explicit FatalErrorMsg(uint8_t fec) : fatalErrorCode_(fec) {
 		id(ID);
 		payloadSize(PAYLOAD_SIZE);
+		function(0);
 	}
 
 	uint8_t fatalErrorCode_;
@@ -233,16 +247,17 @@ struct FatalErrorMsg : Message
 struct StatusMsg : Message
 {
 	enum {
-		PAYLOAD_SIZE = sizeof(StatusFlags),
+		PAYLOAD_SIZE = sizeof(StatusFlags::FlagContainer),
 		ID = STATUS_MSG
 	};
 
 	StatusMsg() {
 		id(ID);
 		payloadSize(PAYLOAD_SIZE);
+		function(0);
 	}
 
-	StatusFlags statusFlags_;
+	StatusFlags::FlagContainer statusFlags_;
 };
 
 template <typename T>

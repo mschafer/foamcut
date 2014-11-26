@@ -88,11 +88,19 @@ public:
 	foamcut::Shape::handle tipShape();
 	void tipShape(foamcut::Shape::handle s);
 
+	void startSimulator();
+	void stopSimulator();
+	void connectToDevice();
+
+public slots:
+	void portChanged(const QString &portName);
+
 private:
 	std::unique_ptr<stepper::Host> host_;
 	foamcut::Shape::handle rootShape_;
 	foamcut::Shape::handle tipShape_;
 	QSettings settings_;
+	QString currentPort_;
 
 };
 

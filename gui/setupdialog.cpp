@@ -24,14 +24,22 @@ SetupDialog::SetupDialog(QWidget *parent) :
 	ui->frameSeparation_edit->setValidator(new QDoubleValidator());
 	ui->maxStepRate_edit->setValidator(new QIntValidator(0, 5000));
 
-	ui->port_combo->addItem("Simulator");
+	bool foundPort = false;
 	QList<QSerialPortInfo> spList = QSerialPortInfo::availablePorts();
 	auto it = spList.begin();
 	while (it < spList.end()) {
 		ui->port_combo->addItem(it->portName());
+		if (it->portName() == app->port()) {
+			ui->port_combo->setCurrentIndex(ui->port_combo->count() - 1);
+			foundPort = true;
+		}
 		++it;
 	}
-	ui->port_combo->setCurrentIndex(0);
+	ui->port_combo->addItem("none");
+	if (!foundPort) {
+		ui->port_combo->setCurrentIndex(ui->port_combo->count() - 1);
+	}
+	connect(ui->port_combo, &QComboBox::currentTextChanged, app, &FoamcutApp::portChanged);
 }
 
 SetupDialog::~SetupDialog()
@@ -59,6 +67,5 @@ void SetupDialog::accept()
 	app->yLeftReverse(ui->yLeftReverse_check->isChecked());
 	app->yRightReverse(ui->yRightReverse_check->isChecked());
 
-	qDebug() << "setup accepted";
 	QDialog::accept();
 }
