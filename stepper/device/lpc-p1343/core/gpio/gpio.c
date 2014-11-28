@@ -4,7 +4,6 @@
 static volatile uint32_t *const gpioDIR[]  = {&GPIO_GPIO0DIR,  &GPIO_GPIO1DIR,  &GPIO_GPIO2DIR,  &GPIO_GPIO3DIR };
 static volatile uint32_t *const gpioDATA[] = {&GPIO_GPIO0DATA, &GPIO_GPIO1DATA, &GPIO_GPIO2DATA, &GPIO_GPIO3DATA };
 
-//\todo what value to use?
 #define RESERVED_PIN (*(pREG32 (0x00000000)))
 
 static volatile uint32_t *const gpioIOCON0[] = {
@@ -39,7 +38,7 @@ uint8_t gpioSetPinFunction(uint_fast8_t port, uint_fast8_t pin, gpioPinFunction_
     volatile uint32_t *iocon = gpioIOCON[port][pin];
     uint32_t mask = 0x07;
     if (iocon == &RESERVED_PIN) {
-        //\todo error here
+        assert(0);
         return 1;
     }
 

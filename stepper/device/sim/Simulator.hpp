@@ -27,11 +27,18 @@ struct Position
 	double time_{ 0. };
 };
 
+struct AxisLimit
+{
+	int low_;
+	int high_;
+};
+
 class SimCommunicator;
 
 class Simulator
 {
 public:
+	typedef std::array<AxisLimit, StepDir::AXIS_COUNT> LimitType;
 
 	Simulator(uint16_t port=0);
 	~Simulator();
@@ -44,6 +51,9 @@ public:
 	const Position &position() const { return posLog_.back(); }
 	const std::deque<Position> &positionLog() const { return posLog_; }
 	void clearLog() { posLog_.resize(1); }
+
+	LimitType limits() const { return limit_; }
+	void limits(LimitType &l) { limit_ = l; }
 
 	static void reset();
 
@@ -65,7 +75,7 @@ private:
 	StepDir invertMask_;
 	StepDir currentBits_;
 	std::deque<Position> posLog_;
-	std::array<std::pair<int, int>, StepDir::AXIS_COUNT> limit_;
+	LimitType limit_;
 	double time_{ 0. };
 
 	void runOnce(const boost::system::error_code &ec);

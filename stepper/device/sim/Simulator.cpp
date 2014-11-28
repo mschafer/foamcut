@@ -31,8 +31,8 @@ Simulator::Simulator(uint16_t port) : backgroundTimer_(ios_), stepTimer_(ios_)
 {
 	posLog_.push_back(Position());
 	for (int i=0; i<StepDir::AXIS_COUNT; ++i) {
-		limit_[i].first = std::numeric_limits<int>::min();
-		limit_[i].second = std::numeric_limits<int>::max();
+		limit_[i].low_ = std::numeric_limits<int>::min();
+		limit_[i].high_ = std::numeric_limits<int>::max();
 	}
 
 	comm_.reset(new SimCommunicator(ios_, port));
@@ -128,8 +128,8 @@ void HAL::setStepDirBits(const StepDir &s)
 				np += ((sim.invertMask_.dir(ai) == sim.currentBits_.dir(ai)) ? -1 : 1);
 
 				// apply limits
-				np = std::max(np, sim.limit_[i].first);
-				np = std::min(np, sim.limit_[i].second);
+				np = std::max(np, sim.limit_[i].low_);
+				np = std::min(np, sim.limit_[i].high_);
 			}
 		}
 		nextP.pos_[i] = np;
@@ -146,9 +146,9 @@ LimitSwitches HAL::readLimitSwitches()
 	LimitSwitches ret;
 	for (int i=0; i<StepDir::AXIS_COUNT; ++i) {
 		StepDir::AxisIdx idx = static_cast<StepDir::AxisIdx>(i);
-		bool test = (sim.position().pos_[i] <= sim.limit_[i].first);
+		bool test = (sim.position().pos_[i] <= sim.limit_[i].low_);
 		ret.reverseLimit(idx, test);
-		test = (sim.position().pos_[i] >= sim.limit_[i].second);
+		test = (sim.position().pos_[i] >= sim.limit_[i].high_);
 		ret.forwardLimit(idx, test);
 	}
 	return ret;

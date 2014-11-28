@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>585</width>
-    <height>439</height>
+    <width>947</width>
+    <height>639</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,6 +22,7 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <zorder>rxHighLimit_edit</zorder>
     </widget>
    </item>
    <item>
@@ -46,17 +47,14 @@
          <string>Limits</string>
         </property>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="xLeftLimit_edit"/>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="yLeftLimit_edit"/>
-         </item>
          <item row="2" column="2">
-          <widget class="QLineEdit" name="yRightLimit_edit"/>
+          <widget class="QLineEdit" name="lyHighLimit_edit"/>
          </item>
-         <item row="1" column="2">
-          <widget class="QLineEdit" name="xRightLimit_edit">
+         <item row="2" column="4">
+          <widget class="QLineEdit" name="ryHighLimit_edit"/>
+         </item>
+         <item row="1" column="4">
+          <widget class="QLineEdit" name="rxHighLimit_edit">
            <property name="clearButtonEnabled">
             <bool>false</bool>
            </property>
@@ -76,25 +74,48 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QLabel" name="label_3">
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lxLowLimit_edit"/>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLineEdit" name="lxHighLimit_edit"/>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="lyLowLimit_edit"/>
+         </item>
+         <item row="0" column="3" alignment="Qt::AlignHCenter">
+          <widget class="QLabel" name="label_12">
            <property name="text">
-            <string>Left</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <string>Right Low</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="2">
-          <widget class="QLabel" name="label_4">
+         <item row="1" column="3">
+          <widget class="QLineEdit" name="rxLowLimit_edit"/>
+         </item>
+         <item row="0" column="2" alignment="Qt::AlignHCenter">
+          <widget class="QLabel" name="label_10">
            <property name="text">
-            <string>Right</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <string>Left High</string>
            </property>
           </widget>
+         </item>
+         <item row="0" column="4" alignment="Qt::AlignHCenter">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Right High</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" alignment="Qt::AlignHCenter">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Left Low</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QLineEdit" name="ryLowLimit_edit"/>
          </item>
         </layout>
        </widget>
@@ -202,8 +223,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>254</x>
-     <y>434</y>
+     <x>260</x>
+     <y>634</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -218,8 +239,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>322</x>
-     <y>434</y>
+     <x>328</x>
+     <y>634</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

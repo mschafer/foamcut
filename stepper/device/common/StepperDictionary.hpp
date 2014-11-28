@@ -23,7 +23,7 @@ enum MessageId {
 	GO_MSG 					= 1,
 	PAUSE_MSG				= 2,
 	SPEED_ADJUST_MSG		= 3,
-	CONNECT_MSG				= 4, ///\todo reset_connection? or separate abort?
+	CONNECT_MSG				= 4,
 	CONNECT_RESPONSE_MSG	= 5,
 	ACK_SCRIPT_MSG			= 6,
 	DATA_SCRIPT_MSG			= 7,
@@ -44,7 +44,7 @@ struct GoMsg : Message
 		ID = GO_MSG
 	};
 
-	GoMsg() : {
+	GoMsg() {
 		payloadSize(PAYLOAD_SIZE);
 		id(ID);
 		function(0);
@@ -84,7 +84,11 @@ struct SpeedAdjustMsg : Message
 	uint32_t speedAdjust_;
 };
 
-/** Initiates a connection. */
+/**
+ * Initiates a connection.
+ * This message causes the device to reset all of its internal state.
+ * Any running script will be aborted and the buffer cleared.
+ */
 struct ConnectMsg : Message
 {
 	enum {
@@ -251,7 +255,7 @@ struct StatusMsg : Message
 		ID = STATUS_MSG
 	};
 
-	StatusMsg() {
+	StatusMsg() : statusFlags_(0) {
 		id(ID);
 		payloadSize(PAYLOAD_SIZE);
 		function(0);

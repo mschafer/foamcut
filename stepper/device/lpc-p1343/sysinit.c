@@ -52,7 +52,6 @@ volatile unsigned int lastTick;
 #include "core/usbcdc/cdcuser.h"
 #endif
 
-/** \todo is this necessary? */
 void pmuInit(void) {
     /* Enable all clocks, even those turned off at power up. */
     SCB_PDRUNCFG &= ~(SCB_PDRUNCFG_WDTOSC_MASK | SCB_PDRUNCFG_SYSOSC_MASK

@@ -18,9 +18,9 @@ public:
 
 private slots:
 	void update();
-	void beforeReplot();
 
 	void on_clear_button_clicked();
+	void on_limit_editingFinished();
 
 private:
 	enum {
@@ -28,7 +28,7 @@ private:
 		RIGHT_CURVE = 1
 	};
 
-    Ui::SimDialog *ui;
+    std::unique_ptr<Ui::SimDialog> ui;
 };
 
 #endif
