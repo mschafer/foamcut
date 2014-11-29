@@ -12,6 +12,7 @@
 #include "foamcutapp.hpp"
 #include <QString>
 #include <QDebug>
+#include "simdialog.h"
 
 namespace {
 // stepper settings
@@ -45,6 +46,8 @@ currentPort_("none")
 	if (port() != "none") {
 		connectToDevice();
 	}
+	mainWindow_.reset(new MainWindow());
+	mainWindow_->show();
 }
 
 FoamcutApp::~FoamcutApp()
@@ -277,14 +280,17 @@ void FoamcutApp::portChanged(const QString &portName)
 
 void FoamcutApp::startSimulator()
 {
-	//SimDialog *simd = new SimDialog(this);
-	//simd->show();
-
+	host_.reset(new stepper::Host());
+	host_->connectToSimulator();
+	simDialog_.reset(new SimDialog());
+	simDialog_->show();
+	emit connectionChanged(true);
 }
 
 void FoamcutApp::stopSimulator()
 {
-
+	emit connectionChanged(false);
+	connectToDevice();
 }
 
 void FoamcutApp::connectToDevice()
@@ -292,6 +298,7 @@ void FoamcutApp::connectToDevice()
 	host_.reset(new stepper::Host());
 	try {
 		host_->connectToDevice(port().toStdString());
+		emit connectionChanged(true);
 	}
 
 	catch (std::exception &ex) {

@@ -18,9 +18,13 @@
 #include <Host.hpp>
 #include <Shape.hpp>
 #include <stepper_info.hpp>
+#include "mainwindow.h"
 
 class FoamcutApp : public QApplication
 {
+
+	Q_OBJECT
+
 public:
 	explicit FoamcutApp(int &argc, char **argv);
 	~FoamcutApp();
@@ -92,6 +96,9 @@ public:
 	void stopSimulator();
 	void connectToDevice();
 
+signals:
+	void connectionChanged(bool connected);
+
 public slots:
 	void portChanged(const QString &portName);
 
@@ -101,7 +108,8 @@ private:
 	foamcut::Shape::handle tipShape_;
 	QSettings settings_;
 	QString currentPort_;
-
+	std::unique_ptr<class SimDialog> simDialog_;
+	std::unique_ptr<class MainWindow> mainWindow_;
 };
 
 #endif

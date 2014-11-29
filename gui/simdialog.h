@@ -13,14 +13,15 @@ class SimDialog : public QDialog
     Q_OBJECT
     
 public:
-    explicit SimDialog(QWidget *parent = 0);
+    SimDialog(QWidget *parent = 0);
     ~SimDialog();
+
+    void done(int result);
 
 private slots:
 	void update();
-
 	void on_clear_button_clicked();
-	void on_limit_editingFinished();
+	void my_limit_editingFinished();
 
 private:
 	enum {

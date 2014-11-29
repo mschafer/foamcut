@@ -63,42 +63,42 @@ SimDialog::SimDialog(QWidget *parent) :
 	le = ui->lxLowLimit_edit;
 	le->setValidator(new QDoubleValidator());
 	le->setText(QString::number(xSize * (double)simLimits[stepper::device::StepDir::X_AXIS].low_));
-	connect(le, &QLineEdit::editingFinished, this, &SimDialog::on_limit_editingFinished);
+	connect(le, &QLineEdit::editingFinished, this, &SimDialog::my_limit_editingFinished);
 
 	le = ui->lxHighLimit_edit;
 	le->setValidator(new QDoubleValidator());
 	le->setText(QString::number(xSize * (double)simLimits[stepper::device::StepDir::X_AXIS].high_));
-	connect(le, &QLineEdit::editingFinished, this, &SimDialog::on_limit_editingFinished);
+	connect(le, &QLineEdit::editingFinished, this, &SimDialog::my_limit_editingFinished);
 
 	le = ui->lyLowLimit_edit;
 	le->setValidator(new QDoubleValidator());
 	le->setText(QString::number(ySize * (double)simLimits[stepper::device::StepDir::Y_AXIS].low_));
-	connect(le, &QLineEdit::editingFinished, this, &SimDialog::on_limit_editingFinished);
+	connect(le, &QLineEdit::editingFinished, this, &SimDialog::my_limit_editingFinished);
 
 	le = ui->lyHighLimit_edit;
 	le->setValidator(new QDoubleValidator());
 	le->setText(QString::number(ySize * (double)simLimits[stepper::device::StepDir::Y_AXIS].high_));
-	connect(le, &QLineEdit::editingFinished, this, &SimDialog::on_limit_editingFinished);
+	connect(le, &QLineEdit::editingFinished, this, &SimDialog::my_limit_editingFinished);
 
 	le = ui->rxLowLimit_edit;
 	le->setValidator(new QDoubleValidator());
 	le->setText(QString::number(xSize * (double)simLimits[stepper::device::StepDir::Z_AXIS].low_));
-	connect(le, &QLineEdit::editingFinished, this, &SimDialog::on_limit_editingFinished);
+	connect(le, &QLineEdit::editingFinished, this, &SimDialog::my_limit_editingFinished);
 
 	le = ui->rxHighLimit_edit;
 	le->setValidator(new QDoubleValidator());
 	le->setText(QString::number(xSize * (double)simLimits[stepper::device::StepDir::Z_AXIS].high_));
-	connect(le, &QLineEdit::editingFinished, this, &SimDialog::on_limit_editingFinished);
+	connect(le, &QLineEdit::editingFinished, this, &SimDialog::my_limit_editingFinished);
 
 	le = ui->ryLowLimit_edit;
 	le->setValidator(new QDoubleValidator());
 	le->setText(QString::number(ySize * (double)simLimits[stepper::device::StepDir::U_AXIS].low_));
-	connect(le, &QLineEdit::editingFinished, this, &SimDialog::on_limit_editingFinished);
+	connect(le, &QLineEdit::editingFinished, this, &SimDialog::my_limit_editingFinished);
 
 	le = ui->ryHighLimit_edit;
 	le->setValidator(new QDoubleValidator());
 	le->setText(QString::number(ySize * (double)simLimits[stepper::device::StepDir::U_AXIS].high_));
-	connect(le, &QLineEdit::editingFinished, this, &SimDialog::on_limit_editingFinished);
+	connect(le, &QLineEdit::editingFinished, this, &SimDialog::my_limit_editingFinished);
 }
 
 SimDialog::~SimDialog()
@@ -139,7 +139,7 @@ void SimDialog::on_clear_button_clicked()
 	update();
 }
 
-void SimDialog::on_limit_editingFinished()
+void SimDialog::my_limit_editingFinished()
 {
 	auto app = FoamcutApp::instance();
 	auto &sim = stepper::device::Simulator::instance();
@@ -158,4 +158,11 @@ void SimDialog::on_limit_editingFinished()
 	limits[stepper::device::StepDir::U_AXIS].high_ = static_cast<int>(ui->ryHighLimit_edit->text().toDouble() * ySize);
 
 	sim.limits(limits);
+}
+
+void SimDialog::done(int result)
+{
+	auto app = FoamcutApp::instance();
+	app->stopSimulator();
+	QDialog::done(result);
 }

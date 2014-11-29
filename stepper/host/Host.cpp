@@ -31,7 +31,7 @@ struct HostImpl
 };
 
 Host::Host() : pongCount_(0),
-		heartbeatCount_(0), connected_(false), scriptMsgCount_(0)
+		heartbeatCount_(0), connected_(false), scriptMsgCount_(0), scriptMsgAckd_(0)
 {
 	impl_.reset(new HostImpl());
     impl_->timer_.expires_from_now(boost::posix_time::milliseconds(20));

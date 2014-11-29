@@ -18,7 +18,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
     
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    MainWindow(QWidget *parent = 0);
     ~MainWindow();
     
 private slots:
@@ -42,6 +42,8 @@ private slots:
 	void on_actionSimulator_triggered();
 
 	void on_wire_slider_valueChanged(int);
+
+	void on_connectionChanged(bool connected);
 
 private:
     std::unique_ptr<Ui::MainWindow> ui;

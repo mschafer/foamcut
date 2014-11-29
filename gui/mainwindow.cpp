@@ -43,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->speed_edit->setText(QString::number(app->cutSpeed()));
 	
 	cutPlotMgr_.reset(new CutPlotMgr(ui->cut_fixedARPlot));
+
+	connect(app, &FoamcutApp::connectionChanged, this, &MainWindow::on_connectionChanged);
 }
 
 MainWindow::~MainWindow()
@@ -208,4 +210,9 @@ void MainWindow::on_swap_button_clicked()
 	ui->tipKerf_edit->setText(tmpK);
 
 	geometryChanged();
+}
+
+void MainWindow::on_connectionChanged(bool connected)
+{
+	ui->move_button->setEnabled(connected);
 }

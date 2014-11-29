@@ -9,7 +9,6 @@
  * Contributors:
  *     Marc Schafer
  */
-#include "mainwindow.h"
 #include "foamcutapp.hpp"
 
 int main(int argc, char *argv[])
@@ -18,8 +17,5 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("mit.edu");
     QCoreApplication::setApplicationName("FoamCut");
     FoamcutApp a(argc, argv);
-    MainWindow w;
-    w.show();
-    
     return a.exec();
 }
