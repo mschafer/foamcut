@@ -1,6 +1,7 @@
 #ifndef SIMDIALOG_H
 #define SIMDIALOG_H
 
+#include <memory>
 #include <QDialog>
 #include "qcustomplot.h"
 

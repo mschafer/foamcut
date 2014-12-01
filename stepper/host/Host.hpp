@@ -21,7 +21,7 @@
 
 namespace stepper {
 
-class HostImpl;
+struct HostImpl;
 
 namespace device {
 class Simulator;
