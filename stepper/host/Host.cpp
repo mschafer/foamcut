@@ -87,7 +87,7 @@ void Host::connectToDevice(const std::string &portName)
 		if (connected() && deviceStatus_) return;
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 	}
-	std::string msg = "connect to device faile on " + portName;
+	std::string msg = "connect to device failed on " + portName;
 	throw std::runtime_error(msg);
 }
 

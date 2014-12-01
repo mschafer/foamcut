@@ -40,6 +40,13 @@ class Simulator
 public:
 	typedef std::array<AxisLimit, StepDir::AXIS_COUNT> LimitType;
 
+	enum {
+		X_LOWER_LIMIT_DEFAULT = 0,
+		X_UPPER_LIMIT_DEFAULT = 30000,
+		Y_LOWER_LIMIT_DEFAULT = 0,
+		Y_UPPER_LIMIT_DEFAULT = 30000
+	};
+
 	Simulator(uint16_t port=0);
 	~Simulator();
 
@@ -50,6 +57,8 @@ public:
 
 	const Position &position() const { return posLog_.back(); }
 	const std::deque<Position> &positionLog() const { return posLog_; }
+
+	/** Clears the position history and resets the current position to 0,0. */
 	void clearLog() { posLog_.resize(1); }
 
 	LimitType limits() const { return limit_; }

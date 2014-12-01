@@ -26,6 +26,7 @@ TCPLink::TCPLink(const char *hostName, uint16_t port, boost::asio::io_service &i
 
 TCPLink::~TCPLink()
 {
+	socket_.shutdown(boost::asio::socket_base::shutdown_both);
 }
 
 device::ErrorCode TCPLink::send(device::Message *m)
@@ -64,6 +65,7 @@ void TCPLink::connect()
 
 void TCPLink::handleError(const boost::system::error_code &error)
 {
+	socket_.shutdown(boost::asio::socket_base::shutdown_both);
     socket_.close();
     sender_.reset();
     receiver_.reset();

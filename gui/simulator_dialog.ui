@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>947</width>
-    <height>639</height>
+    <width>588</width>
+    <height>355</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <zorder>rxHighLimit_edit</zorder>
     </widget>
    </item>
    <item>
@@ -48,15 +47,9 @@
         </property>
         <layout class="QGridLayout" name="gridLayout">
          <item row="2" column="2">
-          <widget class="QLineEdit" name="lyHighLimit_edit"/>
-         </item>
-         <item row="2" column="4">
-          <widget class="QLineEdit" name="ryHighLimit_edit"/>
-         </item>
-         <item row="1" column="4">
-          <widget class="QLineEdit" name="rxHighLimit_edit">
-           <property name="clearButtonEnabled">
-            <bool>false</bool>
+          <widget class="QLineEdit" name="yUpperLimit_edit">
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -75,47 +68,39 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QLineEdit" name="lxLowLimit_edit"/>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLineEdit" name="lxHighLimit_edit"/>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="lyLowLimit_edit"/>
-         </item>
-         <item row="0" column="3" alignment="Qt::AlignHCenter">
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>Right Low</string>
+          <widget class="QLineEdit" name="xLowerLimit_edit">
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
-         <item row="1" column="3">
-          <widget class="QLineEdit" name="rxLowLimit_edit"/>
+         <item row="1" column="2">
+          <widget class="QLineEdit" name="xUpperLimit_edit">
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="yLowerLimit_edit">
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
          </item>
          <item row="0" column="2" alignment="Qt::AlignHCenter">
           <widget class="QLabel" name="label_10">
            <property name="text">
-            <string>Left High</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="4" alignment="Qt::AlignHCenter">
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>Right High</string>
+            <string>Upper Limit</string>
            </property>
           </widget>
          </item>
          <item row="0" column="1" alignment="Qt::AlignHCenter">
           <widget class="QLabel" name="label_9">
            <property name="text">
-            <string>Left Low</string>
+            <string>Lower LImit</string>
            </property>
           </widget>
-         </item>
-         <item row="2" column="3">
-          <widget class="QLineEdit" name="ryLowLimit_edit"/>
          </item>
         </layout>
        </widget>

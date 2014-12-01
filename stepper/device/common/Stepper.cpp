@@ -88,7 +88,7 @@ void Stepper::onTimerExpired()
 		HAL::setStepDirBits(s.getDirOnlyBitVals(invertMask_));
 
 		// set the direction bits with desired steps active
-		HAL::setStepDirBits(s.getStepDirBitVals(invertMask_));
+		HAL::setStepDirBits(s.getInvertedStepDir(invertMask_));
 
 		// steps are edge triggered so return them inactive
 		HAL::setStepDirBits(s.getDirOnlyBitVals(invertMask_));

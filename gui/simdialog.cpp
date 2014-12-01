@@ -56,48 +56,36 @@ SimDialog::SimDialog(QWidget *parent) :
 
 	auto &sim = stepper::device::Simulator::instance();
 	auto simLimits = sim.limits();
+
+	// set right side limits to be the same as left side
+	simLimits[stepper::device::StepDir::Z_AXIS].low_ = simLimits[stepper::device::StepDir::X_AXIS].low_;
+	simLimits[stepper::device::StepDir::Z_AXIS].high_ = simLimits[stepper::device::StepDir::X_AXIS].high_;
+	simLimits[stepper::device::StepDir::U_AXIS].low_ = simLimits[stepper::device::StepDir::Y_AXIS].low_;
+	simLimits[stepper::device::StepDir::U_AXIS].high_ = simLimits[stepper::device::StepDir::Y_AXIS].high_;
+	sim.limits(simLimits);
+
 	double xSize = app->xStepSize();
 	double ySize = app->yStepSize();
 	QLineEdit *le;
 
-	le = ui->lxLowLimit_edit;
+	le = ui->xLowerLimit_edit;
 	le->setValidator(new QDoubleValidator());
 	le->setText(QString::number(xSize * (double)simLimits[stepper::device::StepDir::X_AXIS].low_));
 	connect(le, &QLineEdit::editingFinished, this, &SimDialog::my_limit_editingFinished);
 
-	le = ui->lxHighLimit_edit;
+	le = ui->xUpperLimit_edit;
 	le->setValidator(new QDoubleValidator());
 	le->setText(QString::number(xSize * (double)simLimits[stepper::device::StepDir::X_AXIS].high_));
 	connect(le, &QLineEdit::editingFinished, this, &SimDialog::my_limit_editingFinished);
 
-	le = ui->lyLowLimit_edit;
+	le = ui->yLowerLimit_edit;
 	le->setValidator(new QDoubleValidator());
 	le->setText(QString::number(ySize * (double)simLimits[stepper::device::StepDir::Y_AXIS].low_));
 	connect(le, &QLineEdit::editingFinished, this, &SimDialog::my_limit_editingFinished);
 
-	le = ui->lyHighLimit_edit;
+	le = ui->yUpperLimit_edit;
 	le->setValidator(new QDoubleValidator());
 	le->setText(QString::number(ySize * (double)simLimits[stepper::device::StepDir::Y_AXIS].high_));
-	connect(le, &QLineEdit::editingFinished, this, &SimDialog::my_limit_editingFinished);
-
-	le = ui->rxLowLimit_edit;
-	le->setValidator(new QDoubleValidator());
-	le->setText(QString::number(xSize * (double)simLimits[stepper::device::StepDir::Z_AXIS].low_));
-	connect(le, &QLineEdit::editingFinished, this, &SimDialog::my_limit_editingFinished);
-
-	le = ui->rxHighLimit_edit;
-	le->setValidator(new QDoubleValidator());
-	le->setText(QString::number(xSize * (double)simLimits[stepper::device::StepDir::Z_AXIS].high_));
-	connect(le, &QLineEdit::editingFinished, this, &SimDialog::my_limit_editingFinished);
-
-	le = ui->ryLowLimit_edit;
-	le->setValidator(new QDoubleValidator());
-	le->setText(QString::number(ySize * (double)simLimits[stepper::device::StepDir::U_AXIS].low_));
-	connect(le, &QLineEdit::editingFinished, this, &SimDialog::my_limit_editingFinished);
-
-	le = ui->ryHighLimit_edit;
-	le->setValidator(new QDoubleValidator());
-	le->setText(QString::number(ySize * (double)simLimits[stepper::device::StepDir::U_AXIS].high_));
 	connect(le, &QLineEdit::editingFinished, this, &SimDialog::my_limit_editingFinished);
 }
 
@@ -148,14 +136,16 @@ void SimDialog::my_limit_editingFinished()
 	double ySize = app->yStepSize();
 
 
-	limits[stepper::device::StepDir::X_AXIS].low_ =  static_cast<int>(ui->lxLowLimit_edit->text().toDouble() * xSize);
-	limits[stepper::device::StepDir::X_AXIS].high_ = static_cast<int>(ui->lxHighLimit_edit->text().toDouble() * xSize);
-	limits[stepper::device::StepDir::Y_AXIS].low_ =  static_cast<int>(ui->lyLowLimit_edit->text().toDouble() * ySize);
-	limits[stepper::device::StepDir::Y_AXIS].high_ = static_cast<int>(ui->lyHighLimit_edit->text().toDouble() * ySize);
-	limits[stepper::device::StepDir::Z_AXIS].low_ =  static_cast<int>(ui->rxLowLimit_edit->text().toDouble() * xSize);
-	limits[stepper::device::StepDir::Z_AXIS].high_ = static_cast<int>(ui->rxHighLimit_edit->text().toDouble() * xSize);
-	limits[stepper::device::StepDir::U_AXIS].low_ =  static_cast<int>(ui->ryLowLimit_edit->text().toDouble() * ySize);
-	limits[stepper::device::StepDir::U_AXIS].high_ = static_cast<int>(ui->ryHighLimit_edit->text().toDouble() * ySize);
+	limits[stepper::device::StepDir::X_AXIS].low_ =  static_cast<int>(ui->xLowerLimit_edit->text().toDouble() * xSize);
+	limits[stepper::device::StepDir::X_AXIS].high_ = static_cast<int>(ui->xUpperLimit_edit->text().toDouble() * xSize);
+	limits[stepper::device::StepDir::Y_AXIS].low_ =  static_cast<int>(ui->yLowerLimit_edit->text().toDouble() * ySize);
+	limits[stepper::device::StepDir::Y_AXIS].high_ = static_cast<int>(ui->yUpperLimit_edit->text().toDouble() * ySize);
+
+	// set right side limits to be the same as left side
+	limits[stepper::device::StepDir::Z_AXIS].low_ = limits[stepper::device::StepDir::X_AXIS].low_;
+	limits[stepper::device::StepDir::Z_AXIS].high_ = limits[stepper::device::StepDir::X_AXIS].high_;
+	limits[stepper::device::StepDir::U_AXIS].low_ = limits[stepper::device::StepDir::Y_AXIS].low_;
+	limits[stepper::device::StepDir::U_AXIS].high_ = limits[stepper::device::StepDir::Y_AXIS].high_;
 
 	sim.limits(limits);
 }

@@ -43,6 +43,7 @@ public:
 
 
 	StepDir() : b_(0) {}
+	explicit StepDir(uint8_t b) : b_(b) {}
 
 	void clear() { b_ = 0; }
 	uint8_t byte() const { return b_; }
@@ -58,7 +59,7 @@ public:
 		return r;
 	}
 
-	StepDir getStepDirBitVals(StepDir invertMask) {
+	StepDir getInvertedStepDir(StepDir invertMask) {
 		StepDir r(invertMask);
 		r.b_ ^= b_;
 		return r;

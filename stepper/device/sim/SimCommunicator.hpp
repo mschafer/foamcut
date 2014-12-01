@@ -55,6 +55,12 @@ public:
     /** \return the tcp/ip port used for connections. */
     uint16_t port() const;
 
+	/** 
+	 * \return true if the tcp/ip connection has been accepted.
+	 * Only safe to call from the single io_service worker thread
+	 */
+	bool ready() const;
+
     Message *receiveMessage();
 
 private:

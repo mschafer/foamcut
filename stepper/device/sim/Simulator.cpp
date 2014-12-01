@@ -30,9 +30,11 @@ MemoryAllocator &MemoryAllocator::instance()
 Simulator::Simulator(uint16_t port) : backgroundTimer_(ios_), stepTimer_(ios_)
 {
 	posLog_.push_back(Position());
-	for (int i=0; i<StepDir::AXIS_COUNT; ++i) {
-		limit_[i].low_ = std::numeric_limits<int>::min();
-		limit_[i].high_ = std::numeric_limits<int>::max();
+	for (int i=0; i<StepDir::AXIS_COUNT; i+=2) {
+		limit_[i].low_ = X_LOWER_LIMIT_DEFAULT;
+		limit_[i].high_ = X_UPPER_LIMIT_DEFAULT;
+		limit_[i+1].low_ = Y_LOWER_LIMIT_DEFAULT;
+		limit_[i+1].high_ = Y_UPPER_LIMIT_DEFAULT;
 	}
 
 	comm_.reset(new SimCommunicator(ios_, port));
@@ -77,8 +79,10 @@ uint16_t Simulator::port() const
 void Simulator::runOnce(const boost::system::error_code &ec)
 {
 	if (!ec) {
-		Stepper &s = Stepper::instance();
-		s.runOnce();
+		if (comm_->ready()) {
+			Stepper &s = Stepper::instance();
+			s.runOnce();
+		}
 		backgroundTimer_.expires_from_now(boost::posix_time::milliseconds(10));
 		backgroundTimer_.async_wait(boost::bind(&Simulator::runOnce, this, boost::asio::placeholders::error));
 	} else {
