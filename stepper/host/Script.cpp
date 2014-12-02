@@ -86,6 +86,21 @@ void Script::addDelay(double duration)
 	duration_ += duration;
 }
 
+void Script::addHome(device::StepDir sd, double delaySec)
+{
+	if (delaySec > MAX_STEP_DELAY) {
+		throw std::out_of_range("delaySec too large for uint16_t");
+	}
+	device::Engine::HomeCmd hc;
+	hc.delay_ = (uint16_t)(delaySec * 1.e6 / device::Stepper::TIMER_PERIOD_USEC);
+	hc.stepDir_ = sd;
+	bytes_.back() = device::Engine::HOME_CMD;
+	uint8_t *p = (uint8_t*)&hc;
+	bytes_.insert(bytes_.end(), p, p + device::Engine::HomeCmd::SIZE);
+	bytes_.push_back(device::Engine::DONE_CMD);
+	duration_ += delaySec;
+}
+
 std::unique_ptr<Script::MessageCollection>
 Script::generateMessages() const
 {

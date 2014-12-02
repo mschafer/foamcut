@@ -95,7 +95,6 @@ void Stepper::onTimerExpired()
 	} else {
 		StatusFlags::instance().clear(StatusFlags::ENGINE_RUNNING);
 	}
-
 }
 
 
@@ -172,6 +171,7 @@ void Stepper::handleMessage(Message *m)
     break;
 
 	default:
+		Logger::fatal("stepper", "unrecognized message received");
 		error(UNRECOGNIZED_MESSAGE);
 		delete (m);
 		break;

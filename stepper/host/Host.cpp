@@ -155,6 +155,11 @@ void Host::move(int16_t dx, int16_t dy, int16_t dz, int16_t du, double duration)
 
 void Host::home()
 {
+	Script script;
+	const uint8_t HOME_MASK = stepper::device::StepDir::X_STEP | stepper::device::StepDir::Y_STEP | stepper::device::StepDir::Z_STEP | stepper::device::StepDir::U_STEP;
+	stepper::device::StepDir s(HOME_MASK);
+
+	script.addHome(s, 0.);
 	///\todo implement me
 }
 

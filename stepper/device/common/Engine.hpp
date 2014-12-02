@@ -30,7 +30,8 @@ public:
 		LINE_CMD         = 2,
 		LONG_LINE_CMD    = 3,
 		DELAY_CMD        = 4,
-		DONE_CMD         = 5,
+		HOME_CMD         = 5,
+		DONE_CMD         = 6,
 		NONE_CMD         = 0xFF
 	};
 
@@ -65,6 +66,13 @@ public:
 	{
 		enum { SIZE=4 };
 		uint32_t delay_;
+	};
+
+	struct HomeCmd
+	{
+		enum { SIZE = 3 };
+		uint16_t delay_;
+		StepDir stepDir_;
 	};
 
 	enum Status {

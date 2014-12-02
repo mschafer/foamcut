@@ -49,6 +49,15 @@ public:
 		return o;
 	}
 
+	/**
+	 * Has the device taken \em steps all the way to the limits? 
+	 */
+	bool stopped(StepDir steps) {
+		StepDir h = apply(steps);
+		const uint8_t STEP_MASK = StepDir::X_STEP | StepDir::Y_STEP | StepDir::Z_STEP | StepDir::U_STEP;
+		return ((h.byte() & STEP_MASK) == 0);
+	}
+
 	bool forwardLimit(StepDir::AxisIdx axis) const { return getBit(forwardMask(axis)); }
 	void forwardLimit(StepDir::AxisIdx axis, bool v) { setBit(forwardMask(axis), v); }
 	bool reverseLimit(StepDir::AxisIdx axis) const { return getBit(reverseMask(axis)); }

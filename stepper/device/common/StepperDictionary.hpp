@@ -34,7 +34,6 @@ enum MessageId {
     LIMIT_SWITCHES_MSG      = 12,
     FATAL_ERROR_MSG			= 13,
     STATUS_MSG              = 14,
-	HOME_MSG                = 15
 };
 
 /** Starts the engine executing the currently cached script. */
@@ -263,29 +262,6 @@ struct StatusMsg : Message
 	}
 
 	StatusFlags::FlagContainer statusFlags_;
-};
-
-/** 
- * Command the stepper to the home position.
- * The function bytes holds a StepDir whose direction bits
- * set the move direction.  The move continues until all 4
- * limit switches are activated.
- */
-struct HomeMsg : Message
-{
-	enum {
-		PAYLOAD_SIZE = 0,
-		ID = HOME_MSG
-	};
-
-	HomeMsg(StepDir d = StepDir()) {
-		id(ID);
-		payloadSize(PAYLOAD_SIZE);
-		function(d.byte());
-	}
-
-	StepDir direction() const {	return StepDir(function());	}
-	void direction(StepDir d) {	function(d.byte()); }
 };
 
 template <typename T>

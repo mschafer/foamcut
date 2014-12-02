@@ -59,6 +59,14 @@ public:
 	void addDelay(double duration);
 
 	/**
+	 * Add a home command to the script.  The device will continue stepping until the limit
+	 * switches indicates that no further steps in the given direction are possible.
+	 * \param s The step and direction information.
+	 * \param delay The delay in seconds between steps.
+	 */
+	void addHome(device::StepDir s, double delaySec);
+
+	/**
 	 * Converts the script to a collection of Messages that can be sent to the device.
 	 */
 	std::unique_ptr<MessageCollection> generateMessages() const;
