@@ -4,6 +4,18 @@
 #include "ui_movedialog.h"
 #include "foamcutapp.hpp"
 #include <StepDir.hpp>
+#include <QCursor>
+
+class ScopedWaitCursor : private boost::noncopyable
+{
+public:
+	ScopedWaitCursor(QApplication *app) : app_(app) { app->setOverrideCursor(QCursor(Qt::WaitCursor)); }
+	~ScopedWaitCursor() { app_->restoreOverrideCursor(); }
+
+private:
+	QApplication *app_;
+};
+
 
 MoveDialog::MoveDialog(QWidget *parent) :
     QDialog(parent),
@@ -44,6 +56,9 @@ void MoveDialog::on_down_button_clicked()
 void MoveDialog::on_home_button_clicked()
 {
 	FoamcutApp *app = FoamcutApp::instance();
+
+	ScopedWaitCursor waitCursor(app);
+	
 	double duration;
 	if (ui->fast_speed_radio->isChecked()) {
 		duration = (double) .001;
@@ -52,7 +67,6 @@ void MoveDialog::on_home_button_clicked()
 		duration = std::min(app->xStepSize(), app->yStepSize()) / app->cutSpeed();
 	}
 	app->host().home();
-
 }
 
 void MoveDialog::done(int result)
