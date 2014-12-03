@@ -6,10 +6,9 @@
 
 #include "Port.hpp"
 #include "Synchronizer.hpp"
-#include "APDU.hpp"
+#include "AppPacket.hpp"
 #include <chrono>
 #include <boost/ptr_container/ptr_deque.hpp>
-#include "SerialPackets.hpp"
 
 class SerialProtocol
 {
@@ -31,15 +30,32 @@ public:
     };
 
     enum {
-        RX_WINDOW_SIZE = 8
-    };
+        RX_WINDOW_SIZE = 8,
+		MAX_SERIAL_PACKET_SIZE = 32
+	};
     static const double SYNC_INTERVAL_SEC;
 
-    bool send(APDU *a);
-    APDU *recv();
+	/**
+	 * Transmit an AppPacket over the serial transport.
+	 * If true is returned, then the protocol layer has assumed ownership of the 
+	 * AppPacket and will delete it after transmission is complete.
+	 * If false is returned, then the caller retains ownership.
+	 * \todo Should this API use smart pointers to make ownsership transfer explicit?
+	 */
+    bool send(AppPacket *a);
+
+	/**
+	 * Receive bytes of the serial transport and assemble them into AppPackets.
+	 * \return NULL if no AppPackets are available.
+	 */
+    AppPacket *recv();
     
-    bool timeToSendSync();
+	/**
+	 * Execute the internal state machine and possibly the low level driver if
+	 * polling mode instead of interrupt or DMA are used.
+	 */
     void run();
+
     ErrorCode recv(uint8_t *buff, size_t &size);
     State state() const { return state_; }
 
@@ -56,7 +72,6 @@ private:
 
     static const char *SYNC_STRING;
     static const size_t SYNC_SIZE;
-	static Connect MY_CONNECT;
     Port &port_;
     State state_;
     Synchronizer sync_;
@@ -68,14 +83,25 @@ private:
 	uint8_t txBuff_[MAX_SERIAL_PACKET_SIZE];
     ptrdiff_t rxPos_;
     ptrdiff_t rxDataPos_;
-    boost::ptr_deque<APDU> sendQueue_;
+    boost::ptr_deque<AppPacket> sendQueue_;
     ptrdiff_t txPos_;
-    APDUFactory factory_;
-	Connect connect_;
+	//Connect connect_;
 
-    void doSend();
-    bool receivePacket();
-    void handlePacket();
+	bool timeToSendSync();
+	void doSend();
+
+	/**
+	 * Separate the byte stream arriving over the serial transport into
+	 * individual serial protocol packets.
+	 */
+    bool receiveSerialPacket();
+
+	/**
+	 * A complete serial packet has been received into rxBuff_
+	 * so take whatever action is required to handle it.
+	 */
+    void handleSerialPacket();
+
 	void sendConnect();
 	void receiveConnect();
 

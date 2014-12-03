@@ -8,8 +8,7 @@ enum PacketId {
 	CONNECT_ID,
 	ACK_ID,
 	DATA_ID,
-	DISCONNECT_ID,
-	MAX_SERIAL_PACKET_SIZE = 32
+	DISCONNECT_ID
 };
 
 
@@ -43,7 +42,7 @@ struct Data
 {
 	enum {
 		ID = DATA_ID,
-		PAYLOAD_SIZE = MAX_SERIAL_PACKET_SIZE - 4
+		PAYLOAD_SIZE = SerialProtocol::MAX_SERIAL_PACKET_SIZE - 4
 	};
 
 	Data() : id_(ID), sequence_(0), dataSize_(0), crc_(0) {}

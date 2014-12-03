@@ -5,13 +5,15 @@
 #include <stdint.h>
 
 /**
- * Application Protocol Data Unit
- * Atomic unit of application communications.
+ * Simulated application data packet.
+ * The application fills these packets and passes them to the protocol layer
+ * for transmission or the protocol layer receives data and assembles it into
+ * these to pass back to the application.
  */
-struct APDU
+struct AppPacket
 {
-    APDU() : size_(0) {}
-    APDU(size_t s) {
+    AppPacket() : size_(0) {}
+    AppPacket(size_t s) {
         resize(s);
     }
 
@@ -28,14 +30,6 @@ struct APDU
 private:
     size_t size_;
     std::unique_ptr<uint8_t[]> data_;
-};
-
-class APDUFactory
-{
-public:
-    void feed(uint8_t *bytes, size_t &count);
-
-
 };
 
 #endif

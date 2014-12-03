@@ -1,11 +1,11 @@
 #include "SerialProtocol.hpp"
+#include "SerialPackets.hpp"
 #include <memory.h>
 #include <algorithm>
 
 const char *SerialProtocol::SYNC_STRING = "~~~~ synchronizing ~~~~ synchronizing ~~~~";
 const size_t SerialProtocol::SYNC_SIZE = strlen(SerialProtocol::SYNC_STRING);
 const double SerialProtocol::SYNC_INTERVAL_SEC = .5;
-Connect SerialProtocol::MY_CONNECT;
 
 SerialProtocol::SerialProtocol(Port &port) :port_(port), state_(SerialProtocol::DISCONNECTED),
 		sync_(SerialProtocol::SYNC_STRING, strlen(SerialProtocol::SYNC_STRING)), sendingSync_(0),
@@ -15,7 +15,7 @@ SerialProtocol::SerialProtocol(Port &port) :port_(port), state_(SerialProtocol::
 
 }
 
-bool SerialProtocol::send(APDU *a)
+bool SerialProtocol::send(AppPacket *a)
 {
     sendQueue_.push_back(a);
     return true;
@@ -59,7 +59,7 @@ SerialProtocol::ErrorCode SerialProtocol::recv(uint8_t *buff, size_t &size)
             }
         } else {
             // try to get another packet
-            bool gotPacket = receivePacket();
+            bool gotPacket = receiveSerialPacket();
             if (state() == ERROR) return SP_ERROR;
             if (!gotPacket) break;
         }
@@ -67,7 +67,7 @@ SerialProtocol::ErrorCode SerialProtocol::recv(uint8_t *buff, size_t &size)
     return SP_SUCCESS;
 }
 
-bool SerialProtocol::receivePacket()
+bool SerialProtocol::receiveSerialPacket()
 {
     // do we have the packet id yet?
     if (rxPos_ == 0) {
@@ -116,7 +116,7 @@ bool SerialProtocol::receivePacket()
         return false;
     } else {
         rxPos_ = 0;
-        handlePacket();
+        handleSerialPacket();
         return true;
     }
 }
@@ -132,7 +132,7 @@ void SerialProtocol::doSend()
         size_t dpPos = 0;
         while (dpPos < Data::PAYLOAD_SIZE) {
 
-            APDU &a = sendQueue_.front();
+            AppPacket &a = sendQueue_.front();
             size_t n = std::min(sizeof(Data::PAYLOAD_SIZE)-dpPos, a.size()-txPos_);
             std::copy(a.data()+dpPos, a.data()+n, pData->data_);
             txPos_ += n;
@@ -158,7 +158,7 @@ void SerialProtocol::doSend()
     }
 }
 
-void SerialProtocol::handlePacket()
+void SerialProtocol::handleSerialPacket()
 {
     switch (rxBuff_[0]) {
     case CONNECT_ID:
