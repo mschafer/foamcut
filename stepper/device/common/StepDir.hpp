@@ -39,6 +39,8 @@ public:
 		Z_DIR = 0x20,
 		U_STEP = 0x40,
 		U_DIR = 0x80,
+		ALL_STEPS = X_STEP | Y_STEP | Z_STEP | U_STEP,
+		ALL_DIR = X_DIR | Y_DIR | Z_DIR | U_DIR
 	};
 
 
@@ -52,9 +54,9 @@ public:
 	 * \return logical value of bits to set direction with
 	 * all the steps inactive.
 	 */
-	StepDir getDirOnlyBitVals(StepDir invertMask) {
+	StepDir getInvertedDir(StepDir invertMask) {
 		StepDir r;
-		r.b_ = b_ & (X_DIR | Y_DIR | Z_DIR | U_DIR);
+		r.b_ = b_ & ALL_DIR;
 		r.b_ ^= invertMask.b_;
 		return r;
 	}

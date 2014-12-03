@@ -42,8 +42,19 @@ bool Engine::nextStep(Line::NextStep &out)
 		return false;
 	}
 	out = steps_.front();
-	steps_.pop();
+
+	// if we are homing, leave the current step active
+	if ((out.flags_ & Line::NextStep::HOME_FLAG) == 0) {
+		steps_.pop();
+	}
 	return true;
+}
+
+void Engine::homeComplete()
+{
+	assert(!steps_.empty());
+	assert((steps_.front().flags_ & Line::NextStep::HOME_FLAG) != 0);
+	steps_.pop();
 }
 
 void Engine::operator()()
@@ -134,6 +145,14 @@ bool Engine::parseNextCommand()
 		steps_.push(Line::NextStep(d->delay_, StepDir()));
 	}
 	break;
+
+	case HOME_CMD:
+	{
+		cmdOffset_ += extractBytes(cmd_ + cmdOffset_, HomeCmd::SIZE - cmdOffset_);
+		if (cmdOffset_ < HomeCmd::SIZE) return false;
+		HomeCmd *h = reinterpret_cast<HomeCmd*>(cmd_);
+		steps_.push(Line::NextStep(h->delay_, h->stepDir_, Line::NextStep::HOME_FLAG));
+	}
 
 	case DONE_CMD:
 		if (steps_.empty()) {

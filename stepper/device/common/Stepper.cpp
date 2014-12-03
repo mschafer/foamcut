@@ -55,12 +55,12 @@ void Stepper::runOnce()
 
 	// check for limit switch activations
 	LimitSwitches limits = HAL::readLimitSwitches();
-	if (limits != lastLimits_) {
+	if (currentLimits_ != lastLimits_) {
 		LimitSwitchesMsg *lsm = new LimitSwitchesMsg();
 		if (lsm) {
-			lsm->limits_ = limits;
+			lsm->limits_ = currentLimits_;
 			if (HAL::sendMessage(lsm) == SUCCESS) {
-				lastLimits_ = limits;
+				lastLimits_ = currentLimits_;
 			} else {
 				delete lsm;
 			}
@@ -81,17 +81,21 @@ void Stepper::onTimerExpired()
 	if (r) {
 		HAL::startTimer(scaleDelay(ns.delay_));
 
-		LimitSwitches limits = HAL::readLimitSwitches();
-		StepDir s = limits.apply(ns.step_);
+		currentLimits_ = HAL::readLimitSwitches();
+		StepDir s = currentLimits_.apply(ns.step_);
+
+		if (ns.flags_ & Line::NextStep::HOME_FLAG && (s.byte() & StepDir::ALL_STEPS) == 0) {
+			engine_.homeComplete();
+		}
 
 		// set the direction bits with all steps inactive
-		HAL::setStepDirBits(s.getDirOnlyBitVals(invertMask_));
+		HAL::setStepDirBits(s.getInvertedDir(invertMask_));
 
 		// set the direction bits with desired steps active
 		HAL::setStepDirBits(s.getInvertedStepDir(invertMask_));
 
 		// steps are edge triggered so return them inactive
-		HAL::setStepDirBits(s.getDirOnlyBitVals(invertMask_));
+		HAL::setStepDirBits(s.getInvertedDir(invertMask_));
 	} else {
 		StatusFlags::instance().clear(StatusFlags::ENGINE_RUNNING);
 	}

@@ -153,14 +153,27 @@ void Host::move(int16_t dx, int16_t dy, int16_t dz, int16_t du, double duration)
 	}
 }
 
-void Host::home()
+void Host::home(double stepDelay)
 {
 	Script script;
+
+	// for now, hardcode home to go to lower left on both frames.
 	const uint8_t HOME_MASK = stepper::device::StepDir::X_STEP | stepper::device::StepDir::Y_STEP | stepper::device::StepDir::Z_STEP | stepper::device::StepDir::U_STEP;
 	stepper::device::StepDir s(HOME_MASK);
 
-	script.addHome(s, 0.);
-	///\todo implement me
+	script.addHome(s, stepDelay);
+
+	executeScript(script);
+
+	int iter = 60;
+	while (iter > 0 && scriptRunning()) {
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
+		--iter;
+	}
+
+	if (iter == 0) {
+		throw std::runtime_error("Host::home failed to complete in reasonable time");
+	}
 }
 
 void Host::speedScaleFactor(double scale)

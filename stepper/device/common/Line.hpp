@@ -21,10 +21,16 @@ class Line
 public:
 
 	struct NextStep {
-		NextStep(uint32_t delay, StepDir step) : delay_(delay), step_(step) {}
-		NextStep() : delay_(0) {}
+		enum {
+			HOME_FLAG = 1
+		};
+
+		NextStep(uint32_t delay, StepDir step, uint8_t flags=0) : 
+			delay_(delay), step_(step), flags_(flags) {}
+		NextStep() : delay_(0), flags_(0) {}
 		uint32_t delay_;
 		StepDir step_;
+		uint8_t flags_;
 	};
 
     Line();

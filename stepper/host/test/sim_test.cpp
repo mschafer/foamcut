@@ -52,8 +52,8 @@ BOOST_AUTO_TEST_CASE( sim_single_step_script_test )
 	StepDir sd;
 	sd.xStepDir(1);
 	sd.yStepDir(1);
-	sd.zStepDir(-1);
-	sd.uStepDir(-1);
+	sd.zStepDir(0);
+	sd.uStepDir(-1);  // should not be taken due to limits
 	script.addStep(sd, .1);
 	host.connectToSimulator();
 	BOOST_CHECK(host.connected());
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE( sim_single_step_script_test )
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
 	}
 	Position answer;
-	answer.pos_ = {1, 1, -1, -1};
+	answer.pos_ = {1, 1, 0, 0};
 	auto p = Simulator::instance().position();
 	BOOST_CHECK_EQUAL_COLLECTIONS(p.pos_.begin(), p.pos_.end(), answer.pos_.begin(), answer.pos_.end());
 	BOOST_CHECK_SMALL(script.duration() - Simulator::instance().position().time_, 1.e-6);
@@ -79,13 +79,20 @@ BOOST_AUTO_TEST_CASE( sim_single_line_script_test )
 	host.connectToSimulator();
 	BOOST_CHECK(host.connected());
 
+	// adjust the limits
+	auto &sim = Simulator::instance();
+	auto l = sim.limits();
+	l[1].low_ = -75;
+	l[2].low_ = -75;
+	sim.limits(l);
+
 	host.executeScript(script);
 	while (host.scriptRunning()) {
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
 	}
 
 	Position answer;
-	answer.pos_ = { 113, -50, -100, 0 };
+	answer.pos_ = { 113, -50, -75, 0 };  // right x is limited
 	auto p = Simulator::instance().position();
 	BOOST_CHECK_EQUAL_COLLECTIONS(p.pos_.begin(), p.pos_.end(), answer.pos_.begin(), answer.pos_.end());
 	BOOST_CHECK_SMALL(script.duration() - Simulator::instance().position().time_, 1.e-6);
@@ -122,6 +129,16 @@ BOOST_AUTO_TEST_CASE(sim_circle_test)
 	host.connectToSimulator();
 	BOOST_CHECK(host.connected());
 
+	// move so circle doesn't run into limits
+	host.move(2100, 2100, 2100, 2100, 2.1);
+
+	auto &sim = Simulator::instance();
+	double xc = sim.positionLog().back().pos_[0] - radius;
+	double yc = sim.positionLog().back().pos_[1];
+	double zc = sim.positionLog().back().pos_[2] - radius/2.;
+	double uc = sim.positionLog().back().pos_[3];
+	size_t moveSize = sim.positionLog().size();
+
 	host.executeScript(script);
 
 	int iter = 0;
@@ -131,12 +148,12 @@ BOOST_AUTO_TEST_CASE(sim_circle_test)
 	}
 	BOOST_CHECK(iter < 1000);
 
-	auto pit = Simulator::instance().positionLog().begin();
+	auto pit = Simulator::instance().positionLog().begin() + moveSize;
 	auto pend = Simulator::instance().positionLog().end();
 	while (pit < pend) {
-		double r1 = hypot(((double)pit->pos_[0]+radius), (double)pit->pos_[1]);
+		double r1 = hypot(((double)pit->pos_[0] - xc), (double)pit->pos_[1] - yc);
 		BOOST_CHECK_SMALL(r1 - radius, 1.5);
-		double r2 = hypot(((double)pit->pos_[2] + radius/2.), (double)pit->pos_[3]);
+		double r2 = hypot(((double)pit->pos_[2] - zc), (double)pit->pos_[3] - uc);
 		BOOST_CHECK_SMALL(r2 - radius/2., 1.5);
 		++pit;
 	}

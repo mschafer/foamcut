@@ -93,6 +93,12 @@ public:
 	 */
 	bool nextStep(Line::NextStep &out);
 
+	/**
+	 * Called by the stepper when limit switches indicate that
+	 * homing is complete.
+	 */
+	void homeComplete();
+
 	Status status() const { return status_; }
 
 	/**

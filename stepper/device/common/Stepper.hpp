@@ -46,8 +46,6 @@ public:
 	 */
 	void onTimerExpired();
 
-protected:
-
 private:
 	/**
 	 * Specify bits in \sa StepDir that need to be inverted.
@@ -60,6 +58,7 @@ private:
 	Engine engine_;
 	uint32_t speedAdjust_;
 	volatile bool pause_;
+	LimitSwitches currentLimits_;
 	LimitSwitches lastLimits_;
 
 	/** Sets the Stepper to an idle state for a new connection. */

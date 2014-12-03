@@ -43,8 +43,16 @@ void MoveDialog::on_down_button_clicked()
 
 void MoveDialog::on_home_button_clicked()
 {
-	FoamcutApp *a = FoamcutApp::instance();
-	a->host().home();
+	FoamcutApp *app = FoamcutApp::instance();
+	double duration;
+	if (ui->fast_speed_radio->isChecked()) {
+		duration = (double) .001;
+	}
+	else {
+		duration = std::min(app->xStepSize(), app->yStepSize()) / app->cutSpeed();
+	}
+	app->host().home();
+
 }
 
 void MoveDialog::done(int result)

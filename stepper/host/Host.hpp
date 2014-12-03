@@ -59,8 +59,8 @@ public:
 	double scriptProgress();
 
 	/**
-	 * Instructs the device to take \em count steps in the direction
-	 * specified by \em s.
+	 * Instructs the device to take the specified number of steps for each axis over the
+	 * the time interval specified by \em duration.
 	 * Blocks until the move is complete.
 	 * throws if scriptRunning already returns true
 	 */
@@ -71,8 +71,9 @@ public:
 	 * until all limit switches are activated.
 	 * Blocks until the home is complete.
 	 * throws if scriptRunning already returns true
+	 * \param stepDelay The time to wait between steps.  Defaults to .001
 	 */
-	void home();
+	void home(double stepDelay = .001);
 
 	/**
 	 * Scale the set speed of the device.
