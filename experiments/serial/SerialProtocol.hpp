@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "SerialPackets.hpp"
 #include "Port.hpp"
 #include "Synchronizer.hpp"
 #include "AppPacket.hpp"
@@ -30,8 +31,7 @@ public:
     };
 
     enum {
-        RX_WINDOW_SIZE = 8,
-		MAX_SERIAL_PACKET_SIZE = 32
+        RX_WINDOW_SIZE = 8
 	};
     static const double SYNC_INTERVAL_SEC;
 
@@ -77,7 +77,6 @@ private:
     Synchronizer sync_;
     size_t sendingSync_;
     std::chrono::time_point<clock_hack> syncTime_;
-	boost::circular_buffer<uint8_t> rxDataFIFO_;
 	boost::circular_buffer<uint8_t> rxRawFIFO_;
 	uint8_t rxBuff_[MAX_SERIAL_PACKET_SIZE];
 	uint8_t txBuff_[MAX_SERIAL_PACKET_SIZE];
@@ -85,7 +84,7 @@ private:
     ptrdiff_t rxDataPos_;
     boost::ptr_deque<AppPacket> sendQueue_;
     ptrdiff_t txPos_;
-	//Connect connect_;
+	Connect connect_;
 
 	bool timeToSendSync();
 	void doSend();

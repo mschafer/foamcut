@@ -1,5 +1,4 @@
 #include "SerialProtocol.hpp"
-#include "SerialPackets.hpp"
 #include <memory.h>
 #include <algorithm>
 
@@ -9,7 +8,7 @@ const double SerialProtocol::SYNC_INTERVAL_SEC = .5;
 
 SerialProtocol::SerialProtocol(Port &port) :port_(port), state_(SerialProtocol::DISCONNECTED),
 		sync_(SerialProtocol::SYNC_STRING, strlen(SerialProtocol::SYNC_STRING)), sendingSync_(0),
-		rxDataFIFO_((RX_WINDOW_SIZE + 1)*MAX_SERIAL_PACKET_SIZE), rxRawFIFO_(64),
+		rxRawFIFO_((RX_WINDOW_SIZE + 1)*MAX_SERIAL_PACKET_SIZE),
         rxPos_(0), rxDataPos_(0), txPos_(0)
 {
 
@@ -171,6 +170,10 @@ void SerialProtocol::handleSerialPacket()
 
     case DATA_ID:
         rxDataPos_ = 0;
+		/*
+		Feed all the received data to the AppPacketFactory. and then Ack this data.
+		Window size is met by size of rxRawFifo
+		*/
         break;
 
     case DISCONNECT_ID:
@@ -185,7 +188,8 @@ void SerialProtocol::handleSerialPacket()
 
 void SerialProtocol::run()
 {
-	// simulate interrupt driven reception
+	// simulate interrupt/DMA driven reception by copying data available from the port
+	// into the protocol rx fifo
 	size_t n = std::min(port_.recvAvailable(), rxRawFIFO_.reserve());
 	uint8_t c;
 	for (size_t i = 0; i < n; ++i) {
@@ -252,13 +256,16 @@ void SerialProtocol::run()
 		break;
 
 	case CONNECTED:
+		// is there a (partial) data packet in the rxBuff_?
+		// if so, try to hand the remaing data to the AppPacketFactory and Ack it
+		// otherwise look for the next SerialPacket in the rxRawFIFO
+
 		break;
 
 	case ERROR:
 	{
 		port_.close();
 		rxRawFIFO_.clear();
-		rxDataFIFO_.clear();
 		sync_.reset();
 		state_ = DISCONNECTED;
 		break;
@@ -300,7 +307,7 @@ void SerialProtocol::receiveConnect()
 			return;
 		}
 		
-		uint8_t *p = (uint8_t*)&connect_;
+		uint8_t *p = reinterpret_cast<uint8_t*>(&connect_);
 		for (size_t i = 0; i < sizeof(Connect); ++i) {
 			p[i] = rxRawFIFO_.front();
 			rxRawFIFO_.pop_front();
