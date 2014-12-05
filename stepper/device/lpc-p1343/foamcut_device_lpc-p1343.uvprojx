@@ -478,6 +478,11 @@
               <FileType>8</FileType>
               <FilePath>.\MemoryAllocator.cpp</FilePath>
             </File>
+            <File>
+              <FileName>assert.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\assert.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

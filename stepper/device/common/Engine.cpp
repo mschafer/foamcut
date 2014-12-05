@@ -13,6 +13,7 @@
 #include "StatusFlags.hpp"
 #include <HAL.hpp>
 #include <Logger.hpp>
+#include <assert.h>
 
 namespace stepper { namespace device {
 

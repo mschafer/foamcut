@@ -1,5 +1,6 @@
 #include "gpio.h"
 #include "lpc134x.h"
+#include <assert.h>
 
 static volatile uint32_t *const gpioDIR[]  = {&GPIO_GPIO0DIR,  &GPIO_GPIO1DIR,  &GPIO_GPIO2DIR,  &GPIO_GPIO3DIR };
 static volatile uint32_t *const gpioDATA[] = {&GPIO_GPIO0DATA, &GPIO_GPIO1DATA, &GPIO_GPIO2DATA, &GPIO_GPIO3DATA };

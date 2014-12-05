@@ -12,6 +12,7 @@
 #include "foamcutapp.hpp"
 #include <QString>
 #include <QDebug>
+#include <QTimer>
 #include "simdialog.h"
 
 namespace {
@@ -42,12 +43,13 @@ const QString airfoilLELoopName("airfoil/leLoop");
 FoamcutApp::FoamcutApp(int &argc, char **argv) : QApplication(argc, argv),
 currentPort_("none")
 {
+	mainWindow_.reset(new MainWindow());
+	mainWindow_->show();
+
 	host_.reset(new stepper::Host());
 	if (port() != "none") {
 		connectToDevice();
 	}
-	mainWindow_.reset(new MainWindow());
-	mainWindow_->show();
 }
 
 FoamcutApp::~FoamcutApp()
@@ -274,17 +276,28 @@ void FoamcutApp::tipShape(foamcut::Shape::handle s)
 
 void FoamcutApp::portChanged(const QString &portName)
 {
-	qDebug() << "port Changed to " << portName;
+	port(portName);
+	if (currentPort_ != portName && !simDialog_) {
+		connectToDevice();
+	}
 }
-
 
 void FoamcutApp::startSimulator()
 {
 	host_.reset(new stepper::Host());
-	host_->connectToSimulator();
-	simDialog_.reset(new SimDialog());
-	simDialog_->show();
-	emit connectionChanged(true);
+	emit connectionChanged(false);
+	try {
+		host_->connectToSimulator();
+		simDialog_.reset(new SimDialog());
+		simDialog_->show();
+		emit connectionChanged(true);
+	}
+
+	catch (std::exception &ex) {
+		host_.reset();
+		simDialog_.reset();
+		qCritical() << "simulator failed: " << ex.what();
+	}
 }
 
 void FoamcutApp::stopSimulator()
@@ -296,14 +309,18 @@ void FoamcutApp::stopSimulator()
 void FoamcutApp::connectToDevice()
 {
 	host_.reset(new stepper::Host());
+	emit connectionChanged(false);
+	if (port() == "none") return;
+
 	try {
 		host_->connectToDevice(port().toStdString());
+		currentPort_ = port();
 		emit connectionChanged(true);
 	}
 
-	catch (std::exception &ex) {
+	catch (std::exception & /*ex*/) {
 		currentPort_ = "none";
-		qDebug() << "connect failed: " << ex.what();
+		QTimer::singleShot(1000, this, SLOT(connectToDevice()));
 	}
 	currentPort_ = port();
 }

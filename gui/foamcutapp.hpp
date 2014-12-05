@@ -94,13 +94,13 @@ public:
 
 	void startSimulator();
 	void stopSimulator();
-	void connectToDevice();
 
 signals:
 	void connectionChanged(bool connected);
 
 public slots:
 	void portChanged(const QString &portName);
+	void connectToDevice();
 
 private:
 	std::unique_ptr<stepper::Host> host_;
