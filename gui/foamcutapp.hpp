@@ -14,6 +14,7 @@
 
 #include <QApplication>
 #include <QSettings>
+#include <QSerialPortInfo>
 #include <memory>
 #include <Host.hpp>
 #include <Shape.hpp>
@@ -99,7 +100,7 @@ signals:
 	void connectionChanged(bool connected);
 
 public slots:
-	void portChanged(const QString &portName);
+	void portChanged(const QSerialPortInfo &portInfo);
 	void connectToDevice();
 
 private:
@@ -107,9 +108,10 @@ private:
 	foamcut::Shape::handle rootShape_;
 	foamcut::Shape::handle tipShape_;
 	QSettings settings_;
-	QString currentPort_;
+	QSerialPortInfo currentPort_;
 	std::unique_ptr<class SimDialog> simDialog_;
 	std::unique_ptr<class MainWindow> mainWindow_;
+	std::unique_ptr<QTimer> connectTimer_;
 };
 
 #endif

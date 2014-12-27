@@ -2,6 +2,8 @@
 #define SETUPDIALOG_H
 
 #include <QDialog>
+#include <QSerialPortInfo>
+#include <memory>
 
 namespace Ui {
 class SetupDialog;
@@ -17,9 +19,11 @@ public:
 
 private slots:
 	void accept();
+	void on_port_combo_currentIndexChanged(int index);
 
 private:
-    Ui::SetupDialog *ui;
+    std::unique_ptr<Ui::SetupDialog> ui;
+	QList<QSerialPortInfo> serialPorts_;
 };
 
 #endif // SETUPDIALOG_H

@@ -2,7 +2,6 @@
 #include "ui_setupdialog.h"
 #include <qdebug.h>
 #include "foamcutapp.hpp"
-#include <QSerialPortInfo>
 
 SetupDialog::SetupDialog(QWidget *parent) :
     QDialog(parent), ui(new Ui::SetupDialog)
@@ -24,10 +23,13 @@ SetupDialog::SetupDialog(QWidget *parent) :
 	ui->frameSeparation_edit->setValidator(new QDoubleValidator());
 	ui->maxStepRate_edit->setValidator(new QIntValidator(0, 5000));
 
+	ui->port_combo->clear();
+	ui->port_combo->clearEditText();
+	ui->port_combo->blockSignals(true);
 	bool foundPort = false;
-	QList<QSerialPortInfo> spList = QSerialPortInfo::availablePorts();
-	auto it = spList.begin();
-	while (it < spList.end()) {
+	serialPorts_ = QSerialPortInfo::availablePorts();
+	auto it = serialPorts_.begin();
+	while (it < serialPorts_.end()) {
 		ui->port_combo->addItem(it->portName());
 		if (it->portName() == app->port()) {
 			ui->port_combo->setCurrentIndex(ui->port_combo->count() - 1);
@@ -39,12 +41,11 @@ SetupDialog::SetupDialog(QWidget *parent) :
 	if (!foundPort) {
 		ui->port_combo->setCurrentIndex(ui->port_combo->count() - 1);
 	}
-	connect(ui->port_combo, &QComboBox::currentTextChanged, app, &FoamcutApp::portChanged);
+	ui->port_combo->blockSignals(false);
 }
 
 SetupDialog::~SetupDialog()
 {
-    delete ui;
 }
 
 void SetupDialog::accept()
@@ -68,4 +69,22 @@ void SetupDialog::accept()
 	app->yRightReverse(ui->yRightReverse_check->isChecked());
 
 	QDialog::accept();
+}
+
+void SetupDialog::on_port_combo_currentIndexChanged(int index)
+{
+	auto app = FoamcutApp::instance();
+	if (index >= 0 && index < serialPorts_.size()) {
+		const QSerialPortInfo &spi = serialPorts_.at(index);
+		app->portChanged(spi);
+		qDebug() << "port changed to " << spi.portName() << " system: " << spi.systemLocation();
+	}
+	else if (index == serialPorts_.size()) {
+		QSerialPortInfo spi("none");
+		app->portChanged(spi);
+		if (spi.isValid()) {
+			qDebug() << "why is this valid?";
+		}
+		qDebug() << "port changed to none";
+	}
 }
