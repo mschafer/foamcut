@@ -87,12 +87,17 @@ void Host::connectToDevice(const std::string &portName)
 		if (connected() && deviceStatus_) return;
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 	}
+	link_->shutdown();
 	std::string msg = "connect to device failed on " + portName;
 	throw std::runtime_error(msg);
 }
 
 void Host::executeScript(const Script &s)
 {
+	if (!connected()) {
+		throw std::runtime_error("Host::executeScript failed, device is not connected");
+	}
+
 	if (scriptRunning()) {
 		throw std::runtime_error("Host::executeScript failed, device is not idle");
 	}
@@ -124,7 +129,9 @@ void Host::executeScript(const Script &s)
 
 bool Host::scriptRunning()
 {
-	if (scriptMsgAckd_ == scriptMsgCount_) {
+	if (scriptMsgCount_ == 0) {
+		return false;
+	} else if (scriptMsgAckd_ == scriptMsgCount_) {
 		return ((deviceStatus_->statusFlags_ & device::StatusFlags::ENGINE_RUNNING) != 0);
 	} else {
 		return true;

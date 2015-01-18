@@ -38,6 +38,8 @@ public:
 
 	virtual device::Message *receive();
 
+	virtual void shutdown();
+
 private:
 	enum {
 		TRY_CONNECT_TIMEOUT = 500

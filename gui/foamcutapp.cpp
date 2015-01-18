@@ -46,6 +46,8 @@ currentPort_("none")
 	mainWindow_.reset(new MainWindow());
 	mainWindow_->show();
 
+	simDialog_.reset(new SimDialog());
+
 	currentPort_ = QSerialPortInfo(port());
 	connectToDevice();
 }
@@ -282,13 +284,16 @@ void FoamcutApp::portChanged(const QSerialPortInfo &portInfo)
 	}
 
 	// try to connect to the device only if the simulator isn't running
-	if (!simDialog_) {
+	if (! (((bool) simDialog_ && simDialog_->isVisible()))) {
 		connectToDevice();
 	}
 }
 
 void FoamcutApp::startSimulator()
 {
+	// do nothing if already connected to sim and dialog is open
+	if ((bool)simDialog_ && simDialog_->isVisible()) return;
+
 	host_.reset(new stepper::Host());
 	emit connectionChanged(false);
 	try {
@@ -308,27 +313,31 @@ void FoamcutApp::startSimulator()
 void FoamcutApp::stopSimulator()
 {
 	emit connectionChanged(false);
+	host_.reset();
 	connectToDevice();
 }
 
 void FoamcutApp::connectToDevice()
 {
+	if ((bool)host_ && host_->connected()) return;
+
 	host_.reset(new stepper::Host());
 	emit connectionChanged(false);
 	if (currentPort_.isValid()) {
 		try {
-			///\todo portName works for windows, but not for mac, try system name
 			host_->connectToDevice(currentPort_.systemLocation().toStdString());
 			emit connectionChanged(true);
 		}
 
 		catch (std::exception &ex) {
 			qDebug() << "connect to " << port() << " failed: " << ex.what();
+
+			// try connecting again later
+			connectTimer_.reset(new QTimer());
+			connectTimer_->setSingleShot(true);
+			connect(connectTimer_.get(), SIGNAL(timeout()), this, SLOT(connectToDevice()));
+			connectTimer_->setInterval(10000);
+			connectTimer_->start();
 		}
 	}
-	connectTimer_.reset(new QTimer());
-	connectTimer_->setSingleShot(true);
-	connect(connectTimer_.get(), SIGNAL(timeout()), this, SLOT(connectToDevice()));
-	connectTimer_->setInterval(10000);
-	connectTimer_->start();
 }

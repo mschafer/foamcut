@@ -29,7 +29,7 @@ public:
 
 	virtual device::Message *receive() = 0;
 
-
+	virtual void shutdown() = 0;
 };
 
 }

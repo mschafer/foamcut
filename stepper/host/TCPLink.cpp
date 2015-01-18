@@ -31,7 +31,7 @@ TCPLink::~TCPLink()
 
 device::ErrorCode TCPLink::send(device::Message *m)
 {
-	if (sender_.get() != nullptr) {
+	if (sender_ && socket_.is_open()) {
 		return sender_->enqueue(m);
 	} else {
 		return device::RESOURCE_UNAVAILABLE;
@@ -39,17 +39,26 @@ device::ErrorCode TCPLink::send(device::Message *m)
 }
 
 device::Message *TCPLink::receive() {
-	if (receiver_) {
+	if (receiver_ && socket_.is_open()) {
 		return receiver_->getMessage();
 	} else {
 		return nullptr;
 	}
 }
 
+void TCPLink::shutdown()
+{
+	try {
+		socket_.cancel();
+		socket_.shutdown(boost::asio::socket_base::shutdown_both);
+		socket_.close();
+	}
+	catch (...) {}
+}
+
 void TCPLink::connect()
 {
     using namespace boost::asio::ip;
-
     tcp::resolver resolver(ios_);
     tcp::resolver::query query(tcp::v4(), hostName_.c_str(), portStr_.c_str());
     boost::system::error_code error;
@@ -65,13 +74,17 @@ void TCPLink::connect()
 
 void TCPLink::handleError(const boost::system::error_code &error)
 {
-	socket_.shutdown(boost::asio::socket_base::shutdown_both);
-    socket_.close();
-    sender_.reset();
-    receiver_.reset();
-    if (!ios_.stopped()) {
-    	connect();
-    }
+	if (error != boost::asio::error::operation_aborted) {
+		try {
+			socket_.cancel();
+			socket_.shutdown(boost::asio::socket_base::shutdown_both);
+			socket_.close();
+		}
+		catch (...) {}
+		if (!ios_.stopped()) {
+			connect();
+		}
+	}
 }
 
 void TCPLink::connectComplete(const boost::system::error_code &error)

@@ -4,7 +4,7 @@
  *      *** Do not modify ! ***
  *
  * Project: 'foamcut_device_lpc-p1343' 
- * Target:  'Target 1' 
+ * Target:  'Debug' 
  */
 
 #ifndef RTE_COMPONENTS_H

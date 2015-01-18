@@ -12,6 +12,7 @@
 #include "CDCLink.hpp"
 #include <ASIOReceiver.hpp>
 #include <ASIOSender.hpp>
+#include <thread>
 
 namespace stepper {
 
@@ -27,12 +28,12 @@ CDCLink::CDCLink(const std::string &portName, boost::asio::io_service &ios) :
 
 CDCLink::~CDCLink()
 {
-	port_.close();
+	shutdown();
 }
 
 device::ErrorCode CDCLink::send(device::Message *m)
 {
-	if (sender_.get() != nullptr) {
+	if (port_.is_open()) {
 		return sender_->enqueue(m);
 	} else {
 		return device::RESOURCE_UNAVAILABLE;
@@ -40,19 +41,25 @@ device::ErrorCode CDCLink::send(device::Message *m)
 }
 
 device::Message *CDCLink::receive() {
-	if (receiver_) {
+	if (port_.is_open()) {
 		return receiver_->getMessage();
 	} else {
 		return nullptr;
 	}
 }
 
+void CDCLink::shutdown()
+{
+	try {
+		port_.cancel();
+		port_.close();
+	}
+	catch (...) {}
+}
 
 void CDCLink::handleError(const boost::system::error_code &error)
 {
-    port_.close();
-    sender_.reset();
-    receiver_.reset();
+	shutdown();
 }
 
 }
