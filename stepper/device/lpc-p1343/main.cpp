@@ -57,7 +57,7 @@ int main(void) {
 
     // Configure cpu and mandatory peripherals
     systemInit();
-
+	
 #ifdef CFG_FOAMCUT
     stepper::device::HAL::initialize();
     
@@ -79,9 +79,8 @@ int main(void) {
         uint32_t i, cnt;
         CDC_PollOutEp();
         cnt = 0;
-        for (cnt=0; cnt<sizeof(buffer); cnt++) {
+        for (cnt=0; cnt<sizeof(buffer); ++cnt) {
         	if (CDC_ReadByte(&buffer[cnt]) == 0) break;
-        	++cnt;
         }
 
         chars += cnt;

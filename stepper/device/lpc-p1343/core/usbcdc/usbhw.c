@@ -403,8 +403,8 @@ uint32_t USB_ReadEP(uint32_t EPNum, uint8_t *pData) {
     cnt &= PKT_LNGTH_MASK;
 
     for (n = 0; n < (cnt + 3) / 4; n++) {
-        //*((uint32_t __attribute__((packed)) *) pData) = USB_RXDATA;
-        *(uint32_t *)pData = USB_RXDATA;
+        *((__packed uint32_t *) pData) = USB_RXDATA;
+        //*(uint32_t *)pData = USB_RXDATA;
         pData += 4;
     }
 
@@ -443,8 +443,8 @@ uint32_t USB_WriteEP(uint32_t EPNum, const uint8_t *pData, uint32_t cnt) {
     USB_TXPLEN = cnt;
 
     for (n = 0; n < (cnt + 3) / 4; n++) {
-        //USB_TXDATA = *((uint32_t __attribute__((packed)) *) pData);
-        USB_TXDATA = *(uint32_t *)pData;
+        USB_TXDATA = *((__packed uint32_t *) pData);
+        //USB_TXDATA = *(uint32_t*)pData;
         pData += 4;
     }
 
