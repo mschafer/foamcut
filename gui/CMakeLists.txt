@@ -104,9 +104,33 @@ get_target_property(QtCore_location_Release Qt5::Core LOCATION_Release)
 
 get_filename_component(QT_BIN_DIR ${QtCore_location_Release} PATH)
 
-if (WIN32)
-    add_custom_command(TARGET foamcut_gui POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/bin
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${QT_BIN_DIR} "${PROJECT_BINARY_DIR}/bin"
-	)
-endif (WIN32)
+#if (WIN32)
+#    add_custom_command(TARGET foamcut_gui POST_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/bin
+#		COMMAND ${CMAKE_COMMAND} -E copy_directory ${QT_BIN_DIR} "${PROJECT_BINARY_DIR}/bin"
+#	)
+#endif (WIN32)
+
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  
+ELSEIF (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+set(CONFIG_SUBDIR 
+    $<$<CONFIG:Debug>:Debug>
+    $<$<CONFIG:Release>:Release> 
+  )
+  add_custom_command(
+    TARGET foamcut_gui
+	POST_BUILD
+	COMMAND ${CMAKE_SOURCE_DIR}/gui/deploy.bat 
+	ARGS ${QT_BIN_DIR} ${CONFIG_SUBDIR}/foamcut_gui.exe
+  )
+  
+  install (
+    DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Debug/
+	DESTINATION bin
+  )
+  
+ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
+
+
+include(InstallRequiredSystemLibraries)

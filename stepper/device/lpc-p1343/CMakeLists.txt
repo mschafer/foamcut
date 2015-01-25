@@ -8,7 +8,14 @@
 # Contributors:
 #    Marc Schafer
 
-# foamcut/stepper/device
+# foamcut/stepper/device/lpc-p1343
 
-add_subdirectory(sim)
-add_subdirectory(lpc-p1343)
+install (
+  FILES driver/lpc134x-vcom_64.inf
+  DESTINATION device/lpc-p1343/driver
+)
+
+install (
+  FILES foamcut_device_lpc-p1343.bin
+  DESTINATION device/lpc-p1343
+)

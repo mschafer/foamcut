@@ -26,14 +26,15 @@ add_subdirectory(gui)
 add_subdirectory(stepper)
 add_subdirectory(experiments)
 
-#set (CPACK_PACKAGE_EXECUTABLES "motor-stepper")
+set (CPACK_PACKAGE_EXECUTABLES "foamcut")
 set (CPACK_GENERATOR "ZIP")
 set (CPACK_PACKAGE_VERSION_MAJOR "0")
-set (CPACK_PACKAGE_VERSION_MINOR "1")
+set (CPACK_PACKAGE_VERSION_MINOR "0")
 set (CPACK_PACKAGE_VERSION_PATCH "0")
-#string(REGEX MATCH [0-9]+ CPACK_PACKAGE_VERSION_PATCH "$Revision: 298 $")
 
-#include(CPack)
+include(CPack)
 
-# install bin directory
-#install(DIRECTORY ${PROJECT_BINARY_DIR}/bin DESTINATION .)
+install(
+  DIRECTORY ${CMAKE_SOURCE_DIR}/kernel/test/data
+  DESTINATION .
+)
