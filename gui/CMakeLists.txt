@@ -102,7 +102,6 @@ get_target_property(QtCore_location_Release Qt5::Core LOCATION_Release)
 #    COMMAND ${CMAKE_COMMAND} -E copy ${QtGui_location_Debug} ${PROJECT_BINARY_DIR}/bin
 #)
 
-get_filename_component(QT_BIN_DIR ${QtCore_location_Release} PATH)
 
 #if (WIN32)
 #    add_custom_command(TARGET foamcut_gui POST_BUILD
@@ -112,8 +111,18 @@ get_filename_component(QT_BIN_DIR ${QtCore_location_Release} PATH)
 #endif (WIN32)
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  
+  set_property( TARGET foamcut_gui
+    PROPERTY MACOSX_BUNDLE true
+  )
+  set (QT_BIN_DIR /Users/mschafer/Qt/5.3/clang_64/bin)
+  add_custom_command(
+    TARGET foamcut_gui
+    POST_BUILD
+    COMMAND ${QT_BIN_DIR}/macdeployqt
+    ARGS foamcut_gui.app
+  )
 ELSEIF (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+get_filename_component(QT_BIN_DIR ${QtCore_location_Release} PATH)
 set(CONFIG_SUBDIR 
     $<$<CONFIG:Debug>:Debug>
     $<$<CONFIG:Release>:Release> 

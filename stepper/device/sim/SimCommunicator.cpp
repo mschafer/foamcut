@@ -30,7 +30,11 @@ SimCommunicator::SimCommunicator(boost::asio::io_service &ios, uint16_t port) :
 SimCommunicator::~SimCommunicator()
 {
 	if (socket_.is_open()) {
-		socket_.shutdown(boost::asio::socket_base::shutdown_both);
+		try {
+			socket_.cancel();
+			socket_.shutdown(boost::asio::socket_base::shutdown_both);
+			socket_.close();
+		} catch(...) {}
 	}
 }
 
@@ -52,7 +56,9 @@ void SimCommunicator::initialize()
 void SimCommunicator::shutdown()
 {
 	if (socket_.is_open()) {
-		socket_.shutdown(boost::asio::socket_base::shutdown_both);
+		try {
+			socket_.shutdown(boost::asio::socket_base::shutdown_both);
+		} catch(...) {}
 	}
 	sender_.reset();
 	receiver_.reset();
@@ -105,7 +111,11 @@ ErrorCode SimCommunicator::sendMessage(Message *message, Message::Priority prior
 void SimCommunicator::handleError(const boost::system::error_code &error)
 {
 	if (socket_.is_open()) {
-		socket_.shutdown(boost::asio::socket_base::shutdown_both);
+		try {
+			socket_.cancel();
+			socket_.shutdown(boost::asio::socket_base::shutdown_both);
+			socket_.close();
+		} catch(...) {}
 	}
 	socket_.close();
     acceptor_->async_accept(socket_,
