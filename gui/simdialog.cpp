@@ -97,6 +97,7 @@ void SimDialog::update()
 {
 	auto app = FoamcutApp::instance();
 	stepper::device::Simulator &sim = stepper::device::Simulator::instance();
+	boost::lock_guard<boost::mutex> simPosGuard(sim.positionMutex());
 	double xStepSize = app->xStepSize();
 	double yStepSize = app->yStepSize();
 	const std::deque<stepper::device::Position> &posLog = sim.positionLog();

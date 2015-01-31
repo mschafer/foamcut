@@ -118,13 +118,15 @@ void MainWindow::geometryChanged(bool rescale)
 
 		if (rootKerfShape_ != nullptr && tipKerfShape_ != nullptr) {
 			double rootZ = ui->rootZ_edit->text().toDouble();
-			double tipZ  = ui->tipZ_edit->text().toDouble();
+			double tipZ = ui->tipZ_edit->text().toDouble();
 			double tolerance = 2. * std::min(app->xStepSize(), app->yStepSize());
-			partPath_.reset(new foamcut::RuledSurface(*rootKerfShape_, *tipKerfShape_, rootZ, tipZ-rootZ, tolerance));
+			partPath_.reset(new foamcut::RuledSurface(*rootKerfShape_, *tipKerfShape_, rootZ, tipZ - rootZ, tolerance));
 			double zRightFrame = app->frameSeparation();
 			partPath_->setTime(ui->speed_edit->text().toDouble());
 			cutterPath_ = partPath_->interpolateZ(0., zRightFrame);
-			ui->cut_button->setEnabled(true);
+			if (ui->move_button->isEnabled()) {
+				ui->cut_button->setEnabled(true);
+			}
 		} else {
 			partPath_ = nullptr;
 			cutterPath_ = nullptr;
@@ -215,4 +217,7 @@ void MainWindow::on_swap_button_clicked()
 void MainWindow::on_connectionChanged(bool connected)
 {
 	ui->move_button->setEnabled(connected);
+	if (rootKerfShape_ != nullptr && tipKerfShape_ != nullptr) {
+		ui->cut_button->setEnabled(connected);
+	}
 }

@@ -78,6 +78,7 @@ uint16_t Simulator::port() const
 
 void Simulator::runOnce(const boost::system::error_code &ec)
 {
+	// don't do anything on error as it means Simulator is being forced to shut down
 	if (!ec) {
 		if (comm_->ready()) {
 			Stepper &s = Stepper::instance();
@@ -85,23 +86,16 @@ void Simulator::runOnce(const boost::system::error_code &ec)
 		}
 		backgroundTimer_.expires_from_now(boost::posix_time::milliseconds(10));
 		backgroundTimer_.async_wait(boost::bind(&Simulator::runOnce, this, boost::asio::placeholders::error));
-	} else {
-		std::string em("Simulator::runOnce error: ");
-		em += ec.message();
-		throw std::runtime_error(em);
 	}
 }
 
 void Simulator::stepTimerExpired(const boost::system::error_code &ec)
 {
+	// don't do anything on error as it means Simulator is being forced to shut down
 	if (!ec) {
 		Stepper &s = Stepper::instance();
 		s.runOnce();  // background sleeps in sim so prevent underflow
 		s.onTimerExpired();
-	} else {
-		std::string em("Simulator::stepTimerExpired error: ");
-		em += ec.message();
-		throw std::runtime_error(em);
 	}
 }
 
@@ -140,6 +134,7 @@ void HAL::setStepDirBits(const StepDir &s)
 	}
 
 	if (stepTaken) {
+		boost::lock_guard<boost::mutex> guard(sim.posLock_);
 		sim.posLog_.push_back(nextP);
 	}
 }

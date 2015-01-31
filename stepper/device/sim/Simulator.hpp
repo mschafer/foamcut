@@ -56,6 +56,7 @@ public:
 	/// \return tcp/ip port used by the simulator
 	uint16_t port() const;
 
+	boost::mutex &positionMutex() { return posLock_; }
 	const Position &position() const { return posLog_.back(); }
 	const std::deque<Position> &positionLog() const { return posLog_; }
 
@@ -85,6 +86,7 @@ private:
 	StepDir invertMask_;
 	StepDir currentBits_;
 	std::deque<Position> posLog_;
+	boost::mutex posLock_;
 	LimitType limit_;
 	double time_{ 0. };
 
