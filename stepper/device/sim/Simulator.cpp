@@ -135,6 +135,7 @@ void HAL::setStepDirBits(const StepDir &s)
 
 	if (stepTaken) {
 		boost::lock_guard<boost::mutex> guard(sim.posLock_);
+		sim.position_ = nextP;
 		sim.posLog_.push_back(nextP);
 	}
 }

@@ -185,11 +185,11 @@ void Host::home(double stepDelay)
 
 void Host::speedScaleFactor(double scale)
 {
-	if (scale < .5 || scale > 2.) {
+	if (scale < .1 || scale > 2.) {
 		throw std::out_of_range("Host::speedScaleFactor scale parameter is out of range");
 	}
 	device::SpeedAdjustMsg *sam = device::allocateMessage<device::SpeedAdjustMsg>();
-	sam->speedAdjust_ = (uint32_t)(scale * (double)(1 << device::SpeedAdjustMsg::UNITY_SPEED_ADJUST_SHIFT));
+	sam->speedAdjust_ = (uint32_t)((double)(1 << device::SpeedAdjustMsg::UNITY_SPEED_ADJUST_SHIFT) / scale);
 	device::ErrorCode ec = link_->send(sam);
 	if (ec != device::SUCCESS) {
 		throw std::runtime_error("Host::speedScaleFactor Unexpected send failure");

@@ -57,7 +57,7 @@ public:
 	uint16_t port() const;
 
 	boost::mutex &positionMutex() { return posLock_; }
-	const Position &position() const { return posLog_.back(); }
+	const Position &position() const { return position_; }
 	const std::deque<Position> &positionLog() const { return posLog_; }
 
 	/** Clears the position history and resets the current position to 0,0. */
@@ -85,6 +85,7 @@ private:
 	std::unique_ptr<SimCommunicator> comm_;
 	StepDir invertMask_;
 	StepDir currentBits_;
+	Position position_;
 	std::deque<Position> posLog_;
 	boost::mutex posLock_;
 	LimitType limit_;
