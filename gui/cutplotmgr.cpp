@@ -35,7 +35,7 @@ CutPlotMgr::CutPlotMgr(FixedARPlot *plot) : plot_(plot), time_(0.)
 
 	// ROOT_BASE_CURVE
 	curve = new QCPCurve(plot_->xAxis, plot_->yAxis);
-	pen.setColor(QColor("darkBlue"));
+	pen.setColor(QColor("darkGreen"));
 	curve->setPen(pen);
 	curve->setName("root base");
 	plot_->addPlottable(curve);
@@ -49,7 +49,7 @@ CutPlotMgr::CutPlotMgr(FixedARPlot *plot) : plot_(plot), time_(0.)
 
 	// ROOT_PART_CURVE
 	curve = new QCPCurve(plot_->xAxis, plot_->yAxis);
-	pen.setColor(QColor("blue"));
+	pen.setColor(QColor("green"));
 	curve->setPen(pen);
 	curve->setName("root part");
 	plot_->addPlottable(curve);
@@ -70,7 +70,7 @@ CutPlotMgr::CutPlotMgr(FixedARPlot *plot) : plot_(plot), time_(0.)
 
 	// RIGHT_FRAME_CURVE
 	curve = new QCPCurve(plot_->xAxis, plot_->yAxis);
-	pen.setColor(QColor("green"));
+	pen.setColor(QColor("blue"));
 	curve->setPen(pen);
 	curve->setName("right frame");
 	plot_->addPlottable(curve);
