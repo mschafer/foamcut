@@ -119,7 +119,7 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     TARGET foamcut_gui
     POST_BUILD
     COMMAND ${QT_BIN_DIR}/macdeployqt
-    ARGS foamcut_gui.app
+    ARGS foamcut_gui.app -dmg
   )
 ELSEIF (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 get_filename_component(QT_BIN_DIR ${QtCore_location_Release} PATH)
