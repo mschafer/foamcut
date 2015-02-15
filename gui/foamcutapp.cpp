@@ -276,6 +276,14 @@ void FoamcutApp::tipShape(foamcut::Shape::handle s)
 
 void FoamcutApp::portChanged(const QSerialPortInfo &portInfo)
 {
+	if (currentPort_.portName() == portInfo.portName()) {
+		return;
+	}
+	else if (host_) {
+		host_.reset();
+		emit connectionChanged(false);
+	}
+
 	// stop the reconnect timer if it is running, need to convert from static timer to instance
 	connectTimer_.reset();
 	currentPort_ = portInfo;
@@ -319,7 +327,7 @@ void FoamcutApp::stopSimulator()
 
 void FoamcutApp::connectToDevice()
 {
-	if ((bool)host_ && host_->connected()) return;
+	if (host_ && host_->connected()) return;
 
 	host_.reset(new stepper::Host());
 	emit connectionChanged(false);
