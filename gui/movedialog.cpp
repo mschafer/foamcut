@@ -103,7 +103,7 @@ void MoveDialog::moveX(int sign)
 	if (moving) {
 		double duration;
 		if (ui->fast_speed_radio->isChecked()) {
-			duration = (double)stepCount / 1000.;
+			duration = (double)stepCount / (double)app->maxStepRate();
 		}
 		else {
 			duration = distance / app->cutSpeed();
@@ -138,7 +138,7 @@ void MoveDialog::moveY(int sign)
 	if (moving) {
 		double duration;
 		if (ui->fast_speed_radio->isChecked()) {
-			duration = (double)stepCount / 1000.;
+			duration = (double)stepCount / (double)app->maxStepRate();
 		}
 		else {
 			duration = distance / app->cutSpeed();
