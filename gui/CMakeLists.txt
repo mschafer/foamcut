@@ -110,6 +110,10 @@ get_target_property(QtCore_location_Release Qt5::Core LOCATION_Release)
 #	)
 #endif (WIN32)
 
+#include the debug runtime libraries in the package as well as release
+set(CMAKE_INSTALL_DEBUG_LIBRARIES 1)
+include(InstallRequiredSystemLibraries)
+
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set_property( TARGET foamcut_gui
     PROPERTY MACOSX_BUNDLE true
@@ -122,8 +126,8 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     ARGS foamcut_gui.app -dmg
   )
 ELSEIF (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-get_filename_component(QT_BIN_DIR ${QtCore_location_Release} PATH)
-set(CONFIG_SUBDIR 
+  get_filename_component(QT_BIN_DIR ${QtCore_location_Release} PATH)
+  set(CONFIG_SUBDIR 
     $<$<CONFIG:Debug>:Debug>
     $<$<CONFIG:Release>:Release> 
   )
@@ -139,7 +143,4 @@ set(CONFIG_SUBDIR
 	DESTINATION bin
   )
   
-ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
-
-
-include(InstallRequiredSystemLibraries)
+ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
