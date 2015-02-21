@@ -1,4 +1,14 @@
-
+/*
+ * (C) Copyright 2015 Marc Schafer
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Marc Schafer
+ */
 #include <QDebug>
 #include "movedialog.h"
 #include "ui_movedialog.h"
@@ -103,7 +113,7 @@ void MoveDialog::moveX(int sign)
 	if (moving) {
 		double duration;
 		if (ui->fast_speed_radio->isChecked()) {
-			duration = (double)stepCount / 1000.;
+			duration = (double)stepCount / (double)app->maxStepRate();
 		}
 		else {
 			duration = distance / app->cutSpeed();
@@ -138,7 +148,7 @@ void MoveDialog::moveY(int sign)
 	if (moving) {
 		double duration;
 		if (ui->fast_speed_radio->isChecked()) {
-			duration = (double)stepCount / 1000.;
+			duration = (double)stepCount / (double)app->maxStepRate();
 		}
 		else {
 			duration = distance / app->cutSpeed();

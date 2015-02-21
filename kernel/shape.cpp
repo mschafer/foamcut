@@ -195,8 +195,8 @@ Shape::offset(double d) const {
 		// average by finding where the segments intersect.
 		if (rdist > .03 && cross > 1.e-2) {
 
-			int iter = 5;
-			double tol = std::min(1.e-3 * fabs(d), 1.e-9);
+			int iter = 8;
+			double tol = std::max(1.e-3 * fabs(d), 1.e-7);
 			double dsmax = fabs(3. * d);
 
 			do {
