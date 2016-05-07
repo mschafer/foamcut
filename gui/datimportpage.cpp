@@ -21,8 +21,7 @@
 #include "airfoil.hpp"
 
 DatImportPage::DatImportPage(DatImportPage::Side side, QWidget *parent) :
-    side_(side), QWizardPage(parent),
-    ui(new Ui::DatImportPage())
+    QWizardPage(parent), side_(side), ui(new Ui::DatImportPage())
 {
 	ui->setupUi(this);
 	registerField(fileFieldName() + "*", ui->fileName_edit);
@@ -48,7 +47,6 @@ DatImportPage::~DatImportPage()
 
 void DatImportPage::initializePage()
 {
-	FoamcutApp *app = FoamcutApp::instance();
 	datFile_.reset();
 	bool isAirfoil = field("type.airfoil").toBool();
 	if (!isAirfoil) {

@@ -112,7 +112,6 @@ void Simulator::stepTimerExpired(const boost::system::error_code &ec)
 
 void HAL::initialize()
 {
-	Simulator &sim = Simulator::instance();
 }
 
 void HAL::setStepDirBits(const StepDir &s)
@@ -168,7 +167,7 @@ LimitSwitches HAL::readLimitSwitches()
 ErrorCode HAL::sendMessage(Message *m, Message::Priority priority)
 {
 	Simulator &sim = Simulator::instance();
-	return Simulator::instance().comm_->sendMessage(m, priority);
+	return sim.comm_->sendMessage(m, priority);
 }
 
 Message *HAL::receiveMessage()
@@ -180,7 +179,6 @@ Message *HAL::receiveMessage()
 void HAL::startTimer(uint32_t period)
 {
 	Simulator &sim = Simulator::instance();
-	Stepper &s = Stepper::instance();
 	sim.time_ += 5.e-6 * period;
 
 	// below a certain threshold, just go as fast as possible

@@ -23,7 +23,7 @@ namespace stepper { namespace device {
 
 struct Position
 {
-	Position() : pos_({ 0, 0, 0, 0 }), time_(0.) {}
+	Position() : pos_({ {0, 0, 0, 0} }), time_(0.) {}
 	std::array<int, StepDir::AXIS_COUNT> pos_;
 	double time_{ 0. };
 };

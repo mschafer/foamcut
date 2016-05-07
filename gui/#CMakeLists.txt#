@@ -16,9 +16,7 @@ add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
 find_package( Boost REQUIRED COMPONENTS 
   system thread date_time chrono log
-)
-
-set(CMAKE_AUTOMOC ON)
+)set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt5Widgets REQUIRED)
@@ -110,17 +108,12 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set_property( TARGET foamcut_gui
     PROPERTY MACOSX_BUNDLE true
   )
-  get_filename_component(QT_FRAMEWORK_DIR ${QtCore_location_Release} DIRECTORY)
-  set (QT_BIN_DIR ${QT_FRAMEWORK_DIR}/../../bin)
-  set(CONFIG_SUBDIR
-    $<$<CONFIG:Debug>:Debug>
-    $<$<CONFIG:Release>:Release>
-  )
+  set (QT_BIN_DIR /Users/mschafer/Qt/5.3/clang_64/bin)
   add_custom_command(
     TARGET foamcut_gui
     POST_BUILD
     COMMAND ${QT_BIN_DIR}/macdeployqt
-    ARGS ${CONFIG_SUBDIR}/foamcut_gui.app -dmg
+    ARGS foamcut_gui.app -dmg
   )
 ELSEIF (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   get_filename_component(QT_BIN_DIR ${QtCore_location_Release} PATH)

@@ -19,7 +19,7 @@
 namespace foamcut {
 
 Airfoil::Airfoil(DatFile::handle datfile, double chord, double alpha, bool leLoop) :
-datfile_(datfile), chord_(chord), alpha_(alpha), hasLELoop_(leLoop)
+chord_(chord), alpha_(alpha), datfile_(datfile), hasLELoop_(leLoop)
 {
     shape_.reset(new Shape(*datfile_));
     size_t n = shape_->x().size();

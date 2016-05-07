@@ -68,7 +68,6 @@ void Host::connectToSimulator()
 	device::HeartbeatMsg *hm = new device::HeartbeatMsg();
 	link_->send(hm);
 
-	int iter = 10;
 	for (int iter=0; iter<10; ++iter) {
 		if (connected() && deviceStatus_) return;
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
@@ -82,7 +81,6 @@ void Host::connectToDevice(const std::string &portName)
 
 	device::ConnectMsg *cm = new device::ConnectMsg();
 	link_->send(cm);
-	int iter = 10;
 	for (int iter = 0; iter<10; ++iter) {
 		if (connected() && deviceStatus_) return;
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));

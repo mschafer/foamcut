@@ -54,7 +54,7 @@ void Stepper::runOnce()
 	engine_();
 
 	// check for limit switch activations
-	LimitSwitches limits = HAL::readLimitSwitches();
+	currentLimits_ = HAL::readLimitSwitches();
 	if (currentLimits_ != lastLimits_) {
 		LimitSwitchesMsg *lsm = new LimitSwitchesMsg();
 		if (lsm) {
