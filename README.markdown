@@ -7,17 +7,16 @@ embedded microcontroller.
 # Setting up the development environment
 
 # Windows
-* > CMake 3.0
-* Visual Studio 2013
-* Qt 5.3.x for Windows 64-bit (VS 2013, OpenGL)
-* Windows SDK 8.1 because Qt has a dependency on it (no longer true?)
-* boost 1.56 static libraries built from source using these commands
+* > CMake 3.6
+* Visual Studio 2015
+* Qt 5.7.x for Windows 64-bit
+* boost 1.61 static libraries built from source using these commands
 ```
 bootstrap.bat
-b2 --prefix="C:\Program Files\boost\boost_1_56_vc12"   --toolset=msvc-11.0 address-model=64 link=static threading=multi runtime-link=shared -j N install
+b2 --prefix="C:\Program Files\boost\boost_1_61_vc14"   --toolset=msvc-11.0 address-model=64 link=static threading=multi runtime-link=shared -j N install
 ```
 * configure CMake project with BOOST_ROOT in CMake to the prefix path above.
-* Select Visual Studio 13 Win64 generator for the CMake project.
+* Select Visual Studio 14 Win64 generator for the CMake project.
 
 # Mac
 * > CMake 3.0

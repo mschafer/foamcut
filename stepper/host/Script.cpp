@@ -17,8 +17,8 @@
 
 namespace stepper {
 
-const double MAX_STEP_DELAY = std::numeric_limits<uint16_t>::max() * device::Stepper::TIMER_PERIOD_USEC * 1.e-6;
-const double MAX_LINE_TIME = std::numeric_limits<uint32_t>::max() * device::Stepper::TIMER_PERIOD_USEC * 1.e-6;
+const double MAX_STEP_DELAY = (double)std::numeric_limits<uint16_t>::max() * (double)device::Stepper::TIMER_PERIOD_USEC * 1.e-6;
+const double MAX_LINE_TIME = (double)std::numeric_limits<uint32_t>::max() * (double)device::Stepper::TIMER_PERIOD_USEC * 1.e-6;
 const double SCRIPT_START_DELAY = .001;
 
 Script::Script() : duration_(SCRIPT_START_DELAY)
