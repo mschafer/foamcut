@@ -34,6 +34,7 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_gpio.h"
+#include "stm32f4xx_hal_tim.h"
 #include "dma.h"
 #include "tim.h"
 #include "usart.h"
@@ -85,6 +86,8 @@ int main(void)
   MX_USART2_UART_Init();
 
   /* USER CODE BEGIN 2 */
+  // enable the timer
+  __HAL_TIM_ENABLE(&htim11);
 
   /* USER CODE END 2 */
 
@@ -166,6 +169,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
   HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 
+  // re-initialize counter and update registers.
+  // counter and prescaler counter are cleared
+  //htim->Instance->EGR = TIM_EGR_UG;
+  // this will cause an interrupt unless
+
+
+
+  // set the timer reload value
+  //__HAL_TIM_SET_AUTORELOAD(htim, 10000);
+
+  // this is done by HAL_TIM_IRQHandler
+  // clear interrupt flag
+  //__HAL_TIM_CLEAR_IT(htim, TIM_SR_UIF);
 }
 
 /* USER CODE END 4 */

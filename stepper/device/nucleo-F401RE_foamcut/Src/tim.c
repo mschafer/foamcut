@@ -36,6 +36,7 @@
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
+#include "stm32f4xx_hal_tim.h"
 
 /* USER CODE END 0 */
 
@@ -54,12 +55,6 @@ void MX_TIM11_Init(void)
   {
     Error_Handler();
   }
-
-  if (HAL_TIM_OnePulse_Init(&htim11, TIM_OPMODE_SINGLE) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
 }
 
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
@@ -76,9 +71,23 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
     /* Peripheral interrupt init */
     HAL_NVIC_SetPriority(TIM1_TRG_COM_TIM11_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(TIM1_TRG_COM_TIM11_IRQn);
-  /* USER CODE BEGIN TIM11_MspInit 1 */
 
-  /* USER CODE END TIM11_MspInit 1 */
+    /* USER CODE BEGIN TIM11_MspInit 1 */
+
+
+    // enable interrupts on update (counter overflow or reset)
+    __HAL_TIM_ENABLE_IT(tim_baseHandle, TIM_IT_UPDATE);
+
+    // load the ARR shadow register from the preload register at each update event
+    tim_baseHandle->Instance->CR1 |= TIM_CR1_ARPE;
+
+    // only generate interrupt on update events
+    __HAL_TIM_URS_ENABLE(tim_baseHandle);
+
+    // stop the timer in debug mode
+    __HAL_DBGMCU_FREEZE_TIM11();
+
+    /* USER CODE END TIM11_MspInit 1 */
   }
 }
 
