@@ -2003,12 +2003,14 @@ static void UART_DMATransmitCplt(DMA_HandleTypeDef *hdma)
     /* Enable the UART Transmit Complete Interrupt */
     SET_BIT(huart->Instance->CR1, USART_CR1_TCIE);
 
+    /* At end of Tx process, restore huart->gState to Ready */
+    huart->gState = HAL_UART_STATE_READY;
   }
   /* DMA Circular mode */
   else
   {
-    HAL_UART_TxCpltCallback(huart);
   }
+  HAL_UART_TxCpltCallback(huart);
 }
 
 /**
