@@ -139,7 +139,7 @@ Airfoil::findLeadingEdge()
 
         double dslim = 0.01 * chord;
         if (curv != 0.0) {
-            dslim = std::min(dslim, .1 / abs(curv));
+            dslim = std::min(dslim, .1 / std::abs(curv));
         }
 
         dsle = std::min(dsle, dslim);
@@ -152,7 +152,7 @@ Airfoil::findLeadingEdge()
             throw(std::range_error("Airfoil::FindLeadingEdge failed to converge"));
         }
 
-    } while(abs(dsle) > stol);        
+    } while(std::abs(dsle) > stol);
 
     Shape::Point lePoint =  shape_->evaluate(sle);
     chord_ = hypot(lePoint.x - xte, lePoint.y - yte);

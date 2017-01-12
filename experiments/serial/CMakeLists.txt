@@ -19,6 +19,8 @@ include_directories (
 set (HEADERS
   AppPacket.hpp
   debug_stream.hpp
+  LinkPair.hpp
+  Packet.hpp
   Port.hpp
   SerialPackets.hpp
   SerialProtocol.hpp
@@ -30,6 +32,7 @@ source_group("Headers" FILES ${HEADERS})
 add_executable(test_tse_serial
   AppPacket.cpp
   hello_test.cpp
+  LinkPair.cpp
   Port.cpp
   port_test.cpp
   SerialProtocol.cpp

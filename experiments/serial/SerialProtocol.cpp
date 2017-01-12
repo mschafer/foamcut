@@ -2,320 +2,60 @@
 #include <memory.h>
 #include <algorithm>
 
-const char *SerialProtocol::SYNC_STRING = "~~~~ synchronizing ~~~~ synchronizing ~~~~";
-const size_t SerialProtocol::SYNC_SIZE = strlen(SerialProtocol::SYNC_STRING);
-const double SerialProtocol::SYNC_INTERVAL_SEC = .5;
+const uint8_t SYNC = 0x7E;
 
-SerialProtocol::SerialProtocol(Port &port) :port_(port), state_(SerialProtocol::DISCONNECTED),
-		sync_(SerialProtocol::SYNC_STRING, strlen(SerialProtocol::SYNC_STRING)), sendingSync_(0),
-		rxRawFIFO_((RX_WINDOW_SIZE + 1)*MAX_SERIAL_PACKET_SIZE),
-        rxPos_(0), rxDataPos_(0), txPos_(0)
+SerialProtocol::SerialProtocol(Link &link) :link_(link),
+        rxPos_(0), rxLen_(0), rxCtr_(0), txCtr_(0)
 {
-
 }
 
-bool SerialProtocol::send(AppPacket *a)
+bool SerialProtocol::sendPacket(const uint8_t *buff, size_type size)
 {
-    sendQueue_.push_back(a);
+    // send sync
+    blockingSend(SYNC, true);
+    
+    // send length
+    uint8_t *p = &txCtr_;
+    blockingSend(p[0]);
+    blockingSend(p[1]);
+    ++txCtr_;
+
+    // send counter
+    uint8_t *p = &txCtr_;
+    blockingSend(p[0]);
+    blockingSend(p[1]);
+    ++txCtr_;
+    
+    // send length
+    blockingSend(size);
+    
+    // sync stuffing and send bytes
+    // send checksum
+
+
     return true;
 }
 
-bool SerialProtocol::timeToSendSync()
+Link::ErrorCode SerialProtocol::blockingSend(uint8_t byte, bool sync)
 {
-	auto now = std::chrono::steady_clock::now();
-	std::chrono::duration<double> sec = now - syncTime_;
-	if (sec.count() > SYNC_INTERVAL_SEC) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-SerialProtocol::ErrorCode SerialProtocol::recv(uint8_t *buff, size_t &size)
-{
-    // no data to receive if we aren't connected
-    if (state() != CONNECTED) {
-        size = 0;
-        return SP_SUCCESS;
-    }
-
-    size_t maxSize = size;
-    size = 0;
-    while (size < maxSize) {
-        // is there data left in the last data packet?
-        if (rxDataPos_ >= 0) {
-            Data &d = *(Data*)rxBuff_;
-            uint8_t *dStart = &d.data_[rxPos_];
-            size_t n = (std::min)((size_t)(d.dataSize_ - rxPos_), maxSize);
-            memcpy(&buff[size], dStart, n);
-            size += n;
-            rxDataPos_ += n;
-
-            // did we use up all the data in the message?
-            if (rxDataPos_ == d.dataSize_) {
-                // send an ack
-                rxDataPos_ = -1;
-            }
-        } else {
-            // try to get another packet
-            bool gotPacket = receiveSerialPacket();
-            if (state() == ERROR) return SP_ERROR;
-            if (!gotPacket) break;
+    Link::ErrorCode r;
+    int count;
+    if (sync) count = 1;
+    else count = byte == SYNC ? 2 : 1;
+    
+    do {
+        r = link_.send(byte);
+        if (r == Link::LINK_SUCCESS) {
+            --count;
         }
-    }
-    return SP_SUCCESS;
+        ///\todo sleep here?
+    } while (r == Link::LINK_WOULD_BLOCK  || count > 0);
+    return r;
 }
 
-bool SerialProtocol::receiveSerialPacket()
+uint8_t *SerialProtocol::receivePacket()
 {
-    // do we have the packet id yet?
-    if (rxPos_ == 0) {
-        size_t size = 1;
-        Port::ErrorCode ec = port_.recv(rxBuff_, size);
-        if (ec) {
-			state_ = ERROR;
-            return false;
-        } else if (size == 0) {
-            return false;
-        }
-    }
-
-    size_t n = 0;
-    switch (rxBuff_[0]) {
-    case CONNECT_ID:
-        n = sizeof(Connect) - rxPos_;
-        break;
-
-    case ACK_ID:
-        n = sizeof(Ack) - rxPos_;
-        break;
-
-    case DATA_ID:
-        n = sizeof(Data) - rxPos_;
-        break;
-
-    case DISCONNECT_ID:
-        n = sizeof(Disconnect) - rxPos_;
-        break;
-
-    default:
-		state_ = ERROR;
-        return false;
-        break;
-
-    }
-
-    size_t complete = n;
-    Port::ErrorCode ec = port_.recv(&rxBuff_[rxPos_], n);
-    if (ec) {
-		state_ = ERROR;
-        return false;
-    } else if (n != complete) {
-        rxPos_ += n;
-        return false;
-    } else {
-        rxPos_ = 0;
-        handleSerialPacket();
-        return true;
-    }
-}
-
-void SerialProtocol::doSend()
-{
-    Data *pData = reinterpret_cast<Data*>(txBuff_);
-    pData->id_ = DATA_ID;
-    while (!sendQueue_.empty()) {
-		if (port_.sendAvailable() < MAX_SERIAL_PACKET_SIZE) return;
-
-        // assemble one data packet and send it
-        size_t dpPos = 0;
-        while (dpPos < Data::PAYLOAD_SIZE) {
-
-            AppPacket &a = sendQueue_.front();
-            size_t n = std::min(sizeof(Data::PAYLOAD_SIZE)-dpPos, a.size()-txPos_);
-            std::copy(a.data()+dpPos, a.data()+n, pData->data_);
-            txPos_ += n;
-
-            if (txPos_ == a.size()) {
-                txPos_ = 0;
-                sendQueue_.pop_front();
-            }
-
-            if (sendQueue_.empty()) break;
-        }
-
-        // send the packet
-        pData->dataSize_ = static_cast<uint8_t>(dpPos);
-        pData->sequence_ = 1;
-        pData->crc_ = 0;
-        pData->id_ = DATA_ID;
-        size_t nsent = dpPos + 4;
-        Port::ErrorCode ec = port_.send(reinterpret_cast<uint8_t *>(pData), nsent);
-        if (ec) {
-        }
-        assert(nsent == dpPos + 4);
-    }
-}
-
-void SerialProtocol::handleSerialPacket()
-{
-    switch (rxBuff_[0]) {
-    case CONNECT_ID:
-        // if state is synchronized then transition to connected, else error
-        break;
-
-    case ACK_ID:
-        // verify sequence and adjust window
-        break;
-
-    case DATA_ID:
-        rxDataPos_ = 0;
-		/*
-		Feed all the received data to the AppPacketFactory. and then Ack this data.
-		Window size is met by size of rxRawFifo
-		*/
-        break;
-
-    case DISCONNECT_ID:
-        // ??
-        break;
-
-    default:
-		state_ = ERROR;
-        break;
-    }
-}
-
-void SerialProtocol::run()
-{
-	// simulate interrupt/DMA driven reception by copying data available from the port
-	// into the protocol rx fifo
-	size_t n = std::min(port_.recvAvailable(), rxRawFIFO_.reserve());
-	uint8_t c;
-	for (size_t i = 0; i < n; ++i) {
-		size_t ir = 1;
-		port_.recv(&c, ir);
-		assert(ir == 1);
-		rxRawFIFO_.push_back(c);
-	}
-
-	switch (state_) {
-	case DISCONNECTED:
-	{
-		auto err = port_.open();
-		if (!err) {
-			state_ = INITIALIZED;
-			sendingSync_ = SYNC_SIZE;
-		} else {
-			state_ = ERROR;
-		}
-		break;
-	}
-
-	// port is initialized, look for sync string and periodically send it
-	case INITIALIZED:
-	{
-		if (sendingSync_ != 0) {
-			const uint8_t *p = reinterpret_cast<const uint8_t*>(SYNC_STRING) + SYNC_SIZE - sendingSync_;
-			size_t n = sendingSync_;
-			Port::ErrorCode err = port_.send(p, n);
-			if (!err) {
-				sendingSync_ -= n;
-			} else {
-				state_ = ERROR;
-				break;
-			}
-			if (sendingSync_ == 0) {
-				syncTime_ = std::chrono::steady_clock::now();
-			}
-		} else if (timeToSendSync()) {
-			sendingSync_ = SYNC_SIZE;
-		}
-
-		while (!rxRawFIFO_.empty()) {
-			uint8_t c = rxRawFIFO_.front();
-			rxRawFIFO_.pop_front();
-			if (sync_.run(c)) {
-				state_ = SYNCHRONIZED;
-				break;
-			}
-		}
-		break;
-	}
-
-		/** 
-		 * \todo synchronized means sync was received, but still need to complete sending it if in process
-		 * also need to ensure we don't send the Connect until sending of sync is complete
-		 * maybe append Connect to the end of sync?
-		 */
-		
-
-
-	case SYNCHRONIZED:
-		receiveConnect();
-		break;
-
-	case CONNECTED:
-		// is there a (partial) data packet in the rxBuff_?
-		// if so, try to hand the remaing data to the AppPacketFactory and Ack it
-		// otherwise look for the next SerialPacket in the rxRawFIFO
-
-		break;
-
-	case ERROR:
-	{
-		port_.close();
-		rxRawFIFO_.clear();
-		sync_.reset();
-		state_ = DISCONNECTED;
-		break;
-	}
-
-	}
-
-}
-
-void SerialProtocol::sendConnect()
-{
-	Connect conn;
-	conn.maxPacketSize_ = MAX_SERIAL_PACKET_SIZE;
-	conn.windowSize_ = RX_WINDOW_SIZE;
-
-	// assume the Connect packet can be sent immediately in its entirety
-	size_t s = sizeof(Connect);
-	Port::ErrorCode ec = port_.send(reinterpret_cast<const uint8_t*>(&conn), s);
-
-	if (s != sizeof(Connect) || ec) {
-		state_ = ERROR;
-	}
-}
-
-void SerialProtocol::receiveConnect()
-{
-	if (rxRawFIFO_.size() >= sizeof(Connect)) {
-
-		// are we getting a second sync string?
-		if (rxRawFIFO_.front() == SYNC_STRING[0]) {
-			state_ = INITIALIZED;
-			sync_.reset();
-			return;
-		}
-
-		// verify Connect packet
-		if (rxRawFIFO_.front() != CONNECT_ID) {
-			state_ = ERROR;
-			return;
-		}
-		
-		uint8_t *p = reinterpret_cast<uint8_t*>(&connect_);
-		for (size_t i = 0; i < sizeof(Connect); ++i) {
-			p[i] = rxRawFIFO_.front();
-			rxRawFIFO_.pop_front();
-		}
-
-		///\todo verfiy connect crc
-		state_ = CONNECTED;
-	}
+    return nullptr;
 }
 
 static uint8_t crc8_table[] = {

@@ -15,6 +15,8 @@
 #include <boost/function.hpp>
 #include <time.h>
 
+#include "Packet.hpp"
+
 int add( int i, int j ) { return i+j; }
 
 struct test_output_redirect {
