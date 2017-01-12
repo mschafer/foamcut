@@ -1,4 +1,7 @@
 #include "SerialPort.hpp"
+#include "usart.h"
+#include "stm32f4xx_hal_uart.h"
+
 
 SerialPort::Status
 SerialPort::send(const uint8_t *buf, uint16_t len)
@@ -93,5 +96,120 @@ SerialPort::sendNextBytes()
 SerialPort::Status
 SerialPort::receive(uint8_t *&buf, uint16_t &len)
 {
-    return SUCCESS;
+	fifo<uint8_t, FIFO_SIZE>::carray d = rxFifo_.contents_carray();
+    size_t n = 0;
+    while (n < d.size_ && rx_.state_ != COMPLETE) {
+        switch (rx_.state_) {
+
+            // looking for a sync
+            case INIT_SYNC:
+                if (d.addr_[n] == SYNC) {
+                    rx_.state_ = HEADER;
+                    rx_.progress_ = 0;
+                }
+                break;
+
+            case HEADER:
+                rx_.header_.array()[rx_.progress_] = d.addr_[n];
+                if (d.addr_[n] == SYNC) {
+                    rx_.state_ = HEADER_SYNC;
+                } else {
+                    ++rx_.progress_;
+                    if (rx_.progress_ == sizeof(Header)) {
+                        rx_.state_ = PAYLOAD;
+                        rx_.progress_ = 0;
+                        ///\todo should check payload size against buffer size
+                    }
+                }
+                break;
+
+            // still receiving length, but next byte needs to be a sync
+            case HEADER_SYNC:
+                if (d.addr_[n] == SYNC) {
+                    ++rx_.progress_;
+                    if (rx_.progress_ == sizeof(Header)) {
+                        rx_.state_ = PAYLOAD;
+                        rx_.progress_ = 0;
+                        ///\todo should check payload size against buffer size
+                    } else {
+                        rx_.state_ = HEADER;
+                    }
+                } else {
+                    // error, no second sync.  previous message was incomplete
+                    // this is the first header byte of a new message
+                    rx_.header_.array()[0] = d.addr_[n];
+                    rx_.state_ = HEADER;
+                }
+                break;
+
+            case PAYLOAD:
+                rx_.buf_[rx_.progress_] = d.addr_[n];
+                if (d.addr_[n] == SYNC) {
+                    rx_.state_ = PAYLOAD_SYNC;
+                } else {
+                    ++rx_.progress_;
+                    if (rx_.progress_ ==  rx_.header_.len_) {
+                        rx_.state_ = COMPLETE;
+                    }
+                }
+                break;
+
+            // still receiving payload, but next byte needs to be a sync
+            case PAYLOAD_SYNC:
+                if (d.addr_[n] == SYNC) {
+                    ++rx_.progress_;
+                    if (rx_.progress_ ==  rx_.header_.len_) {
+                        rx_.state_ = COMPLETE;
+                    } else {
+                        rx_.state_ = PAYLOAD;
+                    }
+                } else {
+                    // error, no second sync.  previous message was incomplete
+                    // this is the second byte of a new message
+                    rx_.header_.array()[0] = d.addr_[n];
+                    rx_.state_ = HEADER;
+                }
+                break;
+
+            case COMPLETE:
+            default:
+                ///\todo error here
+                break;
+        }
+        ++n;
+    }
+
+    rxFifo_.contents_remove(n);
+    if (rx_.state_ == COMPLETE) {
+        rx_.state_ = INIT_SYNC;
+        rx_.progress_ = 0;
+        buf = rx_.buf_;
+        len = rx_.header_.len_;
+        return SUCCESS;
+    } else {
+        buf = NULL;
+        len = 0;
+        return SUCCESS;
+    }
+}
+
+void SerialPort::receiveWork()
+{
+	///\todo consider switching rx to ping pong buffers instead of fifo
+
+	// adjust rxFifo contents based on progress of DMA transfer
+	if (rxXferCount_ != 0) {
+		uint16_t b = __HAL_DMA_GET_COUNTER(huart2.hdmarx);
+		rxFifo_.contents_add(rxXferCount_ - b);
+		rxXferCount_ = b;
+	}
+
+	// start a DMA tranfer to the rx fifo if there isn't one running
+	///\todo transfers might all need to be 32 bit aligned?
+	if(huart2.RxState == HAL_UART_STATE_READY) {
+		fifo<uint8_t, FIFO_SIZE>::carray d = rxFifo_.contents_carray();
+		if (d.size_ == 0) return;
+		HAL_UART_Receive_DMA(&huart2, d.addr_, d.size_);
+		rxXferCount_ = d.size_;
+	}
 }

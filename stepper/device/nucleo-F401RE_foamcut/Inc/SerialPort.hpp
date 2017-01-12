@@ -20,7 +20,7 @@ class SerialPort
     /**
      * Receive a packet.
      * \param buff Output parameter that holds a pointer to the buffer
-     * containing the packet on success or nullptr on failure.
+     * containing the packet on success or NULL on failure.
      * \param len Output parameter holding the length of the received packet
      * on success.  Value is undefined on failure.
      */
@@ -61,7 +61,11 @@ private:
     Message rx_;
     Message tx_;
 
+    // driver specific
+    uint16_t rxXferCount_;
+
     void sendNextBytes();
+    void receiveWork();
 };
 
 #endif
