@@ -41,13 +41,24 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "fifo.hpp"
+#include <string.h>
+#include <algorithm>
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+fifo<uint8_t, 16> rxFifo;
+uint16_t rxXferCount = 0;
+int rxError = 0;
+int rxGood = 0;
+char exp = 'a';
+fifo<uint8_t, 16> txFifo;
+uint16_t txXferCount = 0;
+const char message[] = "bcdefghijklmnopqrstuvwxyz\r\n";
+unsigned int mSent = 0;
 
 /* USER CODE END PV */
 
@@ -57,6 +68,8 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
+void rxDMA();
+void txDMA();
 
 /* USER CODE END PFP */
 
@@ -93,11 +106,49 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  size_t sptr = 0;
+  size_t mLen = strlen(message);
+  size_t nextSend = 1000;
   while (1)
   {
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
+      uint32_t tick = HAL_GetTick() + 1;
+      txDMA();
+      if (HAL_GetTick() == nextSend) {
+          while (sptr < mLen) {
+              fifo<uint8_t, 16>::carray d = txFifo.space_carray();
+              size_t n = std::min(mLen - sptr, d.len_);
+              std::copy(&message[sptr], &message[sptr]+n, d.buf_);
+              txFifo.contents_add(n);
+              sptr += n;
+              mSent += n;
+              txDMA();
+          }
+          sptr = 0;
+          nextSend += 500;
+      }
+
+
+#if 0
+      rxDMA();
+
+
+      fifo<uint8_t, 16>::carray d = rxFifo.contents_carray();
+      for (uint16_t i=0; i<d.len_; ++i) {
+          if (d.buf_[i] != exp) {
+              rxError++;
+              exp = d.buf_[i] + 1;
+          } else {
+              ++exp;
+              ++rxGood;
+          }
+          if (exp == '{') exp = 'a';
+          d.buf_[i] = 0;
+      }
+      rxFifo.contents_remove(d.len_);
+#endif
 
   }
   /* USER CODE END 3 */
@@ -161,6 +212,48 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void rxDMA()
+{
+    // adjust rxFifo contents based on progress of DMA transfer
+    if (rxXferCount != 0) {
+        uint16_t b = __HAL_DMA_GET_COUNTER(huart2.hdmarx);
+        rxFifo.contents_add(rxXferCount - b);
+        rxXferCount = b;
+    }
+
+    // start a DMA tranfer to the rx fifo if there isn't one running
+    if(huart2.RxState == HAL_UART_STATE_READY) {
+        fifo<uint8_t, 16>::carray d = rxFifo.space_carray();
+        if (d.len_ == 0) return;
+        HAL_UART_Receive_DMA(&huart2, d.buf_, d.len_);
+        rxXferCount = d.len_;
+    }
+
+}
+
+void txDMA()
+{
+    // adjust rxFifo contents based on progress of DMA transfer
+    if (txXferCount != 0) {
+        uint16_t b = __HAL_DMA_GET_COUNTER(huart2.hdmatx);
+        if ((txXferCount - b) > txFifo.contents_size()) {
+            ++rxError;
+        }
+        txFifo.contents_remove(txXferCount - b);
+        txXferCount = b;
+    }
+
+    // start a DMA tranfer from the tx fifo if there isn't one running
+    if(huart2.gState == HAL_UART_STATE_READY) {
+        txFifo.contents_remove(txXferCount);
+        txXferCount = 0;
+        fifo<uint8_t, 16>::carray d = txFifo.contents_carray();
+        if (d.len_ == 0) return;
+        HAL_UART_Transmit_DMA(&huart2, d.buf_, d.len_);
+        txXferCount = d.len_;
+    }
+}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {

@@ -20,8 +20,8 @@ public:
     typedef T value_type;
 
     struct carray {
-        T *addr_;
-        size_t size_;
+        T *buf_;
+        size_t len_;
     };
 
     fifo() : contents_(buff_), space_(buff_) {}
@@ -50,8 +50,8 @@ public:
 
     carray contents_carray() {
         carray r;
-        r.addr_ = const_cast<T*>(contents_);
-        r.size_ = contents_wrapped() ? buff_end() - contents_ : space_ - contents_;
+        r.buf_ = const_cast<T*>(contents_);
+        r.len_ = contents_wrapped() ? buff_end() - contents_ : space_ - contents_;
         return r;
     }
 
@@ -74,16 +74,16 @@ public:
 
     carray space_carray() {
         carray r;
-        r.addr_ = const_cast<T*>(space_);
+        r.buf_ = const_cast<T*>(space_);
         if (contents_wrapped()) {
-            r.size_ = contents_ - space_ - 1;
+            r.len_ = contents_ - space_ - 1;
         }
         else {
-            r.size_ = buff_end() - space_;
+            r.len_ = buff_end() - space_;
 
             // if contents_ == buff_, then allowing the space array to go all the way to the end
             // would mean that contents_add(r.size_) would make empty() == true;
-            if (contents_ == buff_) --r.size_;
+            if (contents_ == buff_) --r.len_;
         }
         return r;
     }

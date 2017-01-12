@@ -28,17 +28,17 @@ SerialPort::sendNextBytes()
 {
     fifo<uint8_t, FIFO_SIZE>::carray d = txFifo_.space_carray();
     size_t n = 0;
-    while (n < d.size_ && tx_.state_ != COMPLETE) {
+    while (n < d.len_ && tx_.state_ != COMPLETE) {
         switch (tx_.state_) {
             case INIT_SYNC:
-                d.addr_[n] = SYNC;
+                d.buf_[n] = SYNC;
                 tx_.state_ = HEADER;
                 tx_.progress_ = 0;
                 break;
 
             case HEADER:
-                d.addr_[n] = tx_.header_.array()[tx_.progress_];
-                if (d.addr_[n] == SYNC) {
+                d.buf_[n] = tx_.header_.array()[tx_.progress_];
+                if (d.buf_[n] == SYNC) {
                     tx_.state_ = HEADER_SYNC;
                 } else {
                     ++tx_.progress_;
@@ -50,7 +50,7 @@ SerialPort::sendNextBytes()
                 break;
 
             case HEADER_SYNC:
-                d.addr_[n] = SYNC;
+                d.buf_[n] = SYNC;
                 ++tx_.progress_;
                 if (tx_.progress_ == sizeof(Header)) {
                     tx_.state_ = PAYLOAD;
@@ -61,8 +61,8 @@ SerialPort::sendNextBytes()
                 break;
 
             case PAYLOAD:
-                d.addr_[n] = tx_.buf_[tx_.progress_];
-                if (d.addr_[n] == SYNC) {
+                d.buf_[n] = tx_.buf_[tx_.progress_];
+                if (d.buf_[n] == SYNC) {
                     tx_.state_ = PAYLOAD_SYNC;
                 } else {
                     ++tx_.progress_;
@@ -73,7 +73,7 @@ SerialPort::sendNextBytes()
                 break;
 
             case PAYLOAD_SYNC:
-                d.addr_[n] = SYNC;
+                d.buf_[n] = SYNC;
                 ++tx_.progress_;
                 if (tx_.progress_ == tx_.header_.len_) {
                     tx_.state_ = COMPLETE;
@@ -98,20 +98,20 @@ SerialPort::receive(uint8_t *&buf, uint16_t &len)
 {
 	fifo<uint8_t, FIFO_SIZE>::carray d = rxFifo_.contents_carray();
     size_t n = 0;
-    while (n < d.size_ && rx_.state_ != COMPLETE) {
+    while (n < d.len_ && rx_.state_ != COMPLETE) {
         switch (rx_.state_) {
 
             // looking for a sync
             case INIT_SYNC:
-                if (d.addr_[n] == SYNC) {
+                if (d.buf_[n] == SYNC) {
                     rx_.state_ = HEADER;
                     rx_.progress_ = 0;
                 }
                 break;
 
             case HEADER:
-                rx_.header_.array()[rx_.progress_] = d.addr_[n];
-                if (d.addr_[n] == SYNC) {
+                rx_.header_.array()[rx_.progress_] = d.buf_[n];
+                if (d.buf_[n] == SYNC) {
                     rx_.state_ = HEADER_SYNC;
                 } else {
                     ++rx_.progress_;
@@ -125,7 +125,7 @@ SerialPort::receive(uint8_t *&buf, uint16_t &len)
 
             // still receiving length, but next byte needs to be a sync
             case HEADER_SYNC:
-                if (d.addr_[n] == SYNC) {
+                if (d.buf_[n] == SYNC) {
                     ++rx_.progress_;
                     if (rx_.progress_ == sizeof(Header)) {
                         rx_.state_ = PAYLOAD;
@@ -137,14 +137,14 @@ SerialPort::receive(uint8_t *&buf, uint16_t &len)
                 } else {
                     // error, no second sync.  previous message was incomplete
                     // this is the first header byte of a new message
-                    rx_.header_.array()[0] = d.addr_[n];
+                    rx_.header_.array()[0] = d.buf_[n];
                     rx_.state_ = HEADER;
                 }
                 break;
 
             case PAYLOAD:
-                rx_.buf_[rx_.progress_] = d.addr_[n];
-                if (d.addr_[n] == SYNC) {
+                rx_.buf_[rx_.progress_] = d.buf_[n];
+                if (d.buf_[n] == SYNC) {
                     rx_.state_ = PAYLOAD_SYNC;
                 } else {
                     ++rx_.progress_;
@@ -156,7 +156,7 @@ SerialPort::receive(uint8_t *&buf, uint16_t &len)
 
             // still receiving payload, but next byte needs to be a sync
             case PAYLOAD_SYNC:
-                if (d.addr_[n] == SYNC) {
+                if (d.buf_[n] == SYNC) {
                     ++rx_.progress_;
                     if (rx_.progress_ ==  rx_.header_.len_) {
                         rx_.state_ = COMPLETE;
@@ -166,7 +166,7 @@ SerialPort::receive(uint8_t *&buf, uint16_t &len)
                 } else {
                     // error, no second sync.  previous message was incomplete
                     // this is the second byte of a new message
-                    rx_.header_.array()[0] = d.addr_[n];
+                    rx_.header_.array()[0] = d.buf_[n];
                     rx_.state_ = HEADER;
                 }
                 break;
@@ -207,9 +207,9 @@ void SerialPort::receiveWork()
 	// start a DMA tranfer to the rx fifo if there isn't one running
 	///\todo transfers might all need to be 32 bit aligned?
 	if(huart2.RxState == HAL_UART_STATE_READY) {
-		fifo<uint8_t, FIFO_SIZE>::carray d = rxFifo_.contents_carray();
-		if (d.size_ == 0) return;
-		HAL_UART_Receive_DMA(&huart2, d.addr_, d.size_);
-		rxXferCount_ = d.size_;
+		fifo<uint8_t, FIFO_SIZE>::carray d = rxFifo_.space_carray();
+		if (d.len_ == 0) return;
+		HAL_UART_Receive_DMA(&huart2, d.buf_, d.len_);
+		rxXferCount_ = d.len_;
 	}
 }
