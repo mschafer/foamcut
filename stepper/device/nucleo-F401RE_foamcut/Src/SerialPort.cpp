@@ -4,27 +4,90 @@
 
 
 SerialPort::Status
-SerialPort::send(const uint8_t *buf, uint16_t len)
+SerialPort::startSending(const uint8_t *buf, uint16_t len)
 {
-    tx_.buf_ = const_cast<uint8_t*>(buf); // promise not to change it
+	Status ss = sendState();
+	if (ss != SERIAL_OK) {
+		return ss;
+	}
+
+    tx_.buf_ = const_cast<uint8_t*>(buf);
     tx_.header_.len_ = len;
     tx_.progress_ = 0;
     tx_.state_ = INIT_SYNC;
 
-    while (tx_.state_ != COMPLETE && tx_.state_ != ERROR) {
-        sendNextBytes();
-        ///\todo sleep here so fifo can empty out
-    }
-
-    if (tx_.state_ == COMPLETE) {
-        return SUCCESS;
+    sendBytes();
+    if (tx_.state_ == ERROR) {
+    	return SERIAL_ERROR;
     } else {
-        return FAILURE;
+    	return SERIAL_OK;
     }
 }
 
+SerialPort::Status
+SerialPort::sendState() const {
+	switch (tx_.state_) {
+	case COMPLETE:
+		return SERIAL_OK;
+		break;
+
+	case ERROR:
+		return SERIAL_ERROR;
+		break;
+
+	default:
+		return SERIAL_BUSY;
+	}
+}
+
+SerialPort::Status
+SerialPort::startReceiving(uint8_t *buf, uint16_t len)
+{
+	Status ss = sendState();
+	if (ss != SERIAL_OK || ss != SERIAL_OVERRUN) {
+		return ss;
+	}
+
+    tx_.buf_ = buf;
+    tx_.bufLen_ = len;
+    tx_.progress_ = 0;
+    tx_.state_ = INIT_SYNC;
+    receiveBytes();
+    return SERIAL_OK;
+}
+
+SerialPort::Status
+SerialPort::receiveState(uint16_t &len) {
+	switch (rx_.state_) {
+	case COMPLETE:
+		len = rx_.header_.len_;
+		return SERIAL_OK;
+		break;
+
+	case RX_OVERRUN:
+		len = rx_.bufLen_;
+		return SERIAL_OVERRUN;
+		break;
+
+	default:
+		return SERIAL_BUSY;
+	}
+}
+
 void
-SerialPort::sendNextBytes()
+SerialPort::runOnce()
+{
+	///\todo need to check that right thing happens when nothing to send or receive
+
+	receiveDriver();
+	receiveBytes();
+
+	sendDriver();
+	sendBytes();
+}
+
+void
+SerialPort::sendBytes()
 {
     fifo<uint8_t, FIFO_SIZE>::carray d = txFifo_.space_carray();
     size_t n = 0;
@@ -93,8 +156,8 @@ SerialPort::sendNextBytes()
     txFifo_.contents_add(n);
 }
 
-SerialPort::Status
-SerialPort::receive(uint8_t *&buf, uint16_t &len)
+void
+SerialPort::receiveBytes()
 {
 	fifo<uint8_t, FIFO_SIZE>::carray d = rxFifo_.contents_carray();
     size_t n = 0;
@@ -118,7 +181,6 @@ SerialPort::receive(uint8_t *&buf, uint16_t &len)
                     if (rx_.progress_ == sizeof(Header)) {
                         rx_.state_ = PAYLOAD;
                         rx_.progress_ = 0;
-                        ///\todo should check payload size against buffer size
                     }
                 }
                 break;
@@ -130,7 +192,6 @@ SerialPort::receive(uint8_t *&buf, uint16_t &len)
                     if (rx_.progress_ == sizeof(Header)) {
                         rx_.state_ = PAYLOAD;
                         rx_.progress_ = 0;
-                        ///\todo should check payload size against buffer size
                     } else {
                         rx_.state_ = HEADER;
                     }
@@ -172,31 +233,29 @@ SerialPort::receive(uint8_t *&buf, uint16_t &len)
                 break;
 
             case COMPLETE:
+            	break;
+
+            case RX_OVERRUN:
+            	break;
+
             default:
                 ///\todo error here
                 break;
+        }
+
+        // check for rx buffer overflow
+        if ((rx_.state_ == PAYLOAD || rx_.state_ == PAYLOAD_SYNC) &&
+        	rx_.progress_ >= rx_.bufLen_) {
+        	rx_.state_ = RX_OVERRUN;
         }
         ++n;
     }
 
     rxFifo_.contents_remove(n);
-    if (rx_.state_ == COMPLETE) {
-        rx_.state_ = INIT_SYNC;
-        rx_.progress_ = 0;
-        buf = rx_.buf_;
-        len = rx_.header_.len_;
-        return SUCCESS;
-    } else {
-        buf = NULL;
-        len = 0;
-        return SUCCESS;
-    }
 }
 
-void SerialPort::receiveWork()
+void SerialPort::receiveDriver()
 {
-	///\todo consider switching rx to ping pong buffers instead of fifo
-
 	// adjust rxFifo contents based on progress of DMA transfer
 	if (rxXferCount_ != 0) {
 		uint16_t b = __HAL_DMA_GET_COUNTER(huart2.hdmarx);
@@ -204,12 +263,37 @@ void SerialPort::receiveWork()
 		rxXferCount_ = b;
 	}
 
-	// start a DMA tranfer to the rx fifo if there isn't one running
+	// start a DMA transfer to the rx fifo if there isn't one running
 	///\todo transfers might all need to be 32 bit aligned?
 	if(huart2.RxState == HAL_UART_STATE_READY) {
+		if (rxXferCount_ != 0) {
+			rxFifo_.contents_add(rxXferCount_);
+			rxXferCount_ = 0;
+		}
+
 		fifo<uint8_t, FIFO_SIZE>::carray d = rxFifo_.space_carray();
 		if (d.len_ == 0) return;
 		HAL_UART_Receive_DMA(&huart2, d.buf_, d.len_);
 		rxXferCount_ = d.len_;
 	}
+}
+
+void SerialPort::sendDriver()
+{
+    // adjust rxFifo contents based on progress of DMA transfer
+    if (txXferCount_ != 0) {
+        uint16_t b = __HAL_DMA_GET_COUNTER(huart2.hdmatx);
+        txFifo_.contents_remove(txXferCount_ - b);
+        txXferCount_ = b;
+    }
+
+    // start a DMA transfer from the tx fifo if there isn't one running
+    if(huart2.gState == HAL_UART_STATE_READY) {
+        txFifo_.contents_remove(txXferCount_);
+        txXferCount_ = 0;
+        fifo<uint8_t, FIFO_SIZE>::carray d = txFifo_.contents_carray();
+        if (d.len_ == 0) return;
+        HAL_UART_Transmit_DMA(&huart2, d.buf_, d.len_);
+        txXferCount_ = d.len_;
+    }
 }

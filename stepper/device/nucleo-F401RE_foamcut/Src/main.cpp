@@ -244,7 +244,7 @@ void txDMA()
         txXferCount = b;
     }
 
-    // start a DMA tranfer from the tx fifo if there isn't one running
+    // start a DMA transfer from the tx fifo if there isn't one running
     if(huart2.gState == HAL_UART_STATE_READY) {
         txFifo.contents_remove(txXferCount);
         txXferCount = 0;

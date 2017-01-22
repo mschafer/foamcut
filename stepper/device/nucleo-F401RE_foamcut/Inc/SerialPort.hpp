@@ -5,27 +5,47 @@
 
 class SerialPort
 {
-    enum {
-        MAX_RX_PACKET_SIZE = 1024
-    };
+public:
+	enum Status {
+		SERIAL_OK,
+		SERIAL_BUSY,
+		SERIAL_ERROR,
+		SERIAL_OVERRUN
+	};
 
-    enum Status {
-        SUCCESS = 0,
-        FAILURE
-    };
+	/**
+	 * Start sending a packet out the serial port.
+	 * The contents of buf should remain valid until sendState returns SERIAL_OK.
+	 */
+	Status startSending(const uint8_t *buf, uint16_t len);
 
-    /** Send a packet.  Blocks until done or error. */
-    Status send(const uint8_t* buf, uint16_t len);
+	/**
+	 * \return SERIAL_OK if startSending can be called successfully.
+	 */
+	Status sendState() const;
 
-    /**
-     * Receive a packet.
-     * \param buff Output parameter that holds a pointer to the buffer
-     * containing the packet on success or NULL on failure.
-     * \param len Output parameter holding the length of the received packet
-     * on success.  Value is undefined on failure.
-     */
-    Status receive(uint8_t *&buf, uint16_t &len);
 
+	/**
+	 * Start receiving a packet.
+	 * \param buf Memory for the incoming packet.
+	 * \param len Maximum length packet that will fit in buf.
+	 */
+	Status startReceiving(uint8_t *buf, uint16_t len);
+
+	/**
+	 * \return SERIAL_OK if a packet has been successfully received.  In this case len is an
+	 * out parameter holding the length of the received packet.
+	 * SERIAL_OVERRUN is returned if the length of the incoming packet exceeded the length of
+	 * the buffer passed to \sa startReceiving.
+	 */
+	Status receiveState(uint16_t &len);
+
+
+	/**
+	 * Runs the serial protocol engine.  Must be called periodically to keep
+	 * sending and receiving going.
+	 */
+	void runOnce();
 
 private:
     enum {
@@ -40,6 +60,7 @@ private:
         PAYLOAD,
         PAYLOAD_SYNC,
         COMPLETE,
+		RX_OVERRUN,
         ERROR
     };
 
@@ -49,6 +70,7 @@ private:
     };
 
     struct Message {
+    	uint16_t bufLen_;
         uint8_t *buf_;
         Header header_;
         State state_;
@@ -57,15 +79,17 @@ private:
 
     fifo<uint8_t, FIFO_SIZE> rxFifo_;
     fifo<uint8_t, FIFO_SIZE> txFifo_;
-    uint8_t rxBuf_[MAX_RX_PACKET_SIZE];
     Message rx_;
     Message tx_;
 
     // driver specific
     uint16_t rxXferCount_;
+    uint16_t txXferCount_;
 
-    void sendNextBytes();
-    void receiveWork();
+    void sendBytes();
+    void receiveBytes();
+    void receiveDriver();
+    void sendDriver();
 };
 
 #endif
