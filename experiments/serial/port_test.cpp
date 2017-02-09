@@ -32,6 +32,7 @@ BOOST_AUTO_TEST_CASE( simple_port_test )
 
 BOOST_AUTO_TEST_CASE( sync_test)
 {
+#if 0
     PortPair pp(2048);
     Port &A = pp.portA();
     Port &B = pp.portB();
@@ -48,4 +49,5 @@ BOOST_AUTO_TEST_CASE( sync_test)
 
     BOOST_CHECK(spA.state() == SerialProtocol::SYNCHRONIZED);
     BOOST_CHECK(spB.state() == SerialProtocol::SYNCHRONIZED);
+#endif
 }

@@ -21,10 +21,12 @@ b2 --prefix="C:\Program Files\boost\boost_1_61_vc14"   --toolset=msvc-11.0 addre
 # Mac
 * > CMake 3.0
 * XCode ?
-* Qt 5.3.x for Mac clang 64
-* boost 1.56 static libraries built from source using these commands
+* Qt 5.8 for Mac clang 64
+* boost 1.62 static libraries built from source using these commands
 ```
 ./bootstrap.sh --prefix=/where/you/want/boost
 ./b2 cxxflags="-std=c++11 -stdlib=libc++" linkflags="-stdlib=libc++" link=static -j N install
 ```
 * configure CMake project with BOOST_ROOT in CMake to the prefix path above.
+* CMAKE_PREFIX_PATH = /Users/mschafer/Qt/5.8/clang_64
+

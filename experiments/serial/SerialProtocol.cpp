@@ -21,7 +21,6 @@ bool SerialProtocol::sendPacket(const uint8_t *buff, size_type size)
     ++txCtr_;
 
     // send counter
-    uint8_t *p = &txCtr_;
     blockingSend(p[0]);
     blockingSend(p[1]);
     ++txCtr_;
