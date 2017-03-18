@@ -102,6 +102,9 @@ void Simulator::runOnce(const boost::system::error_code &ec)
 
 void Simulator::stepTimerExpired(const boost::system::error_code &ec)
 {
+    auto elapsed = std::chrono::steady_clock::now() - timerStart_;
+    timerError_ -= elapsed;
+    
 	// don't do anything on error as it means Simulator is being forced to shut down
 	if (!ec) {
 		Stepper &s = Stepper::instance();
@@ -179,12 +182,13 @@ Message *HAL::receiveMessage()
 void HAL::startTimer(uint32_t period)
 {
 	Simulator &sim = Simulator::instance();
+    sim.timerError_ += std::chrono::duration<double>(5.e-6 * period);
+    sim.timerStart_ = std::chrono::steady_clock::now();
 	sim.time_ += 5.e-6 * period;
 
 	// below a certain threshold, just go as fast as possible
-	if (period >= 200) {
-		period -= 85;  // fudge factor to roughly account for overhead
-		sim.stepTimer_.expires_from_now(boost::posix_time::microseconds(period * 5));
+    if (sim.timerError_ > std::chrono::milliseconds(100)) {
+		sim.stepTimer_.expires_from_now(boost::posix_time::microseconds(1.e6*sim.timerError_.count()));
 		sim.stepTimer_.async_wait(boost::bind(&Simulator::stepTimerExpired, &sim, boost::asio::placeholders::error));
 	}
 	else {

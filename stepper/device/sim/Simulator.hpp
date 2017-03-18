@@ -18,6 +18,7 @@
 #include <boost/asio.hpp>
 #include <StepDir.hpp>
 #include <HAL.hpp>
+#include <chrono>
 
 namespace stepper { namespace device {
 
@@ -90,6 +91,8 @@ private:
 	boost::mutex posLock_;
 	LimitType limit_;
 	double time_{ 0. };
+    std::chrono::duration<double> timerError_{ 0 };
+    std::chrono::steady_clock::time_point timerStart_;
 
 	void runOnce(const boost::system::error_code &ec);
 	void stepTimerExpired(const boost::system::error_code &ec);

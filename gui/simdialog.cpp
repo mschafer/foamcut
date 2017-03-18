@@ -131,11 +131,11 @@ void SimDialog::on_clear_button_clicked()
 	auto &sim = stepper::device::Simulator::instance();
 	sim.clearLog();
 
-	auto lCurve = static_cast<QCPCurve*>(ui->plot->plottable(LEFT_CURVE));
+    auto lCurve = static_cast<QCPCurve*>(ui->plot->plottable(LEFT_CURVE));
 	auto rCurve = static_cast<QCPCurve*>(ui->plot->plottable(RIGHT_CURVE));
 	lCurve->clearData();
 	rCurve->clearData();
-	update();
+    update();
 }
 
 void SimDialog::my_limit_editingFinished()
@@ -147,10 +147,10 @@ void SimDialog::my_limit_editingFinished()
 	double ySize = app->yStepSize();
 
 
-	limits[stepper::device::StepDir::X_AXIS].low_ =  static_cast<int>(ui->xLowerLimit_edit->text().toDouble() * xSize);
-	limits[stepper::device::StepDir::X_AXIS].high_ = static_cast<int>(ui->xUpperLimit_edit->text().toDouble() * xSize);
-	limits[stepper::device::StepDir::Y_AXIS].low_ =  static_cast<int>(ui->yLowerLimit_edit->text().toDouble() * ySize);
-	limits[stepper::device::StepDir::Y_AXIS].high_ = static_cast<int>(ui->yUpperLimit_edit->text().toDouble() * ySize);
+	limits[stepper::device::StepDir::X_AXIS].low_ =  static_cast<int>(ui->xLowerLimit_edit->text().toDouble() / xSize);
+	limits[stepper::device::StepDir::X_AXIS].high_ = static_cast<int>(ui->xUpperLimit_edit->text().toDouble() / xSize);
+	limits[stepper::device::StepDir::Y_AXIS].low_ =  static_cast<int>(ui->yLowerLimit_edit->text().toDouble() / ySize);
+	limits[stepper::device::StepDir::Y_AXIS].high_ = static_cast<int>(ui->yUpperLimit_edit->text().toDouble() / ySize);
 
 	// set right side limits to be the same as left side
 	limits[stepper::device::StepDir::Z_AXIS].low_ = limits[stepper::device::StepDir::X_AXIS].low_;
