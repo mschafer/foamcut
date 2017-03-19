@@ -17,6 +17,7 @@
 #include <StepperDictionary.hpp>
 #include <boost/ptr_container/ptr_deque.hpp>
 #include <boost/shared_ptr.hpp>
+#include <iostream>
 
 namespace stepper {
 
@@ -75,6 +76,11 @@ public:
 	 * \return The expected time it will take this script to run in seconds.
 	 */
 	double duration() const { return duration_;  }
+    
+    /**
+     * Read only access to the encoded script for debugging.
+     */
+    const std::deque<uint8_t> &bytes() const { return bytes_; }
 
 private:
 	std::deque<uint8_t> bytes_;
@@ -83,5 +89,7 @@ private:
 };
 
 }
+
+std::ostream & operator << (std::ostream &os, const stepper::Script &script);
 
 #endif

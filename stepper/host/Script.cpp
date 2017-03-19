@@ -130,3 +130,106 @@ Script::generateMessages() const
 }
 
 }
+
+std::ostream & operator << (std::ostream &os, const stepper::Script &script)
+{
+    using stepper::device::Engine;
+    using stepper::device::Stepper;
+    
+    int x = 0;
+    int y = 0;
+    int z = 0;
+    int u = 0;
+    double time = 0.;
+    auto bit = script.bytes().begin();
+    while (bit != script.bytes().end()) {
+        switch(*bit) {
+            case Engine::NO_OP_CMD:
+                ++bit;
+                break;
+                
+            case Engine::SINGLE_STEP_CMD:
+            {
+                Engine::SingleStepCmd ssc;
+                ++bit;
+                std::copy(bit, bit+sizeof(Engine::SingleStepCmd), reinterpret_cast<uint8_t*>(&ssc));
+                bit += sizeof(Engine::SingleStepCmd);
+                time += ssc.delay_ * Stepper::TIMER_PERIOD_USEC * 1.e-6;
+                if (ssc.stepDir_.xStep()) x += ssc.stepDir_.xDir() ? -1. : 1.;
+                if (ssc.stepDir_.yStep()) y += ssc.stepDir_.yDir() ? -1. : 1.;
+                if (ssc.stepDir_.zStep()) z += ssc.stepDir_.zDir() ? -1. : 1.;
+                if (ssc.stepDir_.uStep()) u += ssc.stepDir_.uDir() ? -1. : 1.;
+                os << x << "\t" << y << "\t" << z << "\t" << u << "\t" << time << std::endl;
+                break;
+            }
+                
+            case Engine::LINE_CMD:
+            {
+                Engine::LineCmd lc;
+                ++bit;
+                std::copy(bit, bit+sizeof(Engine::LineCmd), reinterpret_cast<uint8_t*>(&lc));
+                bit += sizeof(Engine::LineCmd);
+                time += lc.time_ * Stepper::TIMER_PERIOD_USEC * 1.e-6;
+                x += lc.dx_;
+                y += lc.dy_;
+                z += lc.dz_;
+                u += lc.du_;
+                os << x << "\t" << y << "\t" << z << "\t" << u << "\t" << time << std::endl;
+                break;
+            }
+
+            case Engine::LONG_LINE_CMD:
+            {
+                Engine::LongLineCmd llc;
+                ++bit;
+                std::copy(bit, bit+sizeof(Engine::LongLineCmd), reinterpret_cast<uint8_t*>(&llc));
+                bit += sizeof(Engine::LongLineCmd);
+                time += llc.time_ * Stepper::TIMER_PERIOD_USEC * 1.e-6;
+                x += llc.dx_;
+                y += llc.dy_;
+                z += llc.dz_;
+                u += llc.du_;
+                os << x << "\t" << y << "\t" << z << "\t" << u << "\t" << time << std::endl;
+                break;
+            }
+
+            case Engine::DELAY_CMD:
+            {
+                Engine::DelayCmd dc;
+                ++bit;
+                std::copy(bit, bit+sizeof(Engine::DelayCmd), reinterpret_cast<uint8_t*>(&dc));
+                bit += sizeof(Engine::DelayCmd);
+                time += dc.delay_ * Stepper::TIMER_PERIOD_USEC * 1.e-6;
+                os << x << "\t" << y << "\t" << z << "\t" << u << "\t" << time << std::endl;
+                break;
+            }
+
+            case Engine::HOME_CMD:
+            {
+                Engine::SingleStepCmd hc;
+                ++bit;
+                std::copy(bit, bit+sizeof(Engine::HomeCmd), reinterpret_cast<uint8_t*>(&hc));
+                bit += sizeof(Engine::HomeCmd);
+                x = y = z = u = 0;
+                os << x << "\t" << y << "\t" << z << "\t" << u << "\t" << time << std::endl;
+                break;
+            }
+
+            case Engine::DONE_CMD:
+            {
+                ++bit;
+                break;
+            }
+
+            case Engine::NONE_CMD:
+            {
+                ++bit;
+                break;
+            }
+                
+            default:
+                throw std::runtime_error("operator<< bad script");
+        }
+    }
+    return os;
+}

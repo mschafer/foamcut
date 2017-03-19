@@ -18,6 +18,7 @@
 #include "Script.hpp"
 #include <Logger.hpp>
 #include <boost/asio.hpp>
+#include <fstream>
 
 namespace stepper {
 
@@ -99,7 +100,14 @@ void Host::executeScript(const Script &s)
 	if (scriptRunning()) {
 		throw std::runtime_error("Host::executeScript failed, device is not idle");
 	}
-
+    
+#if 0
+    const char *dump = tmpnam(nullptr);
+    std::ofstream o(dump);
+    o << s;
+    o.close();
+#endif
+    
 	scriptMsgs_ = s.generateMessages();
 	scriptMsgCount_ = static_cast<int>(scriptMsgs_->size());
 	scriptMsgAckd_ = 0;
