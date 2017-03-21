@@ -182,9 +182,10 @@ Message *HAL::receiveMessage()
 void HAL::startTimer(uint32_t period)
 {
 	Simulator &sim = Simulator::instance();
-    sim.timerError_ += std::chrono::duration<double>(5.e-6 * period);
+    double tick = (double)Stepper::TIMER_PERIOD_USEC * 1.e-6;
+    sim.timerError_ += std::chrono::duration<double>(tick * period);
     sim.timerStart_ = std::chrono::steady_clock::now();
-	sim.time_ += 5.e-6 * period;
+	sim.time_ += tick * period;
 
 	// below a certain threshold, just go as fast as possible
     if (sim.timerError_ > std::chrono::milliseconds(100)) {
