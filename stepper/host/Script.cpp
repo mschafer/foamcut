@@ -58,7 +58,7 @@ Script::addLine(int16_t dx, int16_t dy, int16_t dz, int16_t du, double duration)
 	amaxd = std::max(amaxd, abs(dy));
 	amaxd = std::max(amaxd, abs(dz));
 	amaxd = std::max(amaxd, abs(du));
-	if (-amaxd < std::numeric_limits<int8_t>::min()) {
+	if (amaxd > 127) {
 		device::Engine::LongLineCmd llc;
 		llc.time_ = dtime;
 		llc.dx_ = dx;
