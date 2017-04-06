@@ -154,6 +154,7 @@ bool Engine::parseNextCommand()
 		HomeCmd *h = reinterpret_cast<HomeCmd*>(cmd_);
 		steps_.push(Line::NextStep(h->delay_, h->stepDir_, Line::NextStep::HOME_FLAG));
 	}
+    break;
 
 	case DONE_CMD:
 		if (steps_.empty()) {
