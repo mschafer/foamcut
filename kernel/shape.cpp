@@ -351,9 +351,16 @@ Shape::fitLineSegment(double s0, double eps) const
 		}
 		p = evaluate(s0 + ds);
 		kappa_max = std::max(kappa_max, fabs(p.curvature()));
-		if (kappa_max != 0) {
-			err = (1./kappa_max) * (1. - cos(.5 * kappa_max * ds));
-		}
+        if (kappa_max != 0) {
+            // small angle approximation
+            err = (1. / kappa_max) * (1. - cos(.5 * kappa_max * ds));
+        }
+
+        // small angle is invalid
+        if (ds * kappa_max > .75) {
+            s_end = s0 + ds;
+            break;
+        }
 	}
 	return s_end;
 }
