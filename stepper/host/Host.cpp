@@ -76,11 +76,12 @@ void Host::connectToSimulator()
 	throw std::runtime_error("conect to sim failed");
 }
 
-void Host::connectToDevice(const std::string &portName)
+    void Host::connectToDevice(const std::string &portName, device::StepDir invertMask)
 {
 	link_.reset(new CDCLink(portName, impl_->ios_));
 
 	device::ConnectMsg *cm = new device::ConnectMsg();
+    cm->invertMask_ = invertMask;
 	link_->send(cm);
 	for (int iter = 0; iter<10; ++iter) {
 		if (connected() && deviceStatus_) return;

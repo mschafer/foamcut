@@ -333,7 +333,15 @@ void FoamcutApp::connectToDevice()
 	emit connectionChanged(false);
 	if (currentPort_.isValid()) {
 		try {
-			host_->connectToDevice(currentPort_.systemLocation().toStdString());
+            stepper::device::StepDir invertMask;
+            if (activeLowSteps()) {
+                invertMask.xStep(true); invertMask.yStep(true);
+                invertMask.zStep(true); invertMask.uStep(true);
+            }
+            invertMask.xDir(xLeftReverse()); invertMask.yDir(yLeftReverse());
+            invertMask.zDir(xRightReverse()); invertMask.uDir(yRightReverse());
+            
+			host_->connectToDevice(currentPort_.systemLocation().toStdString(), invertMask);
 			emit connectionChanged(true);
 		}
 

@@ -17,7 +17,7 @@
 #include <QSerialPortInfo>
 #include <memory>
 #include <Host.hpp>
-#include <Shape.hpp>
+#include <shape.hpp>
 #include <stepper_info.hpp>
 #include "mainwindow.h"
 

@@ -41,7 +41,7 @@ public:
 	 */
 	void connectToSimulator();
 
-	void connectToDevice(const std::string &portName);
+    void connectToDevice(const std::string &portName, device::StepDir invertMask);
 
 	/**
 	 * Initiates execution of a script on the device.

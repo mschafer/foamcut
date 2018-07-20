@@ -74,6 +74,7 @@ void SetupDialog::accept()
 	int maxStepRate = ui->maxStepRate_edit->text().toInt();
 	app->maxStepRate(maxStepRate);
 
+    app->activeLowSteps(ui->activeLowStep_check->isChecked());
 	app->xLeftReverse(ui->xLeftReverse_check->isChecked());
 	app->xRightReverse(ui->xRightReverse_check->isChecked());
 	app->yLeftReverse(ui->yLeftReverse_check->isChecked());
