@@ -19,7 +19,6 @@
 #include <boost/log/sinks.hpp>
 #include <boost/log/attributes.hpp>
 #include <boost/log/expressions.hpp>
-#include <boost/utility/empty_deleter.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/support/date_time.hpp>
 #include <Logger.hpp>

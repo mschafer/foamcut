@@ -189,7 +189,7 @@ void HAL::startTimer(uint32_t period)
 
 	// below a certain threshold, just go as fast as possible
     if (sim.timerError_ > std::chrono::milliseconds(100)) {
-		sim.stepTimer_.expires_from_now(boost::posix_time::microseconds(1.e6*sim.timerError_.count()));
+		sim.stepTimer_.expires_from_now(boost::posix_time::microseconds(static_cast<size_t>(1.e6*sim.timerError_.count())));
 		sim.stepTimer_.async_wait(boost::bind(&Simulator::stepTimerExpired, &sim, boost::asio::placeholders::error));
 	}
 	else {

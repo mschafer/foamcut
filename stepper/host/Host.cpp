@@ -240,7 +240,7 @@ void Host::runOnce(const boost::system::error_code& error)
 	}
 
 	if (!impl_->ios_.stopped()) {
-		impl_->timer_.expires_from_now(boost::posix_time::milliseconds(BACKGROUND_PERIOD_MSEC));
+		impl_->timer_.expires_from_now(boost::posix_time::milliseconds((int)BACKGROUND_PERIOD_MSEC));
 		impl_->timer_.async_wait(boost::bind(&Host::runOnce, this, boost::asio::placeholders::error));
 	}
 }

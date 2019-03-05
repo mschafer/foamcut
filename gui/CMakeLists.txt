@@ -68,8 +68,10 @@ add_executable(foamcut_gui
   $<TARGET_OBJECTS:stepper_sim>
 )
 
-qt5_use_modules(foamcut_gui Widgets PrintSupport SerialPort)
 target_link_libraries( foamcut_gui
+  Qt5::Widgets
+  Qt5::PrintSupport
+  Qt5::SerialPort
   ${Boost_LIBRARIES}
 )
 

@@ -17,7 +17,6 @@
 #include <boost/log/sinks.hpp>
 #include <boost/log/attributes.hpp>
 #include <boost/log/expressions.hpp>
-#include <boost/utility/empty_deleter.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/support/date_time.hpp>
 #include "Logger.hpp"
@@ -55,7 +54,7 @@ void Logger::addConsoleSink()
 	boost::shared_ptr< sinks::text_ostream_backend > backend =
 			boost::make_shared< sinks::text_ostream_backend >();
 	backend->add_stream(
-			boost::shared_ptr< std::ostream >(&std::clog, boost::empty_deleter()));
+			boost::shared_ptr< std::ostream >(&std::clog));
 
 	// Enable auto-flushing after each log record written
 	backend->auto_flush(true);
